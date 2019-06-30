@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1561933104588,
+  "timestamp": 1561936273566,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -65469,
+    "modulationColor": -16711787,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -105,7 +105,7 @@
               "exp": 0.0
             },
             "children": {},
-            "basis": 0.3110401418826921
+            "basis": 0.7839840469597138
           }
         ],
         "modulations": [
@@ -412,20 +412,20 @@
               "slope": 6.599999785423279,
               "Band-1": 0.0,
               "Band-2": 0.0,
-              "Band-3": 0.0,
-              "Band-4": 0.0,
-              "Band-5": 0.014013170792333995,
-              "Band-6": 0.0,
-              "Band-7": 0.014472551807336642,
-              "Band-8": 0.0,
-              "Band-9": 0.020065783820754746,
-              "Band-10": 0.1866317902968011,
-              "Band-11": 0.27854945572441403,
-              "Band-12": 0.40636520512705754,
-              "Band-13": 0.5098161865832511,
-              "Band-14": 0.37523935144619935,
-              "Band-15": 0.2380332208089314,
-              "Band-16": 0.1946074853549441
+              "Band-3": 0.013084147133256452,
+              "Band-4": 0.09903604782885733,
+              "Band-5": 0.10499743930314909,
+              "Band-6": 0.05404887080136589,
+              "Band-7": 0.027467481300513796,
+              "Band-8": 0.14832604362174306,
+              "Band-9": 0.19359327393378134,
+              "Band-10": 0.2794581986142982,
+              "Band-11": 0.30535242436188614,
+              "Band-12": 0.3943756348977119,
+              "Band-13": 0.4973101554014173,
+              "Band-14": 0.39355992852160415,
+              "Band-15": 0.2618046377294432,
+              "Band-16": 0.2407559176433849
             },
             "children": {}
           }
@@ -952,7 +952,7 @@
             "parameters": {
               "label": "Blur",
               "enabled": true,
-              "amount": 0.4999999888241291
+              "amount": 0.5
             },
             "children": {
               "modulation": {
@@ -972,7 +972,7 @@
           }
         ],
         "clips": [],
-        "patternIndex": 3,
+        "patternIndex": 4,
         "patterns": [
           {
             "id": 247,
@@ -1105,6 +1105,34 @@
                 "id": 1361,
                 "class": "heronarts.lx.LXModulationEngine",
                 "modulationColor": -10747649,
+                "internal": {},
+                "parameters": {
+                  "label": "Modulation"
+                },
+                "children": {},
+                "modulators": [],
+                "modulations": [],
+                "triggers": []
+              }
+            }
+          },
+          {
+            "id": 2767,
+            "class": "art.lookingup.patterns.IceCream",
+            "modulationColor": -2752768,
+            "internal": {
+              "expanded": true,
+              "modulationExpanded": false,
+              "autoCycleEligible": true
+            },
+            "parameters": {
+              "label": "IceCream"
+            },
+            "children": {
+              "modulation": {
+                "id": 2768,
+                "class": "heronarts.lx.LXModulationEngine",
+                "modulationColor": -16711852,
                 "internal": {},
                 "parameters": {
                   "label": "Modulation"
@@ -1683,22 +1711,22 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 16276.542558034365,
-          "theta": 8.307741976742726,
-          "phi": 0.3457811897344862,
-          "x": 4.666718079941347,
-          "y": 3.5172180980443954,
-          "z": 2.317202358972281
+          "radius": 27561.069439163133,
+          "theta": 9.970938070621685,
+          "phi": 0.1798520187356336,
+          "x": -2135.586717770202,
+          "y": 8194.708075031638,
+          "z": 449.60087040020153
         },
         "cue": [
           {
             "active": false,
-            "radius": 16276.542558034365,
-            "theta": 8.307741976742726,
-            "phi": 0.3457811897344862,
-            "x": 4.666718079941347,
-            "y": 3.5172180980443954,
-            "z": 2.317202358972281
+            "radius": 27561.069439163133,
+            "theta": 9.970938070621685,
+            "phi": 0.1798520187356336,
+            "x": -2135.586717770202,
+            "y": 8194.708075031638,
+            "z": 449.60087040020153
           },
           {
             "active": false,

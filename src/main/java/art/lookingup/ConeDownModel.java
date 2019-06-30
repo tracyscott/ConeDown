@@ -68,8 +68,9 @@ public class ConeDownModel extends LXModel {
   public static double computedHeight= 1f;
   public static double rowIncrementLength;
   public static double colIncrementLength;
-  public static List<LXPoint> frontPoints = new ArrayList<LXPoint>();
-  public static List<LXPoint> backPoints = new ArrayList<LXPoint>();
+  public static List<LXPoint> conePoints = new ArrayList<LXPoint>();
+  public static List<LXPoint> scoopPoints = new ArrayList<LXPoint>();
+  public static List<LXPoint> dancePoints = new ArrayList<LXPoint>();
 
   // These are populated in Output when reading the wiring.txt file.
   public static List<Integer> frontWiringOrder = new ArrayList<Integer>();
@@ -151,6 +152,7 @@ public class ConeDownModel extends LXModel {
             panel8Radius, true);
         xOffset += panel8Width;
         allPoints.addAll(panel.getPoints());
+        scoopPoints.addAll(panel.getPoints());
         System.out.println("Adding " + panel.getPoints().size() + " points");
       }
       yOffset += panel8Height;
@@ -162,6 +164,7 @@ public class ConeDownModel extends LXModel {
           panel7Radius, true);
       xOffset += panel7Width;
       allPoints.addAll(panel.getPoints());
+      scoopPoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
     }
     yOffset += panel7Height;
@@ -171,6 +174,7 @@ public class ConeDownModel extends LXModel {
           panel6Radius, false);
       xOffset += panel6Width;
       allPoints.addAll(panel.getPoints());
+      conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
     }
     yOffset += panel6Height;
@@ -180,6 +184,7 @@ public class ConeDownModel extends LXModel {
           panel5Radius, false);
       xOffset += panel5Width;
       allPoints.addAll(panel.getPoints());
+      conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
     }
     yOffset += panel5Height;
@@ -189,6 +194,7 @@ public class ConeDownModel extends LXModel {
           panel4Radius, false);
       xOffset += panel4Width;
       allPoints.addAll(panel.getPoints());
+      conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
     }
     yOffset += panel4Height;
@@ -198,6 +204,7 @@ public class ConeDownModel extends LXModel {
           panel3Radius, false);
       xOffset += panel3Width;
       allPoints.addAll(panel.getPoints());
+      conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
     }
     yOffset += panel3Height;
@@ -207,6 +214,7 @@ public class ConeDownModel extends LXModel {
           panel2Radius, false);
       xOffset += panel2Width;
       allPoints.addAll(panel.getPoints());
+      conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
     }
     yOffset += panel2Height;
@@ -216,6 +224,7 @@ public class ConeDownModel extends LXModel {
           panel1Radius, false);
       xOffset += panel1Width;
       allPoints.addAll(panel.getPoints());
+      conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
     }
     yOffset += panel1Height;
