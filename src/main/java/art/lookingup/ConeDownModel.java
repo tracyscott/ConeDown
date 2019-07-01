@@ -20,6 +20,16 @@ public class ConeDownModel extends LXModel {
   public static double maxX = Float.MIN_VALUE;
   public static double maxY = Float.MIN_VALUE;
 
+  public static double minConeX = Float.MAX_VALUE;
+  public static double minConeY = Float.MAX_VALUE;
+  public static double maxConeX = Float.MIN_VALUE;
+  public static double maxConeY = Float.MIN_VALUE;
+
+  public static double minScoopX = Float.MAX_VALUE;
+  public static double minScoopY = Float.MAX_VALUE;
+  public static double maxScoopX = Float.MIN_VALUE;
+  public static double maxScoopY = Float.MIN_VALUE;
+
   public static float inchesPerMeter = 39.3701f;
   static public float panelMargin = 2.0f * inchesPerMeter;
   static public float panel8Radius = 9.0f * 12.0f * inchesPerMeter;
@@ -66,8 +76,18 @@ public class ConeDownModel extends LXModel {
 
   public static double computedWidth = 1f;
   public static double computedHeight= 1f;
+  public static double computedConeWidth = 1f;
+  public static double computedConeHeight = 1f;
+  public static double computedScoopWidth = 1f;
+  public static double computedScoopHeight = 1f;
+
   public static double rowIncrementLength;
   public static double colIncrementLength;
+  public static double rowConeIncrLength;
+  public static double colConeIncrLength;
+  public static double rowScoopIncrLength;
+  public static double colScoopIncrLength;
+
   public static List<LXPoint> conePoints = new ArrayList<LXPoint>();
   public static List<LXPoint> scoopPoints = new ArrayList<LXPoint>();
   public static List<LXPoint> dancePoints = new ArrayList<LXPoint>();
@@ -246,16 +266,40 @@ public class ConeDownModel extends LXModel {
       if (p.y > maxY) maxY = p.y;
       pointCount++;
     }
+    for (LXPoint p : conePoints) {
+      if (p.x < minConeX) minConeX = p.x;
+      if (p.y < minConeY) minConeY = p.y;
+      if (p.x > maxConeX) maxConeX = p.x;
+      if (p.x > maxConeY) maxConeY = p.y;
+    }
+    for (LXPoint p : scoopPoints) {
+      if (p.x < minScoopX) minScoopX = p.x;
+      if (p.y < minScoopY) minScoopY = p.y;
+      if (p.x > maxScoopX) maxScoopX = p.x;
+      if (p.x > maxScoopY) maxScoopY = p.y;
+    }
+
     System.out.println("Total points: " + pointCount);
 
     computedWidth = maxX - minX;
     computedHeight = maxY - minY;
+    computedConeWidth = maxConeX - minConeX;
+    computedConeHeight = maxConeY - minConeY;
+    computedScoopWidth = maxScoopX - minScoopX;
+    computedScoopHeight = maxScoopY - minScoopY;
+
     colIncrementLength = computedWidth / (POINTS_WIDE - 1);
     rowIncrementLength = computedHeight  / (POINTS_HIGH - 1);
+    colConeIncrLength = computedConeWidth / (POINTS_WIDE - 1);
+    rowConeIncrLength = computedConeHeight / (POINTS_HIGH - 1);
+    colScoopIncrLength = computedScoopWidth / (POINTS_WIDE - 1);
+    rowScoopIncrLength = computedScoopHeight / (POINTS_HIGH - 1);
   }
 
 
 
+  // Project the point into the image.  This currently just projects onto the
+  // X,Y plane.
   public static int[] pointToImageCoordinates(LXPoint p) {
     int[] coordinates = {0, 0};
     double offsetX = p.x - minX;
@@ -269,6 +313,8 @@ public class ConeDownModel extends LXModel {
     return coordinates;
   }
 
+  // TODO(tracy): This doesn't make much sense for ConeDown.  The equivalent should
+  // be a mapping to a cylinder.
   public static int[] pointToImageCoordinatesWide(LXPoint p) {
     int[] coordinates = {0, 0};
     double offsetX = p.x - minX;
