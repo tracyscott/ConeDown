@@ -399,7 +399,7 @@ public class ConeDownModel extends LXModel {
     int[] coordinates = {0, 0};
     float xScale = (float)POINTS_WIDE / ((float)p.panel.pointsWide * ((p.panel.scoop)?scoopSides:coneSides));
     coordinates[0] = p.panel.panelNum * p.panel.pointsWide + (int)(p.xCoord * xScale);
-    coordinates[1] = p.panel.yCoordOffset + p.yCoord;
+    coordinates[1] = (POINTS_HIGH-1) - (p.panel.yCoordOffset + p.yCoord);
     return coordinates;
   }
 
