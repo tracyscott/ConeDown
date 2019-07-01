@@ -67,7 +67,7 @@ class RenderImageUtil {
     image.loadPixels();
     for (int cindex = 0; cindex < colors.length; cindex++) {
       CXPoint p = (CXPoint) lxModel.points[cindex];
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder(p);
+      int[] imgCoords = ConeDownModel.pointToImageCoordinates(p); //ConeDownModel.pointToImgCoordsCylinder(p);
       colors[cindex] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
     }
   }
