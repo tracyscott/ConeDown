@@ -1,5 +1,6 @@
 package art.lookingup.patterns;
 
+import art.lookingup.CXPoint;
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 
@@ -65,8 +66,8 @@ class RenderImageUtil {
 
     image.loadPixels();
     for (int cindex = 0; cindex < colors.length; cindex++) {
-      LXPoint p = lxModel.points[cindex];
-      int[] imgCoords = ConeDownModel.pointToImageCoordinates(p);
+      CXPoint p = (CXPoint) lxModel.points[cindex];
+      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder(p);
       colors[cindex] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
     }
   }

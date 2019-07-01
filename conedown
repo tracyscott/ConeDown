@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1561940262089,
+  "timestamp": 1561969809808,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -34816,
+    "modulationColor": -16711876,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -27,7 +27,7 @@
       "crossfader": 0.5,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 8,
+      "focusedChannel": 4,
       "cueA": false,
       "cueB": false,
       "multithreaded": true,
@@ -105,7 +105,7 @@
               "exp": 0.0
             },
             "children": {},
-            "basis": 0.3165394927874991
+            "basis": 0.02695130506009168
           }
         ],
         "modulations": [
@@ -413,19 +413,19 @@
               "Band-1": 0.0,
               "Band-2": 0.0,
               "Band-3": 0.0,
-              "Band-4": 0.0,
-              "Band-5": 0.0,
-              "Band-6": 0.0,
-              "Band-7": 0.0,
-              "Band-8": 0.1038879156596374,
-              "Band-9": 0.24233847678867626,
-              "Band-10": 0.3143855068805862,
-              "Band-11": 0.39047025132420343,
-              "Band-12": 0.40476038289624416,
-              "Band-13": 0.5184273473025929,
-              "Band-14": 0.39017080032589135,
-              "Band-15": 0.24596537958589548,
-              "Band-16": 0.19691891875148826
+              "Band-4": 0.13191690362505504,
+              "Band-5": 0.3002942531851266,
+              "Band-6": 0.5192310227643067,
+              "Band-7": 0.6506138425201835,
+              "Band-8": 0.7290805171026229,
+              "Band-9": 0.7620826848510319,
+              "Band-10": 0.7240617543139314,
+              "Band-11": 0.7237385794710602,
+              "Band-12": 0.8881947266458504,
+              "Band-13": 0.9905432666067352,
+              "Band-14": 1.0,
+              "Band-15": 1.0,
+              "Band-16": 0.8156505870404186
             },
             "children": {}
           }
@@ -924,7 +924,7 @@
         "parameters": {
           "label": "SPECIAL",
           "arm": false,
-          "selected": false,
+          "selected": true,
           "enabled": true,
           "cue": false,
           "fader": 1.0,
@@ -981,7 +981,7 @@
             "parameters": {
               "label": "Mask",
               "enabled": true,
-              "cone": false,
+              "cone": true,
               "scoop": true
             },
             "children": {
@@ -1111,24 +1111,24 @@
             "class": "art.lookingup.patterns.RTracers",
             "modulationColor": -65506,
             "internal": {
-              "expanded": false,
+              "expanded": true,
               "modulationExpanded": false,
               "autoCycleEligible": true
             },
             "parameters": {
               "label": "RTracers",
               "Fps": 24.000000357627872,
-              "palette": 10,
+              "palette": 0,
               "blur": 0.4999999888241291,
               "num": 200.0,
-              "max": 10.140000779181719,
+              "max": 18.960000582039356,
               "min": 3.8699999805539855,
               "minv": 1.8999999798834322,
-              "maxv": 6.600001193583012,
+              "maxv": 10.800001099705696,
               "off": 0.0,
               "falpha": 1.0,
               "sat": 1.0,
-              "RandomPlt": true
+              "RandomPlt": false
             },
             "children": {
               "modulation": {
@@ -1667,8 +1667,8 @@
         "parameters": {
           "label": "RBW",
           "arm": false,
-          "selected": true,
-          "enabled": true,
+          "selected": false,
+          "enabled": false,
           "cue": false,
           "fader": 1.0,
           "crossfadeGroup": 0,
@@ -1695,7 +1695,7 @@
             "parameters": {
               "label": "Mask",
               "enabled": true,
-              "cone": true,
+              "cone": false,
               "scoop": false
             },
             "children": {
@@ -1800,22 +1800,22 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 20108.34880878203,
-          "theta": 11.564834409681954,
-          "phi": 0.058170633326085894,
-          "x": -2135.586717770202,
-          "y": 8194.708075031638,
-          "z": 449.60087040020153
+          "radius": 9420.665647414573,
+          "theta": 22.345076919128417,
+          "phi": 1.4137166738510132,
+          "x": -169.1226631856989,
+          "y": 6088.760995849967,
+          "z": -968.3287059967406
         },
         "cue": [
           {
             "active": false,
-            "radius": 20108.34880878203,
-            "theta": 11.564834409681954,
-            "phi": 0.058170633326085894,
-            "x": -2135.586717770202,
-            "y": 8194.708075031638,
-            "z": 449.60087040020153
+            "radius": 9420.665647414573,
+            "theta": 22.345076919128417,
+            "phi": 1.4137166738510132,
+            "x": -169.1226631856989,
+            "y": 6088.760995849967,
+            "z": -968.3287059967406
           },
           {
             "active": false,
@@ -1865,7 +1865,7 @@
         ],
         "focus": 0,
         "pointCloud": {
-          "pointSize": 2.440000168979168
+          "pointSize": 4.060000132769346
         }
       }
     }

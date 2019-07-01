@@ -142,6 +142,7 @@ public class ConeDownModel extends LXModel {
         double panelXFinish = radius * Math.sin(Math.toRadians(panelAngle + angleIncr));
         double panelZFinish = radius * Math.cos(Math.toRadians(panelAngle + angleIncr));
 
+        System.out.println("yCoordOffset: " + yCoordOffset);
         pointsHigh = 0;
         int xCoord = 0;
         int yCoord = 0;
@@ -200,8 +201,8 @@ public class ConeDownModel extends LXModel {
         System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
         layerWidth += panel.pointsWide;
         layerHeight = panel.pointsHigh;
-        yCoordOffset += layerHeight;
       }
+      yCoordOffset += layerHeight;
       yOffset += panel8Height;
       System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
       layerDimensions.add("" + layerWidth + "x" + layerHeight);
@@ -394,6 +395,14 @@ public class ConeDownModel extends LXModel {
     return coordinates;
   }
 
+  public static int[] pointToImgCoordsCylinder(CXPoint p) {
+    int[] coordinates = {0, 0};
+    float xScale = (float)POINTS_WIDE / ((float)p.panel.pointsWide * ((p.panel.scoop)?scoopSides:coneSides));
+    coordinates[0] = p.panel.panelNum * p.panel.pointsWide + (int)(p.xCoord * xScale);
+    coordinates[1] = p.panel.yCoordOffset + p.yCoord;
+    return coordinates;
+  }
+
   // TODO(tracy): This doesn't make much sense for ConeDown.  The equivalent should
   // be a mapping to a cylinder.
   public static int[] pointToImageCoordinatesWide(LXPoint p) {
@@ -413,6 +422,6 @@ public class ConeDownModel extends LXModel {
     return coordinates;
   }
 
-  public static final int POINTS_WIDE = 46;
-  public static final int POINTS_HIGH = 46;
+  public static final int POINTS_WIDE = 112;
+  public static final int POINTS_HIGH = 58;
 }
