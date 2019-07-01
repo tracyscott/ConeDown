@@ -105,13 +105,18 @@ public class ConeDownModel extends LXModel {
     public float yPos;
     public float zPos;
     public int panelNum;
+    public int yCoordOffset;
     public float radius;
     public boolean scoop;
+    // Keep track of how many points exist on this panel.  We need this to properly texture
+    // map our points from a render buffer image.
+    public int pointsWide;
+    public int pointsHigh;
 
     List<LXPoint> points;
 
       public Panel(float topWidth, float bottomWidth, float height, float pitch,
-                        float xPos, float yPos, float zPos, int panelNum, float radius,
+                        float xPos, float yPos, float zPos, int panelNum, int yCoordOffset, float radius,
                    boolean scoop) {
         this.topWidth = topWidth;
         this.bottomWidth = bottomWidth;
@@ -121,6 +126,7 @@ public class ConeDownModel extends LXModel {
         this.yPos = yPos;
         this.zPos = zPos;
         this.panelNum = panelNum;
+        this.yCoordOffset = yCoordOffset;
         this.radius = radius;
         this.scoop = scoop;
         float pitchInMeters = pitch * inchesPerMeter;
@@ -136,13 +142,18 @@ public class ConeDownModel extends LXModel {
         double panelXFinish = radius * Math.sin(Math.toRadians(panelAngle + angleIncr));
         double panelZFinish = radius * Math.cos(Math.toRadians(panelAngle + angleIncr));
 
+        pointsHigh = 0;
+        int xCoord = 0;
+        int yCoord = 0;
         for (float y = panelMargin; y < this.height - panelMargin; y+= pitchInMeters) {
+          pointsWide = 0;
+          xCoord = 0;
           for (float x = panelMargin; x < this.topWidth - panelMargin; x += pitchInMeters)
           {
             float percentDone = x / topWidth;
             double ptX = panelXStart + (panelXFinish-panelXStart) * percentDone;
             double ptZ = panelZStart  + (panelZFinish-panelZStart) * percentDone;
-            LXPoint point = new LXPoint(ptX, y + yPos, ptZ);
+            CXPoint point = new CXPoint(this, ptX, y + yPos, ptZ, xCoord, yCoord);
             /*float angle = panelNum * PolarAngleIncrement + (x / topWidth) * PolarAngleIncrement;
             System.out.println("angle=" + angle);
             LXPoint point = new LXPoint(Radius*Math.sin(Math.toRadians(angle)), y + yPos,
@@ -150,7 +161,11 @@ public class ConeDownModel extends LXModel {
                 */
 
             points.add(point);
+            pointsWide++;
+            xCoord++;
           }
+          pointsHigh++;
+          yCoord++;
         }
       }
 
@@ -166,91 +181,157 @@ public class ConeDownModel extends LXModel {
     float xOffset = 0f;
     float yOffset = 0f;
     float zOffset = 0f;
+    int layerWidth = 0;
+    int layerHeight = 0;
+    int yCoordOffset = 0;
+
+    List<String> layerDimensions = new ArrayList<String>();
+
     for (int rows = 0; rows < numPanel8Layers; rows++) {
+      layerWidth = 0;
       for (int panelNum = 0; panelNum < scoopSides; panelNum++) {
         Panel panel = new Panel(panel8Width, panel8Width, panel8Height, 6f, xOffset, yOffset, zOffset, panelNum,
+            yCoordOffset,
             panel8Radius, true);
         xOffset += panel8Width;
         allPoints.addAll(panel.getPoints());
         scoopPoints.addAll(panel.getPoints());
         System.out.println("Adding " + panel.getPoints().size() + " points");
+        System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+        layerWidth += panel.pointsWide;
+        layerHeight = panel.pointsHigh;
+        yCoordOffset += layerHeight;
       }
       yOffset += panel8Height;
+      System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+      layerDimensions.add("" + layerWidth + "x" + layerHeight);
       xOffset = 0f;
     }
 
+
+    layerWidth = 0;
     for (int panelNum = 0; panelNum <scoopSides; panelNum++) {
       Panel panel = new Panel(panel7Width, panel7Width, panel7Height, 6f, xOffset, yOffset, zOffset, panelNum,
-          panel7Radius, true);
+          yCoordOffset, panel7Radius, true);
       xOffset += panel7Width;
       allPoints.addAll(panel.getPoints());
       scoopPoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
+      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      layerWidth += panel.pointsWide;
+      layerHeight = panel.pointsHigh;
     }
+    yCoordOffset += layerHeight;
+    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel7Height;
 
+    layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel6Width, panel6Width, panel6Height, 6f, xOffset, yOffset, zOffset, panelNum,
-          panel6Radius, false);
+          yCoordOffset, panel6Radius, false);
       xOffset += panel6Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
+      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      layerWidth += panel.pointsWide;
+      layerHeight = panel.pointsHigh;
     }
+    yCoordOffset += layerHeight;
+    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel6Height;
 
+    layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel5Width, panel5Width, panel5Height, 6f, xOffset, yOffset, zOffset, panelNum,
-          panel5Radius, false);
+          yCoordOffset, panel5Radius, false);
       xOffset += panel5Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
+      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      layerWidth += panel.pointsWide;
+      layerHeight = panel.pointsHigh;
     }
+    yCoordOffset += layerHeight;
+    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel5Height;
 
+    layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel4Width, panel4Width, panel4Height, 6f, xOffset, yOffset, zOffset, panelNum,
-          panel4Radius, false);
+          yCoordOffset, panel4Radius, false);
       xOffset += panel4Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
+      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      layerWidth += panel.pointsWide;
+      layerHeight = panel.pointsHigh;
     }
+    yCoordOffset += layerHeight;
+    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel4Height;
 
+    layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel3Width, panel3Width, panel3Height, 6f, xOffset, yOffset, zOffset, panelNum,
-          panel3Radius, false);
+          yCoordOffset, panel3Radius, false);
       xOffset += panel3Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
+      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      layerWidth += panel.pointsWide;
+      layerHeight = panel.pointsHigh;
     }
+    yCoordOffset += layerHeight;
+    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel3Height;
 
+    layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel2Width, panel2Width, panel2Height, 6f, xOffset, yOffset, zOffset, panelNum,
-          panel2Radius, false);
+          yCoordOffset, panel2Radius, false);
       xOffset += panel2Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
+      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      layerWidth += panel.pointsWide;
+      layerHeight = panel.pointsHigh;
     }
+    yCoordOffset += layerHeight;
+    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel2Height;
 
+    layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel1Width, panel1Width, panel1Height, 6f, xOffset, yOffset, zOffset, panelNum,
-          panel1Radius, false);
+          yCoordOffset, panel1Radius, false);
       xOffset += panel1Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");
+      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      layerWidth += panel.pointsWide;
+      layerHeight = panel.pointsHigh;
     }
+    yCoordOffset += layerHeight;
+    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel1Height;
 
-
-
+    System.out.println("All Layer Dimensions:");
+    for (String dim : layerDimensions) {
+      System.out.println(dim);
+    }
 
     return new ConeDownModel(allPoints);
   }
