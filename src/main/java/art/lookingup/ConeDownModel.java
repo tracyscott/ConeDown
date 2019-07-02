@@ -2,9 +2,18 @@ package art.lookingup;
 
 import heronarts.lx.model.LXModel;
 import heronarts.lx.model.LXPoint;
+import org.jengineering.sjmply.PLY;
+import org.jengineering.sjmply.PLYElementList;
+import org.jengineering.sjmply.PLYFormat;
+import org.jengineering.sjmply.PLYType;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 // TODO(tracy): This doesn't really need to extend LXModel anymore.  We can just construct it directly
 // with wrapper.  ConeDownModel should not extend LXModel and should encompass the Tori gate dimensions,
@@ -12,7 +21,7 @@ import java.util.List;
 // multiple versions of generateLXModel() that generate multiple light placement strategies but that
 // ship has sailed.
 public class ConeDownModel extends LXModel {
-
+  private static final Logger logger = Logger.getLogger(ConeDownModel.class.getName());
   public final static int SIZE = 20;
 
   public static double minX = Float.MAX_VALUE;
@@ -376,9 +385,57 @@ public class ConeDownModel extends LXModel {
     rowConeIncrLength = computedConeHeight / (POINTS_HIGH - 1);
     colScoopIncrLength = computedScoopWidth / (POINTS_WIDE - 1);
     rowScoopIncrLength = computedScoopHeight / (POINTS_HIGH - 1);
+
+    exportPLY(points);
+   }
+
+
+  public static void exportPLY(List<LXPoint> points) {
+    PLY plyOut = new PLY(PLYFormat.BINARY_LITTLE_ENDIAN, "1.0");
+    PLYElementList plyPoints = new PLYElementList(points.size());
+    plyOut.elements.put("vertex", plyPoints);
+    plyPoints.addProperty(PLYType.FLOAT32, "x");
+    float[] xCoords = plyPoints.property(PLYType.FLOAT32,"x");
+    plyPoints.addProperty(PLYType.FLOAT32, "y");
+    float[] yCoords = plyPoints.property(PLYType.FLOAT32, "y");
+    plyPoints.addProperty(PLYType.FLOAT32, "z");
+    float[] zCoords = plyPoints.property(PLYType.FLOAT32, "z");
+    plyPoints.addProperty(PLYType.FLOAT32, "nx");
+    float[] nx = plyPoints.property(PLYType.FLOAT32, "nx");
+    plyPoints.addProperty(PLYType.FLOAT32, "ny");
+    float[] ny = plyPoints.property(PLYType.FLOAT32, "ny");
+    plyPoints.addProperty(PLYType.FLOAT32, "nz");
+    float[] nz = plyPoints.property(PLYType.FLOAT32, "nz");
+    plyPoints.addProperty(PLYType.UINT8, "red");
+    byte[] redValues = plyPoints.property(PLYType.UINT8, "red");
+    plyPoints.addProperty(PLYType.UINT8, "green");
+    byte[] greenValues = plyPoints.property(PLYType.UINT8, "green");
+    plyPoints.addProperty(PLYType.UINT8, "blue");
+    byte[] blueValues = plyPoints.property(PLYType.UINT8, "blue");
+    plyPoints.addProperty(PLYType.UINT8, "alpha");
+    byte[] alphaValues = plyPoints.property(PLYType.UINT8, "alpha");
+
+    int i = 0;
+    for (LXPoint p : points) {
+      xCoords[i] = p.x;
+      yCoords[i] = p.y;
+      zCoords[i] = p.z;
+      nx[i] = 0f;
+      ny[i] = 0f;
+      nz[i] = 0f;
+      redValues[i] = 127;
+      greenValues[i] = 127;
+      blueValues[i] = 127;
+      alphaValues[i] = 127;
+      i++;
+    }
+    Path out = Paths.get("lxpoints.ply");
+    try {
+      plyOut.save(out);
+    } catch (IOException ioex) {
+      logger.log(Level.SEVERE, ioex.getMessage());
+    }
   }
-
-
 
   // Project the point into the image.  This currently just projects onto the
   // X,Y plane.

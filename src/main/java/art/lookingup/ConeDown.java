@@ -231,6 +231,7 @@ public class ConeDown extends PApplet {
     if (enableOutput) {
       //Output.configureE131Output(lx, Output.LightType.OPPSKPAR);
       //Output.configureArtNetOutput(lx);
+      Output.configureUnityArtNet(lx);
     }
     if (disableOutputOnStart)
       lx.engine.output.enabled.setValue(false);

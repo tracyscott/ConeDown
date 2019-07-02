@@ -68,6 +68,48 @@ public class Output {
     return true;
   }
 
+  public static String artnetIpAddress = "192.168.2.136";
+  public static int artnetPort = 6454;
+
+  public static void configureUnityArtNet(LX lx) {
+    List<LXPoint> points = lx.getModel().getPoints();
+    int numUniverses = (int)Math.ceil(((double)points.size())/170.0);
+    System.out.println("Num universes: " + numUniverses);
+    List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
+    int totalPointsOutput = 0;
+
+    for (int univNum = 0; univNum < numUniverses; univNum++) {
+      int[] dmxChannelsForUniverse = new int[170];
+      for (int i = 0; i < 170 && totalPointsOutput < points.size(); i++) {
+        dmxChannelsForUniverse[i] = totalPointsOutput;
+        totalPointsOutput++;
+      }
+      System.out.println("Added points for universe number: " + univNum);
+      ArtNetDatagram artnetDatagram = new ArtNetDatagram(dmxChannelsForUniverse, univNum);
+      try {
+        artnetDatagram.setAddress(artnetIpAddress).setPort(artnetPort);
+      } catch (UnknownHostException uhex) {
+        logger.log(Level.SEVERE, "Configuring ArtNet: " + artnetIpAddress, uhex);
+      }
+      datagrams.add(artnetDatagram);
+    }
+
+
+    for (ArtNetDatagram dgram : datagrams) {
+      try {
+        datagramOutput = new LXDatagramOutput(lx);
+        datagramOutput.addDatagram(dgram);
+      } catch (SocketException sex) {
+        logger.log(Level.SEVERE, "Initializing LXDatagramOutput failed.", sex);
+      }
+      if (datagramOutput != null) {
+        lx.engine.output.addChild(datagramOutput);
+      } else {
+        logger.log(Level.SEVERE, "Did not configure output, error during LXDatagramOutput init");
+      }
+    }
+  }
+
   public static void configureArtNetOutput(LX lx) {
     loadWiring("wiring.txt");
     // This only works if we have less than 170 lxpoints.
