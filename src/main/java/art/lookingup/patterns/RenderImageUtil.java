@@ -52,8 +52,9 @@ class RenderImageUtil {
 
   /**
    * Render an image to the installation pixel-perfect.  This effectively treats the
-   * installation as a 46x46 image.  Since the pixel coordinates are in a cartesian
-   * grid, we don't need to do any sampling/anti-aliasing, etc.
+   * installation as a 112x58 image.
+   * TODO(tracy): We need to anti-alias in the X dimension because there are fewer LEDs
+   * per row near the top where the diameter is smaller.
    * <p>
    * Since we constructed our LXModel from points parsed from the cnc .svg file, our
    * points are in column-normal form so we need to transpose x,y.  Also, There are
@@ -67,7 +68,7 @@ class RenderImageUtil {
     image.loadPixels();
     for (int cindex = 0; cindex < colors.length; cindex++) {
       CXPoint p = (CXPoint) lxModel.points[cindex];
-      int[] imgCoords = ConeDownModel.pointToImageCoordinates(p); //ConeDownModel.pointToImgCoordsCylinder(p);
+      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder(p); //ConeDownModel.pointToImageCoordinates(p);
       colors[cindex] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
     }
   }
@@ -78,15 +79,6 @@ class RenderImageUtil {
       LXPoint p = lxModel.points[cindex];
       int[] imgCoords = ConeDownModel.pointToImageCoordinatesWide(p);
       colors[cindex] = image.get(imgCoords[0], imgCoords[1]);
-
-      /*
-      if (cindex > 1050) {
-        System.out.println("cindex=" + cindex + " img coords =" + imgCoords[0] + "," + imgCoords[1]);
-        colors[cindex] = Colors.YELLOW;
-      } else {
-        colors[cindex] = Colors.BLUE;
-      }
-      */
     }
   }
 }

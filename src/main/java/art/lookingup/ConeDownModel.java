@@ -7,7 +7,9 @@ import org.jengineering.sjmply.PLYElementList;
 import org.jengineering.sjmply.PLYFormat;
 import org.jengineering.sjmply.PLYType;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -40,15 +42,15 @@ public class ConeDownModel extends LXModel {
   public static double maxScoopY = Float.MIN_VALUE;
 
   public static float inchesPerMeter = 39.3701f;
-  static public float panelMargin = 2.0f * inchesPerMeter;
-  static public float panel8Radius = 9.0f * 12.0f * inchesPerMeter;
-  static public float panel7Radius = 8.0f * 12.0f * inchesPerMeter;
-  static public float panel6Radius = 7.5f * 12.0f * inchesPerMeter;
-  static public float panel5Radius = 7.0f * 12.0f * inchesPerMeter;
-  static public float panel4Radius = 6.5f * 12.0f * inchesPerMeter;
-  static public float panel3Radius = 6.0f * 12.0f * inchesPerMeter;
-  static public float panel2Radius = 5.5f * 12.0f * inchesPerMeter;
-  static public float panel1Radius = 5.0f * 12.0f * inchesPerMeter;
+  static public float panelMargin = 2.0f / inchesPerMeter;
+  static public float panel8Radius = 9.0f * 12.0f / inchesPerMeter;
+  static public float panel7Radius = 8.0f * 12.0f / inchesPerMeter;
+  static public float panel6Radius = 7.5f * 12.0f / inchesPerMeter;
+  static public float panel5Radius = 7.0f * 12.0f / inchesPerMeter;
+  static public float panel4Radius = 6.5f * 12.0f / inchesPerMeter;
+  static public float panel3Radius = 6.0f * 12.0f / inchesPerMeter;
+  static public float panel2Radius = 5.5f * 12.0f / inchesPerMeter;
+  static public float panel1Radius = 5.0f * 12.0f / inchesPerMeter;
 
   static public float coneTilt = -15.0f; // degrees around Z axis
   static public float scoopSides = 16;
@@ -60,23 +62,23 @@ public class ConeDownModel extends LXModel {
   static public float XAxisOffset = 2.5f;
   static public float YAxisOffset = 1.0f;
 
-  static public float panel8Width = (3.0f * 12.0f + 8.125f) * inchesPerMeter;
+  static public float panel8Width = (3.0f * 12.0f + 8.125f) / inchesPerMeter;
   static public float panel8Height = panel8Width;
-  static public float panel7Width = (3.0f * 12.0f + 4.765625f) * inchesPerMeter;
-  static public float panel7Height = 9.96875f * inchesPerMeter;
-  static public float panel6Width = (6.0f *12.0f + 3.34375f) * inchesPerMeter;
-  static public float panel6Height = 7.0f * inchesPerMeter;
-  static public float panel5Width = (6.0f * 12.0f + 3.375f) * inchesPerMeter;
-  static public float panel5Height = (4.0f * 12.0f + 5.609375f) * inchesPerMeter;
-  static public float panel4Width = (6.0f * 12.0f + 3.34375f) * inchesPerMeter;
-  static public float panel4TopWidth = (4.0f * 12.0f + 7.34375f) * inchesPerMeter;
-  static public float panel4Height = (2.0f * 12.0f + 9f + 5f/16f) * inchesPerMeter;
-  static public float panel3Width = (4.0f * 12.0f + 7.640625f) * inchesPerMeter;
-  static public float panel3Height = (1.0f * 12.0f + 7.59375f) * inchesPerMeter;
-  static public float panel2Width = (4.0f * 12.0f + 7.640625f) * inchesPerMeter;
-  static public float panel2Height = (5.0f * 12.0f + 5.328125f) * inchesPerMeter;
-  static public float panel1Width = (4.0f * 12.0f + 2.3125f) * inchesPerMeter;
-  static public float panel1Height = (7.0f * 12.0f + 0.578125f) * inchesPerMeter;
+  static public float panel7Width = (3.0f * 12.0f + 4.765625f) / inchesPerMeter;
+  static public float panel7Height = 9.96875f / inchesPerMeter;
+  static public float panel6Width = (6.0f *12.0f + 3.34375f) / inchesPerMeter;
+  static public float panel6Height = 7.0f / inchesPerMeter;
+  static public float panel5Width = (6.0f * 12.0f + 3.375f) / inchesPerMeter;
+  static public float panel5Height = (4.0f * 12.0f + 5.609375f) / inchesPerMeter;
+  static public float panel4Width = (6.0f * 12.0f + 3.34375f) / inchesPerMeter;
+  static public float panel4TopWidth = (4.0f * 12.0f + 7.34375f) / inchesPerMeter;
+  static public float panel4Height = (2.0f * 12.0f + 9f + 5f/16f) / inchesPerMeter;
+  static public float panel3Width = (4.0f * 12.0f + 7.640625f) / inchesPerMeter;
+  static public float panel3Height = (1.0f * 12.0f + 7.59375f) / inchesPerMeter;
+  static public float panel2Width = (4.0f * 12.0f + 7.640625f) / inchesPerMeter;
+  static public float panel2Height = (5.0f * 12.0f + 5.328125f) / inchesPerMeter;
+  static public float panel1Width = (4.0f * 12.0f + 2.3125f) / inchesPerMeter;
+  static public float panel1Height = (7.0f * 12.0f + 0.578125f) / inchesPerMeter;
 
 
   static public int panelsPerScoopLayer = 16;
@@ -100,6 +102,7 @@ public class ConeDownModel extends LXModel {
   public static List<LXPoint> conePoints = new ArrayList<LXPoint>();
   public static List<LXPoint> scoopPoints = new ArrayList<LXPoint>();
   public static List<LXPoint> dancePoints = new ArrayList<LXPoint>();
+  public static List<Panel> scoopPanels = new ArrayList<>();
 
   // These are populated in Output when reading the wiring.txt file.
   public static List<Integer> frontWiringOrder = new ArrayList<Integer>();
@@ -138,7 +141,7 @@ public class ConeDownModel extends LXModel {
         this.yCoordOffset = yCoordOffset;
         this.radius = radius;
         this.scoop = scoop;
-        float pitchInMeters = pitch * inchesPerMeter;
+        float pitchInMeters = pitch / inchesPerMeter;
         points = new ArrayList<LXPoint>();
 
         // Create LXPoints based on initial x,y,z and width and height and pitch
@@ -203,6 +206,7 @@ public class ConeDownModel extends LXModel {
         Panel panel = new Panel(panel8Width, panel8Width, panel8Height, 6f, xOffset, yOffset, zOffset, panelNum,
             yCoordOffset,
             panel8Radius, true);
+        scoopPanels.add(panel);
         xOffset += panel8Width;
         allPoints.addAll(panel.getPoints());
         scoopPoints.addAll(panel.getPoints());
@@ -387,8 +391,45 @@ public class ConeDownModel extends LXModel {
     rowScoopIncrLength = computedScoopHeight / (POINTS_HIGH - 1);
 
     exportPLY(points);
-   }
+    exportPanelSVG();
+  }
 
+  public static void exportPanelSVG() {
+    Panel p = scoopPanels.get(0);
+    File file = new File("panel.svg");
+    //file.getParentFile().mkdirs();
+
+    /*
+    <?xml version="1.0" encoding="UTF-8" ?>
+<svg width="391" height="391" viewBox="-70.5 -70.5 391 391" xmlns="http://www.w3.org/2000/svg">
+  <rect x="25" y="25" width="200" height="200" fill="lime" stroke-width="4" stroke="pink" />
+  <circle cx="125" cy="125" r="75" fill="orange" />
+  <polyline points="50,150 50,200 200,200 200,100" stroke="red" stroke-width="4" fill="none" />
+  <line x1="50" y1="50" x2="200" y2="200" stroke="blue" stroke-width="4" />
+</svg>
+     */
+    float svgWidth = p.topWidth * 1000f;
+    float svgHeight = p.height * 1000f;
+    float xPos = 0.0f;
+    float yPos = 0.0f;
+    float panelWidth = p.topWidth * 1000f;
+    float panelHeight = p.height * 1000f;
+    // viewBox="-70.5 -70.5 391 391"
+    try {
+      PrintWriter printWriter = new PrintWriter(file);
+      printWriter.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+      printWriter.println("<svg width=\"" + svgWidth + "\" height=\"" + svgHeight + "\"  xmlns=\"http://www.w3.org/2000/svg\">");
+      printWriter.println("  <rect x=\"" + xPos + "\" y=\"" + yPos + "\" width=\"" + panelWidth + "\" height=\"" + panelHeight + "\" fill=\"white\" stroke-width=\"4\" stroke=\"black\" />");
+      for (LXPoint pt : p.points) {
+        printWriter.println("<circle cx=\"" + (pt.x - p.xPos)*1000f + "\" cy=\"" + (pt.y - p.yPos) * 1000f + "\" r=\"6\" stroke-width=\"1\" stroke=\"black\" fill=\"none\" />");
+      }
+      printWriter.println("</svg>");
+      printWriter.close();
+    } catch (IOException ioex) {
+      logger.log(Level.SEVERE, "Unable to export SVG: " + ioex.getMessage());
+    }
+
+  }
 
   public static void exportPLY(List<LXPoint> points) {
     PLY plyOut = new PLY(PLYFormat.BINARY_LITTLE_ENDIAN, "1.0");
@@ -454,8 +495,9 @@ public class ConeDownModel extends LXModel {
 
   public static int[] pointToImgCoordsCylinder(CXPoint p) {
     int[] coordinates = {0, 0};
-    float xScale = (float)POINTS_WIDE / ((float)p.panel.pointsWide * ((p.panel.scoop)?scoopSides:coneSides));
-    coordinates[0] = p.panel.panelNum * p.panel.pointsWide + (int)(p.xCoord * xScale);
+    float xScale = POINTS_WIDE / ((float)p.panel.pointsWide * ((p.panel.scoop)?scoopSides:coneSides));
+    //xScale = 1f / xScale;
+    coordinates[0] = (int)((float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale);
     coordinates[1] = (POINTS_HIGH-1) - (p.panel.yCoordOffset + p.yCoord);
     return coordinates;
   }
