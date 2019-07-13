@@ -10,11 +10,15 @@ public class CXPoint extends LXPoint {
   ConeDownModel.Panel panel;
   int xCoord;
   int yCoord;
+  float angle;
+  float radius;
 
-  public CXPoint(ConeDownModel.Panel panel, double x, double y, double z, int xCoord, int yCoord) {
+  public CXPoint(ConeDownModel.Panel panel, double x, double y, double z, int xCoord, int yCoord, float angle, float radius) {
     super(x, y, z);
     this.panel = panel;
     this.xCoord = xCoord;
     this.yCoord = yCoord;
+    this.angle = angle;
+    this.radius = radius;
   }
 }

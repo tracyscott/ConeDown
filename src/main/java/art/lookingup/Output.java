@@ -68,7 +68,7 @@ public class Output {
     return true;
   }
 
-  public static String artnetIpAddress = "192.168.2.136";
+  public static String artnetIpAddress = "192.168.2.120";
   public static int artnetPort = 6454;
 
   public static void configureUnityArtNet(LX lx) {
@@ -121,8 +121,6 @@ public class Output {
 
     int outputNumber = 1;
     int universeNumber = 0;
-    ConeDownModel.frontWiringOrder = new ArrayList<Integer>();
-    ConeDownModel.backWiringOrder = new ArrayList<Integer>();
 
     while (universeNumber < RAVE_UNIVERSES) {
       for (List<Integer> indices : outputs) {
@@ -148,12 +146,7 @@ public class Output {
             int pIndex = indices.get(pointNum + chunkNumber * 170);
             if (outputNumber > RAVE_OUTPUTS/2) pIndex += 1050;
             thisUniverseIndices[pointNum] = pIndex;
-            if (outputNumber <= RAVE_OUTPUTS/2) {
-              ConeDownModel.frontWiringOrder.add(pIndex);
-            } else {
-              ConeDownModel.backWiringOrder.add(pIndex);
-            }
-          }
+           }
           System.out.println("thisUniverseIndices.length: " + thisUniverseIndices.length);
           for (int k = 0; k < thisUniverseIndices.length; k++) {
             System.out.print("" + thisUniverseIndices[k] + ",");

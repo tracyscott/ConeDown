@@ -47,6 +47,7 @@ public class Wiring extends RPattern {
   }
 
   public void renderWire(double deltaMs) {
+    /*
     int pIndex = ConeDownModel.frontWiringOrder.get(pos);
     for (int i = 0; i < colors.length; i++) {
       colors[i] = Colors.BLACK;
@@ -68,5 +69,6 @@ public class Wiring extends RPattern {
     if (pos >= ConeDownModel.frontWiringOrder.size()) {
       pos = 0;
     }
+    */
   }
 }
