@@ -141,6 +141,14 @@ public class RTracers extends PGPixelPerfect {
       else
         tracer.notShownCounter++;
       tracer.pos.x += tracer.velocityX;
+      // TODO(Tracy): Now that we are mapping to a cylinder, we would like to horizontally wrap the tracer.
+      // It also requires us to draw it twice on the left and right edges.
+      if (tracer.pos.x > pg.width) {
+        tracer.pos.x -= pg.width;
+      }
+      if (tracer.pos.x < 0) {
+        tracer.pos.x += pg.width;
+      }
       tracer.pos.y += tracer.velocityY;
       if (tracerNeedsReset(tracer)) {
         //logger.info("resetting tracer");
@@ -213,7 +221,17 @@ public class RTracers extends PGPixelPerfect {
 
     pg.fill(tracer.hsb[0], tracer.hsb[1], tracer.hsb[2], fillAlpha.getValuef());
     //pg.triangle(pt1X, pt1Y, pt2X, pt2Y, pt3X, pt3Y);
+    // If rightOverlap = pg.width - (pos.x + tracer.size/2f) < 0 then we need to redraw the ellipse at
+    // rightOverlap.
     pg.ellipse(tracer.pos.x, tracer.pos.y, tracer.size, tracer.size);
+    float rightOverlap = (float)pg.width - ((float)tracer.pos.x + tracer.size/2f);
+    if (rightOverlap < 0) {
+      pg.ellipse(-rightOverlap - tracer.size/2f, tracer.pos.y, tracer.size, tracer.size);
+    }
+    float leftEdge = (float)tracer.pos.x - ((float)tracer.size)/2f;
+    if (leftEdge < 0f) {
+      pg.ellipse(pg.width + leftEdge + tracer.size/2f, tracer.pos.y, tracer.size, tracer.size);
+    }
   }
 
   @Override
