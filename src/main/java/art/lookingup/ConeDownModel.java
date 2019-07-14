@@ -13,7 +13,9 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -112,6 +114,7 @@ public class ConeDownModel extends LXModel {
   public static List<Panel> scoopPanels = new ArrayList<Panel>();
   public static List<Panel> conePanels = new ArrayList<Panel>();
   public static List<Panel> dancePanels = new ArrayList<Panel>();
+  public static List<Panel> allPanels = new ArrayList<Panel>();
 
 
   static public class Panel {
@@ -122,6 +125,7 @@ public class ConeDownModel extends LXModel {
     };
 
     public PanelType panelType;
+    public int panelLayoutNum;
     public float topWidth;
     public float bottomWidth;
     public float height;
@@ -144,7 +148,8 @@ public class ConeDownModel extends LXModel {
 
       public Panel(float topWidth, float bottomWidth, float height, float pitch,
                         float xPos, float yPos, float zPos, int panelNum, int yCoordOffset, float radius,
-                   boolean scoop) {
+                   boolean scoop,
+                   int panelLayoutNum) {
         this.topWidth = topWidth;
         this.bottomWidth = bottomWidth;
         this.height = height;
@@ -155,6 +160,7 @@ public class ConeDownModel extends LXModel {
         this.panelNum = panelNum;
         this.yCoordOffset = yCoordOffset;
         this.radius = radius;
+        this.panelLayoutNum = panelLayoutNum;
         this.scoop = scoop;
         if (scoop) {
           panelType = PanelType.SCOOP;
@@ -208,7 +214,7 @@ public class ConeDownModel extends LXModel {
 
     /**
      * Constructor for creating the dance panels.  This only requires the X,Y dance panel coordinates, panel
-     * width dimension (they are square), width, and pitch.  For simplifying the pixel to
+     * width dimension (they are square), width, pitch, and panelLayouNum.  For simplifying the pixel to
      * image texture mapping.  Panels are ordered row by row.  Since we are on the back of the
      * installation, the first panel will have a larger X value and the fourth panel in a row will have
      * a smaller (negative) X value.  They are centered around 0 on the X Axis.  They y coord in 3D space
@@ -216,7 +222,7 @@ public class ConeDownModel extends LXModel {
      * @param danceXPanel Dance panel number in X dimension.
      * @param danceYPanel Dance panel number in Y dimension.
      */
-    public Panel(int danceXPanel, int danceYPanel, float width, float height, float pitch) {
+    public Panel(int danceXPanel, int danceYPanel, float width, float height, float pitch, int panelLayoutNum) {
       // The dance floor is on the back of the cone, so the angle = 180 degrees.  For now, we will just
       // throw it down somewhere behind the cone, centered on 0 where the the minimum Z direction is the
       // radius of the cone plus some offset.
@@ -229,6 +235,7 @@ public class ConeDownModel extends LXModel {
       this.pitch = pitch;
       this.danceXPanel = danceXPanel;
       this.danceYPanel = danceYPanel;
+      this.panelLayoutNum = panelLayoutNum;
 
       this.panelNum = danceYPanel * dancePanelsWide + danceXPanel;
       this.radius = 0f;
@@ -312,7 +319,7 @@ public class ConeDownModel extends LXModel {
     for (int danceYPanel = 0; danceYPanel < dancePanelsHigh; danceYPanel++) {
       layerWidth = 0;
       for (int danceXPanel = 0; danceXPanel < dancePanelsWide; danceXPanel++) {
-        Panel panel = new Panel(danceXPanel, danceYPanel, panel9Width, panel9Height, pitch);
+        Panel panel = new Panel(danceXPanel, danceYPanel, panel9Width, panel9Height, pitch, 9);
         dancePanels.add(panel);
         allPoints.addAll(panel.getPoints());
         dancePoints.addAll(panel.getPoints());
@@ -329,13 +336,14 @@ public class ConeDownModel extends LXModel {
       yCoordOffset += layerHeight;
       layerDimensions.add("" + layerWidth + "x" + layerHeight);
     }
+    allPanels.addAll(dancePanels);
 
     for (int rows = 0; rows < numPanel8Layers; rows++) {
       layerWidth = 0;
       for (int panelNum = 0; panelNum < scoopSides; panelNum++) {
         Panel panel = new Panel(panel8Width, panel8Width, panel8Height, pitch, xOffset, yOffset, zOffset, panelNum,
             yCoordOffset,
-            panel8Radius, true);
+            panel8Radius, true, 8);
         scoopPanels.add(panel);
         xOffset += panel8Width;
         allPoints.addAll(panel.getPoints());
@@ -352,11 +360,11 @@ public class ConeDownModel extends LXModel {
       xOffset = 0f;
     }
 
-
     layerWidth = 0;
     for (int panelNum = 0; panelNum <scoopSides; panelNum++) {
       Panel panel = new Panel(panel7Width, panel7Width, panel7Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel7Radius, true);
+          yCoordOffset, panel7Radius, true, 7);
+      scoopPanels.add(panel);
       xOffset += panel7Width;
       allPoints.addAll(panel.getPoints());
       scoopPoints.addAll(panel.getPoints());
@@ -369,11 +377,13 @@ public class ConeDownModel extends LXModel {
     System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel7Height;
+    allPanels.addAll(scoopPanels);
 
     layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel6Width, panel6Width, panel6Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel6Radius, false);
+          yCoordOffset, panel6Radius, false, 6);
+      conePanels.add(panel);
       xOffset += panel6Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
@@ -390,7 +400,8 @@ public class ConeDownModel extends LXModel {
     layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel5Width, panel5Width, panel5Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel5Radius, false);
+          yCoordOffset, panel5Radius, false, 5);
+      conePanels.add(panel);
       xOffset += panel5Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
@@ -407,7 +418,8 @@ public class ConeDownModel extends LXModel {
     layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel4Width, panel4Width, panel4Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel4Radius, false);
+          yCoordOffset, panel4Radius, false, 4);
+      conePanels.add(panel);
       xOffset += panel4Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
@@ -424,7 +436,8 @@ public class ConeDownModel extends LXModel {
     layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel3Width, panel3Width, panel3Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel3Radius, false);
+          yCoordOffset, panel3Radius, false, 3);
+      conePanels.add(panel);
       xOffset += panel3Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
@@ -441,7 +454,8 @@ public class ConeDownModel extends LXModel {
     layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel2Width, panel2Width, panel2Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel2Radius, false);
+          yCoordOffset, panel2Radius, false, 2);
+      conePanels.add(panel);
       xOffset += panel2Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
@@ -458,7 +472,8 @@ public class ConeDownModel extends LXModel {
     layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel1Width, panel1Width, panel1Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel1Radius, false);
+          yCoordOffset, panel1Radius, false, 1);
+      conePanels.add(panel);
       xOffset += panel1Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
@@ -472,9 +487,20 @@ public class ConeDownModel extends LXModel {
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel1Height;
 
+    allPanels.addAll(conePanels);
+
     System.out.println("All Layer Dimensions:");
     for (String dim : layerDimensions) {
       System.out.println(dim);
+    }
+
+    // Export the one each of the panels per panelLayoutNum for use in the interactive
+    // wiring Process sketch.  The wirings will be loaded and strung together for each
+    // output to configure our ArtNet output.
+    Set<Integer> exportedPanelLayoutNums = new HashSet<Integer>();
+    for (Panel exportPanel : allPanels) {
+      if (!exportedPanelLayoutNums.contains(exportPanel.panelLayoutNum));
+        exportPanelPoints(exportPanel);
     }
 
     return new ConeDownModel(allPoints);
@@ -522,6 +548,19 @@ public class ConeDownModel extends LXModel {
 
     exportPLY(points);
     exportPanelSVG();
+  }
+
+  static public void exportPanelPoints(Panel panel) {
+    try {
+      PrintWriter lxpointsFile = new PrintWriter("panelpoints_" + panel.panelLayoutNum + ".csv");
+      for (LXPoint lp : panel.getPoints()) {
+        CXPoint p = (CXPoint) lp;
+        lxpointsFile.println(p.xCoord + "," + p.yCoord);
+      }
+      lxpointsFile.close();
+    } catch (IOException ioex) {
+
+    }
   }
 
   public static void exportPanelSVG() {
@@ -640,25 +679,6 @@ public class ConeDownModel extends LXModel {
     coordinates[0] = xCoord;
 
     coordinates[1] = (POINTS_HIGH-1) - yCoord;
-    return coordinates;
-  }
-
-  // TODO(tracy): This doesn't make much sense for ConeDown.  The equivalent should
-  // be a mapping to a cylinder.
-  public static int[] pointToImageCoordinatesWide(LXPoint p) {
-    int[] coordinates = {0, 0};
-    double offsetX = p.x - minX;
-    double offsetY = p.y - minY;
-    int columnNumber = (int)Math.round(offsetX / colIncrementLength);
-    int rowNumber = (int)Math.round(offsetY  / rowIncrementLength);
-    coordinates[0] = columnNumber;
-    // Transpose for Processing Image coordinates, otherwise images are upside down.
-    coordinates[1] = (POINTS_HIGH-1)-rowNumber;
-    // Allow for wide images.
-    if (p.z > 9.9 && p.z < 10.1) {
-      coordinates[0] = 46 + (POINTS_WIDE-1) - coordinates[0];
-    }
-    //System.out.println ("x,y " + coordinates[0] + "," + coordinates[1]);
     return coordinates;
   }
 

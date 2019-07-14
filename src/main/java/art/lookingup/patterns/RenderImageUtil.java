@@ -72,13 +72,4 @@ class RenderImageUtil {
       colors[cindex] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
     }
   }
-
-  public static void imageToPointsPixelPerfectWide(LXModel lxModel, PImage image, int[] colors) {
-    image.loadPixels();
-    for (int cindex = 0; cindex < colors.length; cindex++) {
-      LXPoint p = lxModel.points[cindex];
-      int[] imgCoords = ConeDownModel.pointToImageCoordinatesWide(p);
-      colors[cindex] = image.get(imgCoords[0], imgCoords[1]);
-    }
-  }
 }

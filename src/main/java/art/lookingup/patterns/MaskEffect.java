@@ -17,12 +17,16 @@ public class MaskEffect extends LXEffect {
   public final BooleanParameter scoop =
       new BooleanParameter("scoop", true)
           .setDescription("Render to scoop");
+  public final BooleanParameter dance =
+      new BooleanParameter("dance", true)
+          .setDescription("Render to dancefloor");
 
 
   public MaskEffect(LX lx) {
     super(lx);
     addParameter(cone);
     addParameter(scoop);
+    addParameter(dance);
   }
 
   @Override
@@ -38,6 +42,11 @@ public class MaskEffect extends LXEffect {
     }
     if (!scoop.isOn()) {
       for (LXPoint point : ConeDownModel.scoopPoints) {
+        this.colors[point.index] = LXColor.rgba(0, 0, 0, 0);
+      }
+    }
+    if (!dance.isOn()) {
+      for (LXPoint point: ConeDownModel.dancePoints) {
         this.colors[point.index] = LXColor.rgba(0, 0, 0, 0);
       }
     }
