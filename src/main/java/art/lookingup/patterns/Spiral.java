@@ -12,62 +12,84 @@ import art.lookingup.colors.Colors;
 
 public class Spiral extends PGPixelPerfect {
 
-  final static int number = 20;
+  final static int number = 21;
     
-  public CompoundParameter heightKnob = new CompoundParameter("height", 1.0, 4.0, number);
-  public CompoundParameter spinKnob = new CompoundParameter("spin", 0, 0, 1.0);
-  public CompoundParameter widthKnob = new CompoundParameter("width", 0, 0, number);
-  public CompoundParameter countKnob = new CompoundParameter("count", 1, 1, number);
+  public CompoundParameter heightKnob = new CompoundParameter("height", 1, 7, number);
+  public CompoundParameter speedKnob = new CompoundParameter("speed", 0, 0, 1);
+  public CompoundParameter cnt3Knob = new CompoundParameter("count/3", 1, 1, number/3);
 
   PImage []gradients;
 
   public Spiral(LX lx) {
     super(lx, "");
     addParameter(heightKnob);
-    addParameter(spinKnob);
-    addParameter(widthKnob);
-    addParameter(countKnob);
+    addParameter(speedKnob);
+    addParameter(cnt3Knob);
+    removeParameter(fpsKnob);
 
     setGradients();
   }
 
   void setGradients() {
-      int minColor = Colors.hsb(0, 1, 1);
-      int maxColor = Colors.hsb(0.4999999f, 1, 1);
-
-      // System.err.println("minmax " + minColor + " " + maxColor);
-
       this.gradients = new PImage[number+1];
-      for (int count = 0; count <= number; count++) {
+      for (int count = 3; count <= number; count += 3) {
 	  PGraphics gr = ConeDown.pApplet.createGraphics(count, 1);
 	  gr.beginDraw();
-	  for (int i = 0; i < count; i++) {
-	      float r = (float)i / (float)count;
-	      int c = gr.lerpColor(minColor, maxColor, r);
-	      //System.err.println("Look r=" + r + " c=" + c + " i=" + i + " count=" + count);
+
+	  int min1 = Colors.hsb(0, 1, 1);
+	  int max1 = Colors.hsb(0.333333333f, 1, 1);
+	  for (int i = 0; i < count/3; i++) {
+	      float r = (float)i / (float)(count/3);
+	      int c = gr.lerpColor(min1, max1, r);
 	      gr.set(i, 0, c);
 	  }
+
+	  int min2 = Colors.hsb(0.333333333f, 1, 1);
+	  int max2 = Colors.hsb(0.666666667f, 1, 1);
+	  for (int i = 0; i < count/3; i++) {
+	      float r = (float)i / (float)(count/3);
+	      int c = gr.lerpColor(min2, max2, r);
+	      gr.set(i+(count/3), 0, c);
+	  }
+
+	  int min3 = Colors.hsb(0.666666667f, 1, 1);
+	  int max3 = Colors.hsb(1, 1, 1);
+	  for (int i = 0; i < count/3; i++) {
+	      float r = (float)i / (float)(count/3);
+	      int c = gr.lerpColor(min3, max3, r);
+	      gr.set(i+(2*count/3), 0, c);
+	  }
+	  
 	  gr.endDraw();
 	  gr.loadPixels();
+
 	  this.gradients[count] = gr.get();
       }
   }
 
-  @Override
-  public void draw(double drawDeltaMs) {
-    pg.background(0);
-    pg.strokeWeight((float)widthKnob.getValue());
+  float relapsed;
 
-    int count = (int)countKnob.getValue();
+  @Override
+  public void draw(double deltaMs) {
+    pg.background(0);
+    pg.strokeWeight(1);
+
+    relapsed += (float)(speedKnob.getValue() * deltaMs / 1000);
+
+    int count = (int)cnt3Knob.getValue() * 3;
     float incr = (float)heightKnob.getValue();
+    float spin = relapsed;
 
     for (int idx = 0; idx < count; idx++) {
-	float base = -(float)spinKnob.getValue() * incr;
-	float spirals = (float)countKnob.getValue();
+	float base = -incr - spin * incr;
+	float spirals = (float)count;
 	float y0 = base + ((float)idx / spirals) * incr;
 
-	for (float y = y0; y < pg.height; y += incr) {
-	    pg.stroke(gradients[count].get(idx, 0));
+	int c = gradients[count].get(idx, 0);
+
+	pg.stroke(c);
+	
+	for (float y = y0; y < pg.height+incr; y += incr) {
 	    pg.line(0, y, pg.width, y+incr);
 	}
     }
