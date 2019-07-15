@@ -489,6 +489,17 @@ public class ConeDownModel extends LXModel {
 
     allPanels.addAll(conePanels);
 
+    float scoopYOffset = 0.75f;
+    for (LXPoint p : conePoints) {
+      float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
+      p.x = (float)(p.x * Math.cos(Math.toRadians(-15)) + p.y * Math.sin(Math.toRadians(-15)));
+      p.y = (float)(-p.x * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
+    }
+    for (LXPoint p : scoopPoints) {
+      float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
+      p.x = (float)(p.x * Math.cos(Math.toRadians(-15)) + p.y * Math.sin(Math.toRadians(-15)));
+      p.y = (float)(-p.x * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
+    }
     System.out.println("All Layer Dimensions:");
     for (String dim : layerDimensions) {
       System.out.println(dim);
