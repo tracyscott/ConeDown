@@ -1,6 +1,7 @@
 package art.lookingup.patterns;
 
 import art.lookingup.ConeDown;
+import art.lookingup.ConeDownModel;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.CompoundParameter;
@@ -56,10 +57,10 @@ public class Noise extends PGPixelPerfect {
     xnoise = xstart;
     ynoise = ystart;
 
-    for (int y = 0; y <=30.0; y+=yDensity.getValuef()) {
+    for (int y = 0; y <= ConeDownModel.POINTS_HIGH; y+=yDensity.getValuef()) {
       ynoise += 0.1;
       xnoise = xstart;
-      for (int x = 0; x <= 420.0; x+=xDensity.getValuef()) {
+      for (int x = 0; x <= ConeDownModel.POINTS_WIDE; x+=xDensity.getValuef()) {
         xnoise += 0.1;
         drawPointLine(x, y, ConeDown.pApplet.noise(xnoise, ynoise));
       }
