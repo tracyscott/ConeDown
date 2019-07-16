@@ -673,12 +673,14 @@ public class ConeDownModel extends LXModel {
     return coordinates;
   }
 
+  public static float xScale(CXPoint p) {
+    return POINTS_WIDE / ((float)p.panel.pointsWide * ((p.panel.scoop)?scoopSides:coneSides));
+  }
+
   public static int[] pointToImgCoordsCylinder(CXPoint p) {
     int[] coordinates = {0, 0};
-    float xScale = POINTS_WIDE / ((float)p.panel.pointsWide * ((p.panel.scoop)?scoopSides:coneSides));
-    //xScale = 1f / xScale;
     int yCoord = p.panel.yCoordOffset + p.yCoord;
-    int xCoord = (int)((float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale);
+    int xCoord = (int)((float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p));
     if (p.panel.panelType == Panel.PanelType.DANCEFLOOR) {
       int danceFloorPointsWide = p.panel.pointsWide * ConeDownModel.dancePanelsWide;
       int totalImgPointsWide = ConeDownModel.POINTS_WIDE;
