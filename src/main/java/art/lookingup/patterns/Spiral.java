@@ -12,12 +12,12 @@ import art.lookingup.colors.Colors;
 
 public class Spiral extends PGPixelPerfect {
 
-  final static int number = 21;
+  final static int number = 33;
 
-  public CompoundParameter heightKnob = new CompoundParameter("height", 1, number/3, number*3);
-  public CompoundParameter widthKnob = new CompoundParameter("width", 1, 0, number/3);
-  public CompoundParameter speedKnob = new CompoundParameter("speed", 0, 0, 1);
-  public CompoundParameter cnt3Knob = new CompoundParameter("count/3", 1, 1, number/3);
+  public CompoundParameter heightKnob = new CompoundParameter("height", 62, number/4, number*4);
+  public CompoundParameter widthKnob = new CompoundParameter("width", 3.9, 0, number/3);
+  public CompoundParameter speedKnob = new CompoundParameter("speed", 0.18, 0, 1);
+  public CompoundParameter cnt3Knob = new CompoundParameter("count/3", 4, 1, number/3);
 
   PImage []gradients;
 
