@@ -13,8 +13,9 @@ import art.lookingup.colors.Colors;
 public class Spiral extends PGPixelPerfect {
 
   final static int number = 21;
-    
-  public CompoundParameter heightKnob = new CompoundParameter("height", 1, 7, number);
+
+  public CompoundParameter heightKnob = new CompoundParameter("height", 1, number/3, number*3);
+  public CompoundParameter widthKnob = new CompoundParameter("width", 1, 0, number/3);
   public CompoundParameter speedKnob = new CompoundParameter("speed", 0, 0, 1);
   public CompoundParameter cnt3Knob = new CompoundParameter("count/3", 1, 1, number/3);
 
@@ -25,6 +26,7 @@ public class Spiral extends PGPixelPerfect {
     addParameter(heightKnob);
     addParameter(speedKnob);
     addParameter(cnt3Knob);
+    addParameter(widthKnob);
     removeParameter(fpsKnob);
 
     setGradients();
@@ -72,7 +74,7 @@ public class Spiral extends PGPixelPerfect {
   @Override
   public void draw(double deltaMs) {
     pg.background(0);
-    pg.strokeWeight(1);
+    pg.strokeWeight((float)widthKnob.getValue());
 
     relapsed += (float)(speedKnob.getValue() * deltaMs / 1000);
 
