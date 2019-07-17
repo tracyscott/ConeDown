@@ -9,6 +9,7 @@ import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 import art.lookingup.Projection;
 import art.lookingup.colors.Colors;
+import art.lookingup.patterns.shapes.Parabola;
 
 public class Balls extends PGPixelPerfect {
     final static public int maxCount = 100;
@@ -17,8 +18,8 @@ public class Balls extends PGPixelPerfect {
     final static public float yRate = 10;
 
   public CompoundParameter sizeKnob = new CompoundParameter("size", 10, 0, maxSize);
-  public CompoundParameter speedKnob = new CompoundParameter("speed", 0, 0, 1);
-  public CompoundParameter countKnob = new CompoundParameter("count", 10, 1, maxCount);
+  public CompoundParameter speedKnob = new CompoundParameter("speed", 0.5, 0, 1);
+  public CompoundParameter countKnob = new CompoundParameter("count", 1, 1, maxCount);
 
   public Projection projection;
 
@@ -36,8 +37,10 @@ public class Balls extends PGPixelPerfect {
     for (int i = 0; i < maxCount; i++) {
 	this.balls[i] = new Ball(1, // (float) (0.3 + 0.7 * Math.random()),
 				 (float) Math.random() * pg.width,
-				 (float) Math.random() * pg.height,
-				 (float) (0.3 + 0.7 * Math.random()));
+				 // (float) Math.random() * pg.height,
+				 pg.height,
+				 (float) (0.1 + 0.9 * Math.random()),
+				 (float) (0.1 + 0.9 * Math.random()) * ConeDownModel.POINTS_WIDE);
     }
   }
 
@@ -45,27 +48,36 @@ public class Balls extends PGPixelPerfect {
 
   public class Ball {
       float dp;
-      float x;
-      float y;
+      float xcurrent;
+      float x0;
       float vp;
+      float period;
       float elapsed;
+      Parabola parabola;
 
-      Ball(float dp, float x, float y, float vp) {
+      Ball(float dp, float x, float y, float vp, float period) {
 	  this.dp = dp;
-	  this.x = x;
-	  this.y = y;
+	  this.xcurrent = x;
+	  this.x0 = x;
 	  this.vp = vp;
+	  this.period = period;
+	  this.parabola = new Parabola(200, y);
       }
 
-      void update(float elapsed) {
-	  this.x += this.vp * (elapsed - this.elapsed) * (float) speedKnob.getValue() * xRate;
-	  this.x %= ConeDownModel.POINTS_WIDE;
+      void update(float e) {
+	  xcurrent += vp * (e - elapsed) * (float) speedKnob.getValue() * xRate;
+	  elapsed = e;
+      }
 
-	  // TODO
-	  this.y += this.vp * (elapsed - this.elapsed) * (float) speedKnob.getValue() * yRate;
-	  this.y %= ConeDownModel.POINTS_HIGH;
+      float getX() {
+	  return xcurrent % ConeDownModel.POINTS_WIDE;
+      }
 
-	  this.elapsed = elapsed;
+      float getY() {
+	  float xoffset = xcurrent - x0;
+	  float yoffset = xoffset % period;
+
+	  return parabola.Value(yoffset / period - 0.5f);
       }
   }
 
@@ -84,15 +96,18 @@ public class Balls extends PGPixelPerfect {
 
 	b.update(relapsed);
 
+	float x = b.getX();
+	float y = b.getY();
+
 	pg.pushMatrix();
-	pg.translate(b.x, b.y);
+	pg.translate(x, y);
 
 	pg.stroke(255);
 	pg.fill(255);
 
 	float d = b.dp * (float)sizeKnob.getValue();
 
-	pg.scale(projection.xScale(0, b.y), 1);
+	pg.scale(projection.xScale(0, y), 1);
 
 	// TODO fix the seam, double draw near borders
 	pg.ellipse(0, 0, d, d);
