@@ -1,5 +1,7 @@
 package art.lookingup.patterns;
 
+import java.util.Random;
+
 import heronarts.lx.LX;
 import heronarts.lx.parameter.CompoundParameter;
 import processing.core.PGraphics;
@@ -9,6 +11,7 @@ import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 import art.lookingup.Projection;
 import art.lookingup.colors.Colors;
+import art.lookingup.colors.Gradient;
 import art.lookingup.patterns.shapes.Parabola;
 
 public class Balls extends PGPixelPerfect {
@@ -22,6 +25,7 @@ public class Balls extends PGPixelPerfect {
   public CompoundParameter countKnob = new CompoundParameter("count", 1, 1, maxCount);
 
   public Projection projection;
+  Random random = new Random();
 
   public Balls(LX lx) {
     super(lx, "");
@@ -30,18 +34,9 @@ public class Balls extends PGPixelPerfect {
     addParameter(countKnob);
     removeParameter(fpsKnob);
 
+    PGraphics gr = ConeDown.pApplet.createGraphics(1, 1);
     this.projection = new Projection(lx.getModel());
-
     this.balls = new Ball[maxCount];
-
-    for (int i = 0; i < maxCount; i++) {
-	this.balls[i] = new Ball(1, // (float) (0.3 + 0.7 * Math.random()),
-				 (float) Math.random() * pg.width,
-				 // (float) Math.random() * pg.height,
-				 pg.height,
-				 (float) (0.1 + 0.9 * Math.random()),
-				 (float) (0.1 + 0.9 * Math.random()) * ConeDownModel.POINTS_WIDE);
-    }
   }
 
   float relapsed;
@@ -53,15 +48,17 @@ public class Balls extends PGPixelPerfect {
       float vp;
       float period;
       float elapsed;
+      int color;
       Parabola parabola;
 
-      Ball(float dp, float x, float y, float vp, float period) {
+      Ball(float dp, float x, float y, float vp, float period, int color) {
 	  this.dp = dp;
 	  this.xcurrent = x;
 	  this.x0 = x;
 	  this.vp = vp;
 	  this.period = period;
 	  this.parabola = new Parabola(200, y);
+	  this.color = color;
       }
 
       void update(float e) {
@@ -77,11 +74,34 @@ public class Balls extends PGPixelPerfect {
 	  float xoffset = xcurrent - x0;
 	  float yoffset = xoffset % period;
 
-	  return parabola.Value(yoffset / period - 0.5f);
+	  float y = parabola.Value(yoffset / period - 0.5f);
+
+	  return y;
       }
   }
 
+  int []gradient;
   Ball []balls;
+
+    @Override
+    public void preDraw(double deltaMs) {
+	if (gradient != null) {
+	    return;
+	}
+
+	PGraphics pg = ConeDown.pApplet.createGraphics(1, 1);
+	pg.beginDraw();
+	gradient = Gradient.get(pg, 100);
+	for (int i = 0; i < maxCount; i++) {
+	    this.balls[i] = new Ball(1, // (float) (0.3 + 0.7 * random.nextDouble()),
+				     (float) random.nextDouble() * ConeDownModel.POINTS_WIDE,
+				     4f * (float) (0.9 + 0.1 * random.nextDouble()) * ConeDownModel.POINTS_HIGH,
+				     (float) (0.1 + 0.9 * random.nextDouble()),
+				     (float) (0.1 + 0.9 * random.nextDouble()) * ConeDownModel.POINTS_WIDE,
+				     this.gradient[random.nextInt(gradient.length)] /* 255 */);
+	}
+	pg.endDraw();
+    }    
 
   @Override
   public void draw(double deltaMs) {
@@ -102,8 +122,8 @@ public class Balls extends PGPixelPerfect {
 	pg.pushMatrix();
 	pg.translate(x, y);
 
-	pg.stroke(255);
-	pg.fill(255);
+	pg.noStroke();
+	pg.fill(b.color);
 
 	float d = b.dp * (float)sizeKnob.getValue();
 

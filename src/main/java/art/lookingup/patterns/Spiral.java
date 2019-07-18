@@ -9,6 +9,7 @@ import processing.core.PImage;
 
 import art.lookingup.ConeDown;
 import art.lookingup.colors.Colors;
+import art.lookingup.colors.Gradient;
 
 public class Spiral extends PGPixelPerfect {
 
@@ -38,6 +39,7 @@ public class Spiral extends PGPixelPerfect {
 	  PGraphics gr = ConeDown.pApplet.createGraphics(count, 1);
 	  gr.beginDraw();
 
+	  // TODO Replace with colors.Gradient.get
 	  int min1 = Colors.hsb(0, 1, 1);
 	  int max1 = Colors.hsb(0.333333333f, 1, 1);
 	  for (int i = 0; i < count/3; i++) {
@@ -61,7 +63,7 @@ public class Spiral extends PGPixelPerfect {
 	      int c = gr.lerpColor(min3, max3, r);
 	      gr.set(i+(2*count/3), 0, c);
 	  }
-	  
+
 	  gr.endDraw();
 	  gr.loadPixels();
 
