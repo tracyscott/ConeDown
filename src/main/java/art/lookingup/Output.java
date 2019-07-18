@@ -68,7 +68,7 @@ public class Output {
     return true;
   }
 
-  public static String artnetIpAddress = "192.168.1.198";
+  public static String artnetIpAddress = "192.168.2.220";
   public static int artnetPort = 6454;
 
   public static void configureUnityArtNet(LX lx) {
