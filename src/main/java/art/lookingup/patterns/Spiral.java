@@ -20,7 +20,7 @@ public class Spiral extends PGPixelPerfect {
   public CompoundParameter speedKnob = new CompoundParameter("speed", 0.18, 0, 1);
   public CompoundParameter cnt3Knob = new CompoundParameter("count/3", 4, 1, number/3);
 
-  PImage []gradients;
+  int [][]gradients;
 
   public Spiral(LX lx) {
     super(lx, "");
@@ -29,45 +29,20 @@ public class Spiral extends PGPixelPerfect {
     addParameter(cnt3Knob);
     addParameter(widthKnob);
     removeParameter(fpsKnob);
+  }
 
-    setGradients();
+  @Override
+  public void preDraw(double deltaMs) {
+      if (gradients != null) {
+	  setGradients();
+      }
   }
 
   void setGradients() {
-      this.gradients = new PImage[number+1];
+      gradients = new int[number+1][];
+
       for (int count = 3; count <= number; count += 3) {
-	  PGraphics gr = ConeDown.pApplet.createGraphics(count, 1);
-	  gr.beginDraw();
-
-	  // TODO Replace with colors.Gradient.get
-	  int min1 = Colors.hsb(0, 1, 1);
-	  int max1 = Colors.hsb(0.333333333f, 1, 1);
-	  for (int i = 0; i < count/3; i++) {
-	      float r = (float)i / (float)(count/3);
-	      int c = gr.lerpColor(min1, max1, r);
-	      gr.set(i, 0, c);
-	  }
-
-	  int min2 = Colors.hsb(0.333333333f, 1, 1);
-	  int max2 = Colors.hsb(0.666666667f, 1, 1);
-	  for (int i = 0; i < count/3; i++) {
-	      float r = (float)i / (float)(count/3);
-	      int c = gr.lerpColor(min2, max2, r);
-	      gr.set(i+(count/3), 0, c);
-	  }
-
-	  int min3 = Colors.hsb(0.666666667f, 1, 1);
-	  int max3 = Colors.hsb(1, 1, 1);
-	  for (int i = 0; i < count/3; i++) {
-	      float r = (float)i / (float)(count/3);
-	      int c = gr.lerpColor(min3, max3, r);
-	      gr.set(i+(2*count/3), 0, c);
-	  }
-
-	  gr.endDraw();
-	  gr.loadPixels();
-
-	  this.gradients[count] = gr.get();
+	  this.gradients[count] = Gradient.get(pg, count);
       }
   }
 
@@ -89,7 +64,7 @@ public class Spiral extends PGPixelPerfect {
 	float spirals = (float)count;
 	float y0 = base + ((float)idx / spirals) * incr;
 
-	int c = gradients[count].get(idx, 0);
+	int c = gradients[count][idx];
 
 	pg.stroke(c);
 	
