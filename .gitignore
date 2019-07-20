@@ -7,4 +7,11 @@
 target/
 *.lck
 *.tmp
+panelpoints_*.csv
+audiomonitor.json
+gamma.json
+midictrl.json
+pixliteconfig.json
+lxpoints.ply
+panel.svg
 
