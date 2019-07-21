@@ -29,6 +29,7 @@ public class RainbowCone extends LXPattern {
   @Override
   public void run(double deltaMs) {
     float curHue = startHue;
+    startHue -= PANEL_HUE_GAP * speedParam.getValuef();
     for (Panel panel : ConeDownModel.allPanels) {
       float pixelHueGap = PANEL_HUE_GAP / panel.getPoints().size();
       for (LXPoint point : panel.getPoints()) {
@@ -36,7 +37,6 @@ public class RainbowCone extends LXPattern {
         curHue += pixelHueGap;
       }
     }
-    startHue -= PANEL_HUE_GAP * speedParam.getValuef();
   }
 }
 
