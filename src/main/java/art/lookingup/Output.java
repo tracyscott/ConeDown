@@ -25,12 +25,12 @@ public class Output {
 
   public static LXDatagramOutput datagramOutput = null;
 
-  public static final int MAX_OUTPUTS = 16;
+  public static final int MAX_OUTPUTS = 32;  // 32 outputs in expanded mode.
   public static final int RAVE_OUTPUTS = 8;
   public static final int RAVE_UNIVERSES_PER_OUTPUT = 2;
   public static final int RAVE_UNIVERSES = RAVE_OUTPUTS * RAVE_UNIVERSES_PER_OUTPUT;
 
-  public static ArrayList<Integer>[] outputs = new ArrayList[MAX_OUTPUTS];
+  public static List<List<Integer>> outputs = new ArrayList<List<Integer>>(MAX_OUTPUTS);
 
   /**
    * Loads a wiring.txt file that is written by PixelMapping Processing sketch.
@@ -40,7 +40,7 @@ public class Output {
    */
   static protected boolean loadWiring(String filename) {
     for (int i = 0; i < MAX_OUTPUTS; i++) {
-      outputs[i] = new ArrayList<Integer>();
+      outputs.add(new ArrayList<Integer>());
     }
     BufferedReader reader;
     int currentOutputNum = 0;
@@ -53,7 +53,7 @@ public class Output {
         // logger.log(Level.INFO, "Reading wiring: " + line);
         if (line.startsWith(":")) {
           currentOutputNum = Integer.parseInt(line.replace(":", ""));
-          currentOutputIndices = outputs[currentOutputNum];
+          currentOutputIndices = outputs.get(currentOutputNum);
         } else {
           int pointIndex = Integer.parseInt(line);
           currentOutputIndices.add(pointIndex);
