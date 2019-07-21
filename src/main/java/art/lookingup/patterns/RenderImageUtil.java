@@ -62,7 +62,7 @@ class RenderImageUtil {
    * <p>
    * Note that point (0,0) is at the bottom left in {@code colors}.</p>
    */
-  public static void imageToPointsPixelPerfect(LXModel lxModel, PImage image, int[] colors, int xOffset, int yOffset) {
+  public static void imageToPointsPixelPerfectOld(LXModel lxModel, PImage image, int[] colors, int xOffset, int yOffset) {
     // (0, 0) is at the bottom left in the colors array
 
     image.loadPixels();
@@ -70,6 +70,23 @@ class RenderImageUtil {
       CXPoint p = (CXPoint) lxModel.points[cindex];
       int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder(p); //ConeDownModel.pointToImageCoordinates(p);
       colors[cindex] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+    }
+
+  }
+
+  public static void imageToPointsPixelPerfect(LXModel lxModel, PImage image, int[] colors, int xOffset, int yOffset) {
+    image.loadPixels();
+    for (LXPoint p : ConeDownModel.conePoints) {
+      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p);
+      colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+    }
+    for (LXPoint p : ConeDownModel.scoopPoints) {
+      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p);
+      colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+    }
+    for (LXPoint p : ConeDownModel.dancePoints) {
+      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p);
+      colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
     }
   }
 }

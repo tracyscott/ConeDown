@@ -157,26 +157,11 @@ public class ConeDown extends PApplet {
     // Processing setup, constructs the window and the LX instance
     pApplet = this;
 
-    pApplet.sketchPath("./");
-
     try {
       addLogFileHandler(LOG_FILENAME_PREFIX);
     } catch (IOException ex) {
       logger.log(Level.SEVERE, "Error creating log file: " + LOG_FILENAME_PREFIX, ex);
     }
-
-    /*
-    // Save points to a file in order.  Used by Processing sketch to interactively do the pixel mapping.
-    try {
-      PrintWriter lxpointsFile = new PrintWriter("lxpoints.csv");
-      for (LXPoint p : points) {
-        lxpointsFile.println(p.x + "," + p.y);
-      }
-      lxpointsFile.close();
-    } catch (IOException ioex) {
-
-    }
-    */
 
     LXModel model = ConeDownModel.createModel();
 
