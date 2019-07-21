@@ -20,7 +20,7 @@ public class Spiral extends PGPixelPerfect {
   public CompoundParameter speedKnob = new CompoundParameter("speed", 0.18, 0, 1);
   public CompoundParameter cnt3Knob = new CompoundParameter("count/3", 4, 1, number/3);
 
-  int [][]gradients;
+  Gradient []gradients;
 
   public Spiral(LX lx) {
     super(lx, "");
@@ -33,16 +33,16 @@ public class Spiral extends PGPixelPerfect {
 
   @Override
   public void preDraw(double deltaMs) {
-      if (gradients != null) {
+      if (gradients == null) {
 	  setGradients();
       }
   }
 
   void setGradients() {
-      gradients = new int[number+1][];
+      gradients = new Gradient[number+1];
 
       for (int count = 3; count <= number; count += 3) {
-	  this.gradients[count] = Gradient.get(pg, count);
+	  this.gradients[count] = Gradient.compute(pg, count);
       }
   }
 
@@ -64,7 +64,7 @@ public class Spiral extends PGPixelPerfect {
 	float spirals = (float)count;
 	float y0 = base + ((float)idx / spirals) * incr;
 
-	int c = gradients[count][idx];
+	int c = gradients[count].index(idx);
 
 	pg.stroke(c);
 	

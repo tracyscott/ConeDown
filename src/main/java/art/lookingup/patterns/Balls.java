@@ -79,7 +79,7 @@ public class Balls extends PGPixelPerfect {
       }
   }
 
-  int []gradient;
+  Gradient gradient;
   Ball []balls;
 
     @Override
@@ -90,14 +90,14 @@ public class Balls extends PGPixelPerfect {
 
 	PGraphics pg = ConeDown.pApplet.createGraphics(1, 1);
 	pg.beginDraw();
-	gradient = Gradient.get(pg, 100);
+	gradient = Gradient.compute(pg, maxCount);
 	for (int i = 0; i < maxCount; i++) {
 	    this.balls[i] = new Ball((float) (0.3 + 0.7 * random.nextDouble()),
 				     (float) random.nextDouble() * ConeDownModel.POINTS_WIDE,
 				     4f * (float) (0.9 + 0.1 * random.nextDouble()) * ConeDownModel.POINTS_HIGH,
 				     (float) (0.1 + 0.9 * random.nextDouble()),
 				     (float) (0.1 + 0.9 * random.nextDouble()) * ConeDownModel.POINTS_WIDE,
-				     this.gradient[random.nextInt(gradient.length)]);
+				     gradient.index(random.nextInt(gradient.size())));
 	}
 	pg.endDraw();
     }    

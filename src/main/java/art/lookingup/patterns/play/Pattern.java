@@ -14,7 +14,7 @@ abstract public class Pattern extends LXPattern {
   final int height;
 
   final CompoundParameter speedKnob =
-      new CompoundParameter("GlobalSpeed", 0, 0, 10000)
+      new CompoundParameter("GlobalSpeed", 500, 0, 1000)
         .setDescription("Varies global speed.");
     
   float current;
@@ -58,9 +58,11 @@ abstract public class Pattern extends LXPattern {
   }
 
   void setup() {
+      System.err.println("Setup called");
   }
 
   void tearDown() {
+      System.err.println("Teardown called");
   }
 
   void preDraw(double deltaDrawMs) {
@@ -70,21 +72,4 @@ abstract public class Pattern extends LXPattern {
     graph.background(0);
 	
   }
-
-  // @Override
-  // public void draw(double deltaMs) {
-  //   int count = (int)cnt3Knob.getValue() * 3;
-  //   float incr = (float)heightKnob.getValue();
-  //   float spin = relapsed;
-  //   for (int idx = 0; idx < count; idx++) {
-  // 	float base = -incr - spin * incr;
-  // 	float spirals = (float)count;
-  // 	float y0 = base + ((float)idx / spirals) * incr;
-  // 	int c = gradients[count][idx];
-  // 	pg.stroke(c);
-  // 	for (float y = y0; y < pg.height+incr; y += incr) {
-  // 	    pg.line(0, y, pg.width, y+incr);
-  // 	}
-  //   }
-  // }
 }
