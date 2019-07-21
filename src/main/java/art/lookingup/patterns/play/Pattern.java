@@ -14,7 +14,7 @@ abstract public class Pattern extends LXPattern {
   final int height;
 
   final CompoundParameter speedKnob =
-      new CompoundParameter("GlobalSpeed", 500, 0, 1000)
+      new CompoundParameter("GlobalSpeed", 1, 0, 10)
         .setDescription("Varies global speed.");
     
   float current;
@@ -45,7 +45,7 @@ abstract public class Pattern extends LXPattern {
   }
 
   void render(double deltaMs) {
-      current += (float)((speedKnob.getValue() / 1000) * deltaMs);
+      current += (float)(speedKnob.getValue() * (deltaMs / 1000));
 
       float vdelta = current - elapsed;
 
