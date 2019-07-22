@@ -16,7 +16,7 @@ import processing.core.PImage;
  * the polar coordinate generated points into an image, including
  * the option of antialiasing.
  */
-class RenderImageUtil {
+public class RenderImageUtil {
   private static final Logger logger = Logger.getLogger(RenderImageUtil.class.getName());
 
   /**

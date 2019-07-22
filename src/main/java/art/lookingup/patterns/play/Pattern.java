@@ -2,6 +2,7 @@ package art.lookingup.patterns.play;
 
 import art.lookingup.CXPoint;
 import art.lookingup.ConeDownModel;
+import art.lookingup.patterns.RenderImageUtil;
 
 import java.util.Arrays;
 
@@ -82,11 +83,7 @@ abstract public class Pattern extends LXPattern {
 	graph.endDraw();
 	graph.loadPixels();
 
-	for (int i = 0; i < lx.getModel().points.length; i++) {
-	    CXPoint p = (CXPoint) lx.getModel().points[i];
-	    int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder(p);
-	    colors[i] = graph.get(imgCoords[0], imgCoords[1]);
-	}
+	RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), graph, colors);	
 
 	elapsed = current;
     }
