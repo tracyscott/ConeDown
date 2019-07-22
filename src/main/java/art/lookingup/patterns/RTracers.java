@@ -27,6 +27,7 @@ public class RTracers extends PGPixelPerfect {
 
   public DiscreteParameter paletteKnob = new DiscreteParameter("palette", 0, 0, Colors.ALL_PALETTES.length + 1);
   public CompoundParameter blurKnob = new CompoundParameter("blur", 0.25, 0.0, 1.0);
+  public CompoundParameter bgAlpha = new CompoundParameter("bgalpha", 0.0, 0.0, 1.0);
   // Probability of a new triangle show up each frame.  Should we allow multiple triangles per frame?  nah,
   // probably not.
   public CompoundParameter numTracers = new CompoundParameter("num", 60.0, 0.0, 200.0);
@@ -65,6 +66,7 @@ public class RTracers extends PGPixelPerfect {
     addParameter(paletteKnob);
     addParameter(blurKnob);
     addParameter(numTracers);
+    addParameter(bgAlpha);
     addParameter(maxSize);
     addParameter(minSize);
     addParameter(minVelocity);
@@ -85,7 +87,7 @@ public class RTracers extends PGPixelPerfect {
    */
   public void draw(double drawDeltaMs) {
     pg.colorMode(HSB, 1.0f);
-    pg.background(0.0f, 0.0f, 0.0f,1.0f);
+    pg.background(0.0f, 0.0f, 0.0f, bgAlpha.getValuef());
 
     updateTracers();
     processTracers();

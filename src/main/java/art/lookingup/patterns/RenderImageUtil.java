@@ -4,6 +4,7 @@ import art.lookingup.CXPoint;
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 
+import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXModel;
 import heronarts.lx.model.LXPoint;
 import java.util.logging.Logger;
@@ -132,22 +133,31 @@ class RenderImageUtil {
         pointsHigh = ConeDownModel.conePointsHigh;
         break;
     }
-    if (renderTarget == 0 || renderTarget == 3) {
-      for (LXPoint p : ConeDownModel.conePoints) {
+
+    for (LXPoint p : ConeDownModel.conePoints) {
+      if (renderTarget == 0 || renderTarget == 3) {
         int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
         colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      } else {
+        colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
     }
-    if (renderTarget == 0 || renderTarget == 2) {
-      for (LXPoint p : ConeDownModel.scoopPoints) {
+
+    for (LXPoint p : ConeDownModel.scoopPoints) {
+      if (renderTarget == 0 || renderTarget == 2) {
         int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
         colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      } else {
+        colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
     }
-    if (renderTarget == 0 || renderTarget == 1) {
-      for (LXPoint p : ConeDownModel.dancePoints) {
+
+    for (LXPoint p : ConeDownModel.dancePoints) {
+      if (renderTarget == 0 || renderTarget == 1) {
         int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
         colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      } else {
+        colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
     }
   }
