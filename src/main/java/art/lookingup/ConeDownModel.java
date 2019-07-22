@@ -6,17 +6,7 @@ import org.jengineering.sjmply.PLY;
 import org.jengineering.sjmply.PLYElementList;
 import org.jengineering.sjmply.PLYFormat;
 import org.jengineering.sjmply.PLYType;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -53,13 +43,13 @@ public class ConeDownModel extends LXModel {
   public static float inchesPerMeter = 39.3701f;
   static public float panelMargin = 2.0f / inchesPerMeter;
   static public float panel8Radius = 9.0f * 12.0f / inchesPerMeter;
-  static public float panel7Radius = 8.0f * 12.0f / inchesPerMeter;
-  static public float panel6Radius = 7.5f * 12.0f / inchesPerMeter;
-  static public float panel5Radius = 7.0f * 12.0f / inchesPerMeter;
-  static public float panel4Radius = 6.5f * 12.0f / inchesPerMeter;
+  static public float panel7Radius = 8.7f * 12.0f / inchesPerMeter;
+  static public float panel6Radius = 8.7f * 12.0f / inchesPerMeter;
+  static public float panel5Radius = 8.7f * 12.0f / inchesPerMeter;
+  static public float panel4Radius = 8f * 12.0f / inchesPerMeter;
   static public float panel3Radius = 6.0f * 12.0f / inchesPerMeter;
-  static public float panel2Radius = 5.5f * 12.0f / inchesPerMeter;
-  static public float panel1Radius = 8f * 12.0f / inchesPerMeter;
+  static public float panel2Radius = 6f * 12.0f / inchesPerMeter;
+  static public float panel1Radius = 5f * 12.0f / inchesPerMeter;
 
   static public float pitch = 6.0f; // Pitch in Inches
   static public float coneTilt = -15.0f; // degrees around Z axis
@@ -88,7 +78,8 @@ public class ConeDownModel extends LXModel {
   static public float panel5Height = (4.0f * 12.0f + 5.609375f) / inchesPerMeter;
   static public float panel4Width = (6.0f * 12.0f + 3.34375f) / inchesPerMeter;
   static public float panel4TopWidth = (4.0f * 12.0f + 7.34375f) / inchesPerMeter;
-  static public float panel4Height = (2.0f * 12.0f + 9f + 5f/16f) / inchesPerMeter;
+  // Adjust for rotation 0.55f fudge factor right now.
+  static public float panel4Height = 0.65f * (2.0f * 12.0f + 9f + 5f/16f) / inchesPerMeter;
   static public float panel3Width = (4.0f * 12.0f + 7.640625f) / inchesPerMeter;
   static public float panel3Height = (1.0f * 12.0f + 7.59375f) / inchesPerMeter;
   static public float panel2Width = (4.0f * 12.0f + 7.640625f) / inchesPerMeter;
@@ -221,9 +212,10 @@ public class ConeDownModel extends LXModel {
     yOffset += panel6Height;
 
     layerWidth = 0;
-    for (int panelNum = 0; panelNum < coneSides; panelNum++) {
-      Panel panel = new Panel(panel5Width, panel5Width, panel5Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel5Radius, false, 5);
+    for (int panelNum = 0; panelNum < Panel.numPanelsAround[Panel.PanelType.E1.ordinal()]; panelNum++) {
+      Panel panel = new Panel((panelNum%2==0)? Panel.PanelType.E1: Panel.PanelType.E2, yOffset, panelNum, yCoordOffset, panel5Radius);
+      //Panel panel = new Panel(panel5Width, panel5Width, panel5Height, pitch, xOffset, yOffset, zOffset, panelNum,
+      //    yCoordOffset, panel5Radius, false, 5);
       conePanels.add(panel);
       xOffset += panel5Width;
       allPoints.addAll(panel.getPoints());
@@ -240,8 +232,9 @@ public class ConeDownModel extends LXModel {
 
     layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
-      Panel panel = new Panel(panel4Width, panel4Width, panel4Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel4Radius, false, 4);
+      Panel panel = new Panel(Panel.PanelType.D, yOffset, panelNum, yCoordOffset, panel4Radius);
+      //Panel panel = new Panel(panel4Width, panel4Width, panel4Height, pitch, xOffset, yOffset, zOffset, panelNum,
+      //    yCoordOffset, panel4Radius, false, 4);
       conePanels.add(panel);
       xOffset += panel4Width;
       allPoints.addAll(panel.getPoints());
@@ -258,8 +251,9 @@ public class ConeDownModel extends LXModel {
 
     layerWidth = 0;
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
-      Panel panel = new Panel(panel3Width, panel3Width, panel3Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel3Radius, false, 3);
+      Panel panel = new Panel(Panel.PanelType.C, yOffset, panelNum, yCoordOffset, panel3Radius);
+      //Panel panel = new Panel(panel3Width, panel3Width, panel3Height, pitch, xOffset, yOffset, zOffset, panelNum,
+          //yCoordOffset, panel3Radius, false, 3);
       conePanels.add(panel);
       xOffset += panel3Width;
       allPoints.addAll(panel.getPoints());
@@ -275,9 +269,11 @@ public class ConeDownModel extends LXModel {
     yOffset += panel3Height;
 
     layerWidth = 0;
-    for (int panelNum = 0; panelNum < coneSides; panelNum++) {
-      Panel panel = new Panel(panel2Width, panel2Width, panel2Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel2Radius, false, 2);
+    for (int panelNum = 0; panelNum < Panel.numPanelsAround[1]; panelNum++) {
+      Panel panel = new Panel((panelNum%2==0)? Panel.PanelType.B1: Panel.PanelType.B2, yOffset, panelNum,
+          yCoordOffset, panel2Radius);
+      //Panel panel = new Panel(panel2Width, panel2Width, panel2Height, pitch, xOffset, yOffset, zOffset, panelNum,
+          //yCoordOffset, panel2Radius, false, 2);
       conePanels.add(panel);
       xOffset += panel2Width;
       allPoints.addAll(panel.getPoints());
@@ -511,7 +507,7 @@ public class ConeDownModel extends LXModel {
 
   public static float xScale(CXPoint p) {
     float x = POINTS_WIDE / ((float)p.panel.pointsWide * ((p.panel.scoop)?scoopSides:coneSides));
-    if (p.panel.panelType == Panel.PanelType.A1 || p.panel.panelType == Panel.PanelType.A2) {
+    if (p.panel.isHalfPanel()){
       x = (float)POINTS_WIDE / ((float)(p.panel.pointsWide * p.panel.numPanelsAround()));
     }
 

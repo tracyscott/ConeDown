@@ -21,6 +21,8 @@ import java.util.logging.Logger;
 public class Panel {
   private static final Logger logger = Logger.getLogger(Panel.class.getName());
 
+  public static float CNC_SCALE = 1/150f;
+
   public enum PanelRegion {
     SCOOP,
     CONE,
@@ -30,10 +32,12 @@ public class Panel {
   public enum PanelType {
     A1,
     A2,
-    B,
+    B1,
+    B2,
     C,
     D,
-    E,
+    E1,
+    E2,
     F,
   }
 
@@ -41,8 +45,10 @@ public class Panel {
       "A",
       "A",
       "B",
+      "B",
       "C",
       "D",
+      "E",
       "E",
       "F",
   };
@@ -51,19 +57,22 @@ public class Panel {
   {
       16,
       16,
+      16,
+      16,
       8,
       8,
-      8,
-      8,
+      16,
+      16,
       8,
   };
 
   final static public float[] faceSlope = {
       -7f,
       -7f,
+      -7f,
+      -7f,
       0f,
-      0f,
-      0f,
+      -35f,
       0f,
       0f,
   };
@@ -105,7 +114,7 @@ public class Panel {
     this.radius = radius;
 
     boolean mirror = false;
-    if (panelType == PanelType.A2)
+    if (panelType == PanelType.A2 || panelType == PanelType.B2 || panelType == PanelType.E2)
       mirror = true;
     String filename = panelFilenames[panelType.ordinal()];
 
@@ -116,8 +125,8 @@ public class Panel {
 
     for (CXPoint p : points) {
       // Convert to meters.
-      p.x /= 100f;
-      p.y /= 100f;
+      p.x *= CNC_SCALE;
+      p.y *= CNC_SCALE;
     }
 
     float angleIncr = 360f / numFullPanelsAround();
@@ -222,11 +231,10 @@ public class Panel {
 
     Collections.sort(points);
 
-    /*
+    logger.info("panelType = " + panelFilenames[panelType.ordinal()]);
     for (CXPoint p : points) {
       logger.info("point " + p.x + "," + p.y + " texX,texY: " + p.xCoord + "," + p.yCoord);
     }
-    */
   }
 
   /**
@@ -277,7 +285,9 @@ public class Panel {
    * @return true if this panel is a half panel type.
    */
   public boolean isHalfPanel() {
-    return (panelType == PanelType.A1 || panelType == PanelType.A2);
+    return (panelType == PanelType.A1 || panelType == PanelType.A2 ||
+        panelType == PanelType.B1 || panelType == PanelType.B2 ||
+        panelType ==  PanelType.E1 || panelType == PanelType.E2);
   }
 
   /**
@@ -307,7 +317,7 @@ public class Panel {
   }
 
   public boolean isFirstHalfPanel() {
-    if (panelType == PanelType.A1)
+    if (panelType == PanelType.A1 || panelType == PanelType.B1 || panelType == PanelType.E1)
       return true;
     return false;
   }
@@ -548,17 +558,22 @@ public class Panel {
         String dText = "";
         if (dNode != null) {
           dText = dNode.getNodeValue();
-          logger.log(Level.INFO, "D text = " + dText);
+          //logger.log(Level.INFO, "D text = " + dText);
           //  m -71.301488,187.94966 a 2.362205,2.362205 0 1 0 -4.72441,0 2.362205,2.362205 0 1 0 4.72441,0 z
           // Extract m -61.553721,417.07872 for position
           // Extract a 2.362205,2.362205 for led hole
           // Extract a 1.417323,1.417323 for drill hole
           String[] values = dText.split(" ");
-          if (values.length == 4) {
+          if (values.length == 4 || values.length == 3) {
             // Panel cut boundary.
             // d="M -95.19685,495.23448 H 0"
             // NOTE(Tracy): This directive represents 2 points in our outline
             // d="M 0,495.23448 V 174.50842"
+            //
+            //  d="M -95.19685,495.23448 H 0"
+            //  d="M 0,495.23448 V 174.50842"
+            //  d="M -81.377953,174.50842 H 0"
+            //  d="M -95.19685,495.23448 -81.377953,174.50842"
             // First, 0,495.23448 and then a Vertical line to 0,174.50842.
             // The fourth svg entry is actually just a path back to our original.
             // We pick up 2 points on the Vertical move
@@ -569,17 +584,111 @@ public class Panel {
             // So that is actually only 3 values.
             if (panelBoundaryPts.size() == 4)
               continue;
-            String[] pos = values[1].split(",");
-            Float[] panelBoundaryPos = new Float[2];
-            panelBoundaryPos[0] = Float.parseFloat(pos[0]);
-            panelBoundaryPos[1] = Float.parseFloat(pos[1]);
-            panelBoundaryPts.add(panelBoundaryPos);
-            if ("V".equals(values[2])) {
-              float vertical = Float.parseFloat(values[3]);
-              Float[] panelBoundaryPos2 = new Float[2];
-              panelBoundaryPos2[0] = panelBoundaryPos[0];
-              panelBoundaryPos2[1] = panelBoundaryPos[1] + vertical;
-              panelBoundaryPts.add(panelBoundaryPos2);
+            if (panelType == PanelType.A1 || panelType == PanelType.A2) {
+              /* d="M -95.19685,495.23448 H 0"  bottom left
+                 d="M 0,495.23448 V 174.50842" bottom right + top right
+                 d="M -81.377953,174.50842 H 0" top left
+                 d="M -95.19685,495.23448 -81.377953,174.50842" */
+
+              String[] pos = values[1].split(",");
+              Float[] panelBoundaryPos = new Float[2];
+              panelBoundaryPos[0] = Float.parseFloat(pos[0]);
+              panelBoundaryPos[1] = Float.parseFloat(pos[1]);
+              panelBoundaryPts.add(panelBoundaryPos);
+              if ("V".equals(values[2])) {
+                float vertical = Float.parseFloat(values[3]);
+                Float[] panelBoundaryPos2 = new Float[2];
+                panelBoundaryPos2[0] = panelBoundaryPos[0];
+                panelBoundaryPos2[1] = vertical; // panelBoundaryPos[1] + vertical;
+                panelBoundaryPts.add(panelBoundaryPos2);
+              }
+            } else if (panelType == PanelType.B1 || panelType == panelType.B2) {
+              /* d="M 0,495.94772 < bottom right V 737.13091 < top right"
+                   d="M -95.19685,495.94772 H 0"
+                   d="M -105.82677,737.13091 <bottom left -95.19685,495.94772 < top left"
+                   d="M -105.82677,737.13091 H 0"
+              */
+              // Once we are done, we need to fix up the panelBoundaryPoints order.
+              // Ignore anything with H in this scenario.
+              if ("H".equals(values[2])) continue;
+
+              String[] pos = values[1].split(",");
+              Float[] panelBoundaryPos = new Float[2];
+              panelBoundaryPos[0] = Float.parseFloat(pos[0]);
+              panelBoundaryPos[1] = Float.parseFloat(pos[1]);
+              panelBoundaryPts.add(panelBoundaryPos);
+              if ("V".equals(values[2])) {
+                float vertical = Float.parseFloat(values[3]);
+                Float[] panelBoundaryPos2 = new Float[2];
+                panelBoundaryPos2[0] = panelBoundaryPos[0];
+                panelBoundaryPos2[1] =  vertical; // panelBoundaryPos[1] +
+                panelBoundaryPts.add(panelBoundaryPos2);
+              } else if (values[2].contains(",")) {  // M x,y x,y
+                String[] pos2 = values[2].split(",");
+                Float[] panelBoundaryPos2 = new Float[2];
+                panelBoundaryPos2[0] = Float.parseFloat(pos2[0]);
+                panelBoundaryPos2[1] = Float.parseFloat(pos2[1]);
+                panelBoundaryPts.add(panelBoundaryPos2);
+              }
+            } else if (panelType == PanelType.C) {
+              /* d="m -105.82677,707.5903 v 68.74016"  top left to bottom left
+                 d="M -105.82677,776.33046 H 105.82677"
+                 d="m 105.82677,707.5903 v 68.74016"  bottom right to top right
+                 d="M -105.82677,707.5903 H 105.82677"
+              */
+              // just skip the 'M' lines.
+              if ("M".equals(values[0])) continue;
+              String[] pos = values[1].split(",");
+              Float[] panelBoundaryPos = new Float[2];
+              panelBoundaryPos[0] = Float.parseFloat(pos[0]);
+              panelBoundaryPos[1] = Float.parseFloat(pos[1]);
+              panelBoundaryPts.add(panelBoundaryPos);
+              if ("v".equals(values[2])) {
+                float vertical = Float.parseFloat(values[3]);
+                Float[] panelBoundaryPos2 = new Float[2];
+                panelBoundaryPos2[0] = panelBoundaryPos[0];
+                panelBoundaryPos2[1] = panelBoundaryPos[1] + vertical;
+                panelBoundaryPts.add(panelBoundaryPos2);
+              }
+            }  else if (panelType == PanelType.D) {
+              /*
+                 d="M -142.32283,1172.9299 H 142.32283"
+                 d="M 142.32283,1172.9299 105.82677,1043.8156"  bottom right to top right
+                 d="M -105.82677,1043.8156 H 105.82677"
+                 d="m -142.32283,1172.9299 36.49606,-129.1143" bottom left to top left.
+               */
+              if ("H".equals(values[2])) continue;
+              String[] pos = values[1].split(",");
+              Float[] panelBoundaryPos = new Float[2];
+              panelBoundaryPos[0] = Float.parseFloat(pos[0]);
+              panelBoundaryPos[1] = Float.parseFloat(pos[1]);
+              panelBoundaryPts.add(panelBoundaryPos);
+              if (values[2].contains(",")) {  // M x,y x,y
+                String[] pos2 = values[2].split(",");
+                Float[] panelBoundaryPos2 = new Float[2];
+                panelBoundaryPos2[0] = Float.parseFloat(pos2[0]);
+                panelBoundaryPos2[1] = Float.parseFloat(pos2[1]);
+                panelBoundaryPts.add(panelBoundaryPos2);
+              }
+            } else if (panelType == PanelType.E1 || panelType == PanelType.E2) {
+              /* d="M 0,870.70866 V 1122.5197"    top right to bottom right
+                 d="M -142.32283,870.70866 H 0"
+                 d="M -142.32283,870.70866 V 1122.5197"  top left to bottom left
+                 d="M -142.32283,1122.5197 H 0"
+              */
+              if ("H".equals(values[2])) continue;
+              String[] pos = values[1].split(",");
+              Float[] panelBoundaryPos = new Float[2];
+              panelBoundaryPos[0] = Float.parseFloat(pos[0]);
+              panelBoundaryPos[1] = Float.parseFloat(pos[1]);
+              panelBoundaryPts.add(panelBoundaryPos);
+              if ("V".equals(values[2])) {
+                float vertical = Float.parseFloat(values[3]);
+                Float[] panelBoundaryPos2 = new Float[2];
+                panelBoundaryPos2[0] = panelBoundaryPos[0];
+                panelBoundaryPos2[1] = panelBoundaryPos[1] + vertical;
+                panelBoundaryPts.add(panelBoundaryPos2);
+              }
             }
 
             // For now, the bottom left point of the cut boundary is just taken as the first path entry.
@@ -598,10 +707,10 @@ public class Panel {
 
           float radius = Float.parseFloat((values[3].split(","))[0]);
           if (radius < 2f) {
-            logger.info("Skipping drill hole at " + xPos + "," + yPos);
+            //logger.info("Skipping drill hole at " + xPos + "," + yPos);
             continue;  // If it is a drill hole, skip it.
           }
-          logger.info("Adding point at " + xPos + "," + yPos);
+          //logger.info("Adding point at " + xPos + "," + yPos);
           int xCoord = 0;
           int yCoord = 0;
           // Create and add point.
@@ -622,6 +731,64 @@ public class Panel {
     } catch ( javax.xml.xpath.XPathExpressionException xpex) {
       logger.log(Level.SEVERE, " XPathExpressionException: ", xpex);
     }
+    // Need to fix up the boundrary points order.
+    if (panelType == PanelType.B1 || panelType == PanelType.B2) {
+        // d="M 0,495.94772 < top right V 737.13091 < bottom right"
+      //                   d="M -95.19685,495.94772 H 0"
+      //                   d="M -105.82677,737.13091 <bottom left -95.19685,495.94772 < top left"
+      //                   d="M -105.82677,737.13091 H 0"
+
+      Float[] bottomLeft = panelBoundaryPts.get(2);
+      Float[] bottomRight = panelBoundaryPts.get(1);
+      Float[] topRight = panelBoundaryPts.get(0);
+      Float[] topLeft = panelBoundaryPts.get(3);
+      panelBoundaryPts.clear();
+      panelBoundaryPts.add(bottomLeft);
+      panelBoundaryPts.add(bottomRight);
+      panelBoundaryPts.add(topRight);
+      panelBoundaryPts.add(topLeft);
+    } else if (panelType == PanelType.C) {
+      /* d="m -105.82677,707.5903 v 68.74016"  top left to bottom left
+         d="m 105.82677,707.5903 v 68.74016" top right to bottom right */
+      Float[] bottomLeft = panelBoundaryPts.get(1);
+      Float[] bottomRight = panelBoundaryPts.get(3);
+      Float[] topRight = panelBoundaryPts.get(2);
+      Float[] topLeft = panelBoundaryPts.get(0);
+      panelBoundaryPts.clear();
+      panelBoundaryPts.add(bottomLeft);
+      panelBoundaryPts.add(bottomRight);
+      panelBoundaryPts.add(topRight);
+      panelBoundaryPts.add(topLeft);
+    } else if (panelType == PanelType.D) {
+      /* d="M 142.32283,1172.9299 105.82677,1043.8156"  bottom right to top right
+         d="m -142.32283,1172.9299 36.49606,-129.1143" bottom left to top left. */
+      Float[] bottomLeft = panelBoundaryPts.get(2);
+      Float[] bottomRight = panelBoundaryPts.get(0);
+      Float[] topRight = panelBoundaryPts.get(1);
+      Float[] topLeft = panelBoundaryPts.get(3);
+      panelBoundaryPts.clear();
+      panelBoundaryPts.add(bottomLeft);
+      panelBoundaryPts.add(bottomRight);
+      panelBoundaryPts.add(topRight);
+      panelBoundaryPts.add(topLeft);
+    } else if (panelType == PanelType.E1 || panelType == panelType.E2) {
+      /* d="M 0,870.70866 V 1122.5197"    top right to bottom right
+         d="M -142.32283,870.70866 V 1122.5197"  top left to bottom left */
+      Float[] bottomLeft = panelBoundaryPts.get(3);
+      bottomLeft[1] -= 900f;
+      Float[] bottomRight = panelBoundaryPts.get(1);
+      bottomRight[1] -= 900f;
+      Float[] topRight = panelBoundaryPts.get(0);
+      topRight[1] -= 900f;
+      Float[] topLeft = panelBoundaryPts.get(2);
+      topLeft[1] -= 900f;
+      panelBoundaryPts.clear();
+      panelBoundaryPts.add(bottomLeft);
+      panelBoundaryPts.add(bottomRight);
+      panelBoundaryPts.add(topRight);
+      panelBoundaryPts.add(topLeft);
+    }
+
     if (mirror) {
       // We need to translate everybody by the X position of the bottom right coordinate
       // We then swap the bottom right boundary point with the bottom left boundary point
@@ -629,6 +796,21 @@ public class Panel {
       // And then we are ready to
       float bottomRightX = panelBoundaryPts.get(1)[0];
       float bottomRightY = panelBoundaryPts.get(1)[1];
+      float bottomLeftX = panelBoundaryPts.get(0)[0];
+      float bottomLeftY = panelBoundaryPts.get(0)[1];
+
+      if (panelType == PanelType.E2) {
+        System.out.println("E2");
+      }
+
+      if (panelType == PanelType.A2) {
+        System.out.println("A2");
+      }
+
+      if (panelType  == PanelType.B2) {
+        System.out.println("B2");
+      }
+
       for (CXPoint p : points) {
         p.x = bottomRightX - p.x;
         p.y -= bottomRightY;
@@ -648,36 +830,39 @@ public class Panel {
     } else {
       // lets adjust points relative to bottom left, which is first panel boundary pt.
       // TODO(tracy): convert from cm to meters.
+      logger.info("bottomRightY " + panelBoundaryPts.get(0)[1]);
+      float bottomLeftX = panelBoundaryPts.get(0)[0];
+      float bottomLeftY = panelBoundaryPts.get(0)[1];
+      float bottomRightX = panelBoundaryPts.get(1)[0];
+      float bottomRightY = panelBoundaryPts.get(1)[1];
+      if (panelType == PanelType.B1)
+        System.out.println("B1");
       for (CXPoint p : points) {
         p.x -= panelBoundaryPts.get(0)[0];
         p.y -= panelBoundaryPts.get(0)[1];
         p.y *= -1f;
       }
       // Shift so that bottom right of the panel is at 0 X
-      float bottomRightX = panelBoundaryPts.get(0)[0];
-      panelBoundaryPts.get(0)[0] -= bottomRightX;
-      panelBoundaryPts.get(1)[0] -= bottomRightX;
-      panelBoundaryPts.get(2)[0] -= bottomRightX;
-      panelBoundaryPts.get(3)[0] -= bottomRightX;
+      //float bottomRightX = panelBoundaryPts.get(0)[0];
+      panelBoundaryPts.get(0)[0] -= bottomLeftX;
+      panelBoundaryPts.get(0)[1] -= bottomLeftY;
+      panelBoundaryPts.get(1)[0] -= bottomLeftX;
+      panelBoundaryPts.get(1)[1] -= bottomLeftY;
+      panelBoundaryPts.get(2)[0] -= bottomLeftX;
+      panelBoundaryPts.get(2)[1] -= bottomLeftY;
+      panelBoundaryPts.get(3)[0] -= bottomLeftX;
+      panelBoundaryPts.get(3)[1] -= bottomLeftY;
     }
 
-    panelBoundaryPts.get(0)[0] =  panelBoundaryPts.get(0)[0]/100f;
-    panelBoundaryPts.get(0)[1] =  panelBoundaryPts.get(0)[1]/100f;
-    panelBoundaryPts.get(1)[0] =  panelBoundaryPts.get(1)[0]/100f;
-    panelBoundaryPts.get(1)[1] =  panelBoundaryPts.get(1)[1]/100f;
-    panelBoundaryPts.get(2)[0] =  panelBoundaryPts.get(2)[0]/100f;
-    panelBoundaryPts.get(2)[1] =  panelBoundaryPts.get(2)[1]/100f;
-    panelBoundaryPts.get(3)[0] =  panelBoundaryPts.get(3)[0]/100f;
-    panelBoundaryPts.get(3)[1] =  panelBoundaryPts.get(3)[1]/100f;
-
-
-    // Points in SVG are jumbled up. Sort them by X, then Y with a custom compareTo method on
-    // CXPoint that has some epsilon to deal with non-exact values and the variable x density
-    // of trapezoidal panels.  The boundary case would be a trapezoidal
-    // NOTE(tracy): This will not work for Panel D, we need to move locally vertically and
-    // horizontally similar to the wiring Processing sketch.
-    // Collections.sort(points);
-
+    // Convert to meters.
+    panelBoundaryPts.get(0)[0] *= CNC_SCALE;
+    panelBoundaryPts.get(0)[1] *= CNC_SCALE;
+    panelBoundaryPts.get(1)[0] *= CNC_SCALE;
+    panelBoundaryPts.get(1)[1] *= CNC_SCALE;
+    panelBoundaryPts.get(2)[0] *= CNC_SCALE;
+    panelBoundaryPts.get(2)[1] *= CNC_SCALE;
+    panelBoundaryPts.get(3)[0] *= CNC_SCALE;
+    panelBoundaryPts.get(3)[1] *= CNC_SCALE;
 
     bottomWidth = panelBoundaryPts.get(1)[0] - panelBoundaryPts.get(0)[0];
     topWidth = panelBoundaryPts.get(2)[0] - panelBoundaryPts.get(3)[0];

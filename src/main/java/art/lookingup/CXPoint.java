@@ -75,7 +75,7 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
     }
   }
 
-  static public float rowColDistThresh = 0.1f * ConeDownModel.inchesPerMeter;
+  static public float rowColDistThresh = 0.2f * ConeDownModel.inchesPerMeter;
 
   public float distanceSquared(CXPoint p) {
     return (x-p.x)*(x-p.x) + (y-p.y)*(y-p.y);

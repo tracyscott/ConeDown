@@ -1,7 +1,7 @@
 package art.lookingup.patterns;
 
 import art.lookingup.ConeDownModel;
-import art.lookingup.ConeDownModel.Panel;
+import art.lookingup.Panel;
 import art.lookingup.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
