@@ -15,16 +15,17 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 
 abstract public class Pattern extends LXPattern {
-    final PApplet app;
-    final PGraphics graph;
+    public final PApplet app;
+    public final PGraphics graph;
 
-    final int width;
-    final int height;
+    public final int width;
+    public final int height;
 
     final CompoundParameter speedKnob =
 	new CompoundParameter("GlobalSpeed", 1, 0, 10)
         .setDescription("Varies global speed.");
-    
+
+    boolean init;
     float current;
     float elapsed;
 
@@ -50,12 +51,12 @@ abstract public class Pattern extends LXPattern {
 
     @Override
     public void onActive() {
-	setup();
+	// Hmmm
     }
     
     @Override
     public void onInactive() {
-	tearDown();
+	// Hmm
     }
 
     void render(double deltaMs) {
@@ -63,21 +64,23 @@ abstract public class Pattern extends LXPattern {
 
 	float vdelta = current - elapsed;
 
+	if (!init) {
+	    init = true;
+	    setup();
+
+	    // @@@
+	    frag.area.beginDraw();
+	    frag.setup();
+	    frag.area.endDraw();
+	}
+
 	preDraw();
 
 	graph.beginDraw();
 	graph.background(0);
 	graph.copy(frag.image, 0, 0, width, height, 0, 0, width, height);
-	// graph.image(frag.image, 0, 0, width, height);
-	// graph.background(0xffff0000);
 	graph.endDraw();
 	graph.loadPixels();
-
-	// frag.image.save("/Users/jmacd/Desktop/frag1.png");
-	// graph.save("/Users/jmacd/Desktop/graph.png");
-
-	// System.err.println("FRAG " + Arrays.toString(frag.image.pixels)); // .length + ":" + width + ":" + height);
-	// System.err.println("GRAPH " + Arrays.toString(graph.pixels)); // .length + ":" + width + ":" + height);
 
 	for (int i = 0; i < lx.getModel().points.length; i++) {
 	    CXPoint p = (CXPoint) lx.getModel().points[i];
@@ -88,13 +91,7 @@ abstract public class Pattern extends LXPattern {
 	elapsed = current;
     }
 
-    void setup() {
-	System.err.println("Setup called");
-    }
-
-    void tearDown() {
-	System.err.println("Teardown called");
-    }
+    public abstract void setup();
 
     void preDraw() {
 	frag.area.beginDraw();
@@ -104,7 +101,5 @@ abstract public class Pattern extends LXPattern {
 
 	frag.image.copy(frag.area, 0, 0, width, height, 0, 0, width, height);
 	frag.image.loadPixels();
-
-	// System.err.println("FRAG " + Arrays.toString(frag.image.pixels)); // .length + ":" + width + ":" + height);
     }
 }

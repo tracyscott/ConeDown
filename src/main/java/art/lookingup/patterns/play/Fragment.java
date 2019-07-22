@@ -42,6 +42,7 @@ abstract public class Fragment {
 	return this.area;
     }
 
+    public abstract void setup();
     public abstract void drawFragment();
     public abstract void preDrawFragment();
 };

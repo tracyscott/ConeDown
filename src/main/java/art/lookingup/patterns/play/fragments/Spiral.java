@@ -20,8 +20,12 @@ public class Spiral extends art.lookingup.patterns.play.Fragment {
 	this.triples = new Parameter("triples", 4, 1, 10);
 	this.pitch = new Parameter("pitch", 64, 8, 1000);
 	this.fill = new Parameter("fill", 1, 0, 1);
-
 	this.gradients = new Gradient[maxCount+1];
+    }
+
+
+    @Override
+    public void setup() {
 	for (int count = 3; count <= maxCount; count += 3) {
 	    this.gradients[count] = Gradient.compute(area, count);
 	}
@@ -41,7 +45,6 @@ public class Spiral extends art.lookingup.patterns.play.Fragment {
 	    float spirals = (float)count;
 	    float y0 = base + ((float)idx / spirals) * incr;
 	    int c = gradients[count].index(idx);
-	    System.err.println("LOOK " + c);
 	    area.stroke(c);
 	    for (float y = y0; y < height+incr; y += incr) {
 		area.line(0, y, width, y+incr);

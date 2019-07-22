@@ -18,9 +18,9 @@ public class Play extends Pattern {
 
     public Play(LX lx, PApplet app, int width, int height) {
 	super(lx, ConeDown.pApplet, ConeDownModel.POINTS_WIDE, ConeDownModel.POINTS_HIGH);
+    }
 
-	PGraphics area = app.createGraphics(width, height);
-
-	this.addFragment(new Spiral(area));
+    public void setup() {
+	this.addFragment(new Spiral(app.createGraphics(width, height)));
     }
 };
