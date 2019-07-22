@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1563761235232,
+  "timestamp": 1563835091222,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -16745729,
+    "modulationColor": -16711735,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -105,7 +105,7 @@
               "exp": 0.0
             },
             "children": {},
-            "basis": 0.44191630765846973
+            "basis": 0.4222464801209694
           }
         ],
         "modulations": [
@@ -334,7 +334,7 @@
               "label": "LX",
               "enabled": true,
               "Polarity": 0,
-              "Range": 1.0
+              "Range": 0.03749998193234205
             },
             "children": {}
           },
@@ -357,7 +357,7 @@
               "label": "LX",
               "enabled": true,
               "Polarity": 0,
-              "Range": 1.0
+              "Range": 0.03749998193234205
             },
             "children": {}
           }
@@ -462,15 +462,15 @@
               "Band-4": 0.0,
               "Band-5": 0.0,
               "Band-6": 0.0,
-              "Band-7": 0.0,
-              "Band-8": 0.0,
-              "Band-9": 0.0,
-              "Band-10": 0.0,
-              "Band-11": 0.0,
-              "Band-12": 0.06554043026355671,
-              "Band-13": 0.14398768738081957,
-              "Band-14": 0.0,
-              "Band-15": 0.0,
+              "Band-7": 0.1276892821050638,
+              "Band-8": 0.21989043975409028,
+              "Band-9": 0.1886301287214932,
+              "Band-10": 0.21926472922225493,
+              "Band-11": 0.2598646523555118,
+              "Band-12": 0.2730871189314552,
+              "Band-13": 0.451317494329604,
+              "Band-14": 0.5421359793571661,
+              "Band-15": 0.12554359986066166,
               "Band-16": 0.0
             },
             "children": {}
@@ -692,6 +692,7 @@
             "parameters": {
               "label": "Streakers",
               "Fps": 40.0,
+              "Tgt": 0,
               "blurP": 5.999999865889549,
               "bars": 12.0,
               "width": 1.0,
@@ -1026,7 +1027,7 @@
             },
             "parameters": {
               "label": "Mask",
-              "enabled": true,
+              "enabled": false,
               "cone": true,
               "scoop": true,
               "dance": true
@@ -1049,7 +1050,7 @@
           }
         ],
         "clips": [],
-        "patternIndex": 8,
+        "patternIndex": 0,
         "patterns": [
           {
             "id": 247,
@@ -1062,7 +1063,8 @@
             },
             "parameters": {
               "label": "RandomTri",
-              "Fps": 9.500000905245543,
+              "Fps": 9.999999776482582,
+              "Tgt": 0,
               "palette": 0,
               "sides": 3,
               "bgalpha": 0.0,
@@ -1165,13 +1167,14 @@
             "parameters": {
               "label": "RTracers",
               "Fps": 24.000000357627872,
+              "Tgt": 0,
               "palette": 0,
               "blur": 0.4999999888241291,
-              "num": 88.00000250339508,
-              "max": 24.000000469386578,
+              "num": 200.0,
+              "max": 20.64000054448843,
               "min": 8.799999870359898,
-              "minv": 0.3,
-              "maxv": 9.299999798834325,
+              "minv": 4.199999912828208,
+              "maxv": 15.899999651312829,
               "off": 0.0,
               "falpha": 1.0,
               "sat": 1.0,
@@ -1233,6 +1236,7 @@
             "parameters": {
               "label": "ConeScanner",
               "Fps": 6.9999998435378075,
+              "Tgt": 0,
               "BG": 0.0,
               "Width": 24.18000153824687,
               "pos": 0.0,
@@ -1303,6 +1307,7 @@
             "parameters": {
               "label": "Noise",
               "Fps": 19.00000046938658,
+              "Tgt": 1,
               "weight": 0.3620000142604113,
               "rotateMult": 1.0,
               "length": 19.309999791905284,
@@ -1449,6 +1454,7 @@
             "parameters": {
               "label": "RandomTri",
               "Fps": 3.5000004433095477,
+              "Tgt": 0,
               "palette": 1,
               "sides": 3,
               "bgalpha": 0.25,
@@ -1489,6 +1495,7 @@
             "parameters": {
               "label": "RandomTri",
               "Fps": 29.49999995529652,
+              "Tgt": 0,
               "palette": 0,
               "sides": 3,
               "bgalpha": 0.25,
@@ -1529,6 +1536,7 @@
             "parameters": {
               "label": "RTracers",
               "Fps": 40.0,
+              "Tgt": 1,
               "palette": 0,
               "blur": 0.4299999959766865,
               "num": 200.0,
@@ -1701,6 +1709,7 @@
             "parameters": {
               "label": "RandomTri",
               "Fps": 0.0,
+              "Tgt": 0,
               "palette": 0,
               "sides": 3,
               "bgalpha": 1.0,
@@ -1741,6 +1750,7 @@
             "parameters": {
               "label": "Noise",
               "Fps": 40.0,
+              "Tgt": 0,
               "weight": 0.10100002009421591,
               "rotateMult": 1.0,
               "length": 50.0,
@@ -1777,6 +1787,7 @@
             "parameters": {
               "label": "Squares",
               "Fps": 40.0,
+              "Tgt": 0,
               "palette": 0,
               "bgalpha": 1.0,
               "size": 3.0,
@@ -2028,6 +2039,7 @@
             "parameters": {
               "label": "RTracers",
               "Fps": 40.0,
+              "Tgt": 1,
               "palette": 0,
               "blur": 0.25,
               "num": 200.0,
@@ -2110,9 +2122,9 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 3.789070093260264,
-          "theta": 16.87136054493895,
-          "phi": -0.367256666220114,
+          "radius": 18.28610257349224,
+          "theta": 16.31750561472631,
+          "phi": 0.10176991428268552,
           "x": 1.0220918515115045,
           "y": 5.426140887197107,
           "z": -0.6624930403795588
@@ -2120,9 +2132,9 @@
         "cue": [
           {
             "active": false,
-            "radius": 3.789070093260264,
-            "theta": 16.87136054493895,
-            "phi": -0.367256666220114,
+            "radius": 18.28610257349224,
+            "theta": 16.31750561472631,
+            "phi": 0.10176991428268552,
             "x": 1.0220918515115045,
             "y": 5.426140887197107,
             "z": -0.6624930403795588
