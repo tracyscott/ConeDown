@@ -25,13 +25,13 @@ public class Output {
 
   public static LXDatagramOutput datagramOutput = null;
 
-  public static final int MAX_OUTPUTS = 16;
+  public static final int MAX_OUTPUTS = 32;  // 32 outputs in expanded mode.
   public static final int RAVE_OUTPUTS = 8;
   public static final int RAVE_UNIVERSES_PER_OUTPUT = 2;
   public static final int RAVE_UNIVERSES = RAVE_OUTPUTS * RAVE_UNIVERSES_PER_OUTPUT;
 
-  public static ArrayList<ArrayList<Integer>> outputs = new ArrayList<>();
-
+  public static List<List<Integer>> outputs = new ArrayList<List<Integer>>(MAX_OUTPUTS);
+    
   /**
    * Loads a wiring.txt file that is written by PixelMapping Processing sketch.
    *
@@ -40,7 +40,7 @@ public class Output {
    */
   static protected boolean loadWiring(String filename) {
     for (int i = 0; i < MAX_OUTPUTS; i++) {
-	outputs.add(new ArrayList<Integer>());
+      outputs.add(new ArrayList<Integer>());
     }
     BufferedReader reader;
     int currentOutputNum = 0;
