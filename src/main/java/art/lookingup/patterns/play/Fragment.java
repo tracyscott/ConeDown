@@ -2,10 +2,6 @@ package art.lookingup.patterns.play;
 
 import static processing.core.PConstants.ARGB;
 
-// import heronarts.lx.LX;
-// import heronarts.lx.LXPattern;
-// import heronarts.lx.parameter.CompoundParameter;
-// import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PImage;
 
@@ -26,12 +22,8 @@ abstract public class Fragment {
 	this.image = new PImage(this.width, this.height, ARGB);
     }
 
-    public void preDraw(double deltaMs) {
-	
-    }
-   
-    public void draw(double deltaMs) {
-	this.elapsed += deltaMs;
+    protected Parameter newParameter(String name, float init, float min, float max) {
+	return new Parameter(this, name, init, min, max);
     }
 
     public float elapsed() {
@@ -42,7 +34,14 @@ abstract public class Fragment {
 	return this.area;
     }
 
-    public abstract void setup();
+    public void setup() {
+    }
+
+    public void notifyChange() {
+    }
+
+    public void preDrawFragment() {
+    }
+
     public abstract void drawFragment();
-    public abstract void preDrawFragment();
 };

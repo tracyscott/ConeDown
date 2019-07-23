@@ -1,10 +1,11 @@
 package art.lookingup.patterns.play.fragments;
 
 import processing.core.PGraphics;
+import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.Parameter;
 import art.lookingup.colors.Gradient;
 
-public class Spiral extends art.lookingup.patterns.play.Fragment {
+public class Spiral extends Fragment {
 
     static final int maxCount = 99;
 
@@ -12,17 +13,31 @@ public class Spiral extends art.lookingup.patterns.play.Fragment {
     final Parameter pitch;
     final Parameter fill;
 
-    // @@@ redo this pattern as a repeating scan over an image.
+    // @@@ redo this pattern as a repeating scan over an image?
     Gradient gradients[];
+    float strokeWidth;
     
     public Spiral(PGraphics area) {
 	super(area);
-	this.triples = new Parameter("triples", 4, 1, 10);
-	this.pitch = new Parameter("pitch", 64, 8, 1000);
-	this.fill = new Parameter("fill", 1, 0, 1);
+	this.triples = newParameter("triples", 4, 1, 10);
+	this.pitch = newParameter("pitch", 640, 8, 1000);
+	this.fill = newParameter("fill", 0.1f, 0, 1);
 	this.gradients = new Gradient[maxCount+1];
+
+	this.notifyChange();
     }
 
+    public void notifyChange() {
+
+	int count = (int)(triples.value() * 3);
+	float p = pitch.value() / count;
+	float p2 = p * p;
+	float w2 = width * width;
+
+	this.strokeWidth = fill.value() * (float) Math.sqrt(p2*w2/(p2+w2));
+
+	System.err.println("strokeWIDTH " + strokeWidth + " pitch " + pitch.value() + " width " + width + " fill " + fill.value() + " p2 " + p2 + " w2 " + w2);
+    }
 
     @Override
     public void setup() {
@@ -32,20 +47,20 @@ public class Spiral extends art.lookingup.patterns.play.Fragment {
     }
 
     @Override
-    public void preDrawFragment() {
-    }
-
-    @Override
     public void drawFragment() {
 	int count = (int)(triples.value() * 3);
-	float incr = (float)pitch.value();
-	float spin = elapsed();
+	float incr = pitch.value();
+	float spin = elapsed(); // @@@
+
+	area.strokeWeight(strokeWidth);
+
 	for (int idx = 0; idx < count; idx++) {
 	    float base = -incr - spin * incr;
 	    float spirals = (float)count;
 	    float y0 = base + ((float)idx / spirals) * incr;
 	    int c = gradients[count].index(idx);
 	    area.stroke(c);
+
 	    for (float y = y0; y < height+incr; y += incr) {
 		area.line(0, y, width, y+incr);
 	    }
