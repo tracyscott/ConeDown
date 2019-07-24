@@ -1,9 +1,12 @@
 package art.lookingup.patterns.play.fragments;
 
-import processing.core.PGraphics;
 import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.Parameter;
 import art.lookingup.colors.Gradient;
+
+import heronarts.lx.LX;
+
+import processing.core.PGraphics;
 
 public class Spiral extends Fragment {
 
@@ -17,7 +20,7 @@ public class Spiral extends Fragment {
     Gradient gradients[];
     float strokeWidth;
     
-    public Spiral(int width, int height) {
+    public Spiral(LX lx, int width, int height) {
 	super(width, height);
 	this.triples = newParameter("triples", 4, 1, 10);
 	this.pitch = newParameter("pitch", 640, 8, 1000);

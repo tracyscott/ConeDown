@@ -4,7 +4,8 @@ import art.lookingup.CXPoint;
 import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.RenderImageUtil;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
@@ -32,13 +33,11 @@ abstract public class Pattern extends LXPattern {
     float current;
     float elapsed;
 
-    // @@@
-    Fragment frag;
-    public void addFragment(Fragment f) {
-	this.frag = f;
+    List<Fragment> frags = new ArrayList<>();
 
-	System.err.println("We have " + f.params.size() + " params");
-	
+    public void addFragment(Fragment f) {
+	this.frags.add(f);
+
 	for (Parameter p : f.params) {
 	    CompoundParameter cp = new CompoundParameter(p.name, p.value, p.min, p.max);
 	    cp.addListener((LXParameter lxp)->{
@@ -80,20 +79,25 @@ abstract public class Pattern extends LXPattern {
 	    init = true;
 
 	    this.graph = app.createGraphics(width, height);
-	    this.frag.area = app.createGraphics(frag.width, frag.height);
+
+	    for (Fragment f : frags) {
+		f.area = app.createGraphics(f.width, f.height);
+	    }
 		
 	    setup();
 
-	    frag.area.beginDraw();
-	    frag.setup();
-	    frag.area.endDraw();
+	    for (Fragment f : frags) {
+		f.area.beginDraw();
+		f.setup();
+		f.area.endDraw();
+	    }
 	}
 
 	preDraw(current - elapsed);
 
 	graph.beginDraw();
 	graph.background(0);
-	graph.copy(frag.image, 0, 0, width, height, 0, 0, width, height);
+	graph.copy(frags.get(frags.size()-1).image, 0, 0, width, height, 0, 0, width, height);
 	graph.endDraw();
 	graph.loadPixels();
 
@@ -106,14 +110,16 @@ abstract public class Pattern extends LXPattern {
     }
 
     void preDraw(float vdelta) {
-	frag.area.beginDraw();
-	frag.area.background(0);
-	frag.elapsed += vdelta * frag.rate.value();
-	frag.drawFragment();
-	frag.area.endDraw();
-	frag.area.loadPixels();
+	for (Fragment f : frags) {
+	    f.area.beginDraw();
+	    f.area.background(0);
+	    f.elapsed += vdelta * f.rate.value();
+	    f.drawFragment();
+	    f.area.endDraw();
+	    f.area.loadPixels();
 
-	frag.image.copy(frag.area, 0, 0, width, height, 0, 0, width, height);
-	frag.image.loadPixels();
+	    f.image.copy(f.area, 0, 0, width, height, 0, 0, width, height);
+	    f.image.loadPixels();
+	}
     }
 }
