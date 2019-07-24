@@ -17,10 +17,8 @@ public class Play extends Pattern {
     }
 
     public Play(LX lx, PApplet app, int width, int height) {
-	super(lx, ConeDown.pApplet, ConeDownModel.POINTS_WIDE, ConeDownModel.POINTS_HIGH);
-    }
+	super(lx, app, width, height);
 
-    public void setup() {
-	this.addFragment(new Spiral(app.createGraphics(width, height)));
+	this.addFragment(new Spiral(width, height));
     }
 };

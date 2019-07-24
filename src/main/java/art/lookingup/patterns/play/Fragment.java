@@ -2,28 +2,37 @@ package art.lookingup.patterns.play;
 
 import static processing.core.PConstants.ARGB;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import processing.core.PGraphics;
 import processing.core.PImage;
 
 abstract public class Fragment {
-    public final PGraphics area;
     public final PImage image;
+
+    public PGraphics area;
+
+    public final List<Parameter> params = new ArrayList<>();
+    public final Parameter rate;
 
     public final int width;
     public final int height;
 
     float elapsed;
 
-    protected Fragment(PGraphics area) {
-	this.area = area;
-	this.width = area.width;
-	this.height = area.height;
-	this.elapsed = 0;  // @@@
+    protected Fragment(int width, int height) {
+	this.width = width;
+	this.height = height;
+	this.elapsed = 0;
 	this.image = new PImage(this.width, this.height, ARGB);
+	this.rate = newParameter("rate", 1, -1, 1);
     }
 
     protected Parameter newParameter(String name, float init, float min, float max) {
-	return new Parameter(this, name, init, min, max);
+	Parameter p = new Parameter(this, name, init, min, max);
+	params.add(p);
+	return p;
     }
 
     public float elapsed() {
@@ -34,14 +43,9 @@ abstract public class Fragment {
 	return this.area;
     }
 
-    public void setup() {
-    }
+    public void setup() {}
 
-    public void notifyChange() {
-    }
-
-    public void preDrawFragment() {
-    }
+    public void notifyChange() {}
 
     public abstract void drawFragment();
 };

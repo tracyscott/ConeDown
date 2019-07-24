@@ -17,8 +17,8 @@ public class Spiral extends Fragment {
     Gradient gradients[];
     float strokeWidth;
     
-    public Spiral(PGraphics area) {
-	super(area);
+    public Spiral(int width, int height) {
+	super(width, height);
 	this.triples = newParameter("triples", 4, 1, 10);
 	this.pitch = newParameter("pitch", 640, 8, 1000);
 	this.fill = newParameter("fill", 0.1f, 0, 1);
@@ -29,18 +29,18 @@ public class Spiral extends Fragment {
 
     public void notifyChange() {
 
-	int count = (int)(triples.value() * 3);
+	int count = (int)triples.value() * 3;
 	float p = pitch.value() / count;
 	float p2 = p * p;
 	float w2 = width * width;
 
 	this.strokeWidth = fill.value() * (float) Math.sqrt(p2*w2/(p2+w2));
-
-	System.err.println("strokeWIDTH " + strokeWidth + " pitch " + pitch.value() + " width " + width + " fill " + fill.value() + " p2 " + p2 + " w2 " + w2);
     }
 
     @Override
     public void setup() {
+	super.setup();
+
 	for (int count = 3; count <= maxCount; count += 3) {
 	    this.gradients[count] = Gradient.compute(area, count);
 	}
@@ -48,9 +48,9 @@ public class Spiral extends Fragment {
 
     @Override
     public void drawFragment() {
-	int count = (int)(triples.value() * 3);
+	int count = (int)triples.value() * 3;
 	float incr = pitch.value();
-	float spin = elapsed(); // @@@
+	float spin = elapsed();
 
 	area.strokeWeight(strokeWidth);
 

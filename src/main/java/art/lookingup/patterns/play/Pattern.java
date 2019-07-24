@@ -10,6 +10,7 @@ import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.model.LXPoint;
 import heronarts.lx.parameter.CompoundParameter;
+import heronarts.lx.parameter.LXParameter;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -17,12 +18,13 @@ import processing.core.PImage;
 
 abstract public class Pattern extends LXPattern {
     public final PApplet app;
-    public final PGraphics graph;
+
+    public PGraphics graph;
 
     public final int width;
     public final int height;
 
-    final CompoundParameter speedKnob =
+    public final CompoundParameter speedKnob =
 	new CompoundParameter("GlobalSpeed", 1, 0, 10)
         .setDescription("Varies global speed.");
 
@@ -34,15 +36,26 @@ abstract public class Pattern extends LXPattern {
     Fragment frag;
     public void addFragment(Fragment f) {
 	this.frag = f;
+
+	System.err.println("We have " + f.params.size() + " params");
+	
+	for (Parameter p : f.params) {
+	    CompoundParameter cp = new CompoundParameter(p.name, p.value, p.min, p.max);
+	    cp.addListener((LXParameter lxp)->{
+		    p.setValue((float) lxp.getValue());
+		});
+	    addParameter(cp);
+	}
     }
 
     public Pattern(LX lx, PApplet app, int width, int height) {
 	super(lx);
 
 	this.app = app;
-	this.graph = app.createGraphics(width, height);
 	this.width = width;
 	this.height = height;
+
+	addParameter(speedKnob);
     }
 
     @Override
@@ -61,21 +74,22 @@ abstract public class Pattern extends LXPattern {
     }
 
     void render(double deltaMs) {
-	current += (float)(speedKnob.getValue() * (deltaMs / 1000));
-
-	float vdelta = current - elapsed;
+	current += (float)(speedKnob.getValue() * (deltaMs / 1e4));
 
 	if (!init) {
 	    init = true;
+
+	    this.graph = app.createGraphics(width, height);
+	    this.frag.area = app.createGraphics(frag.width, frag.height);
+		
 	    setup();
 
-	    // @@@
 	    frag.area.beginDraw();
 	    frag.setup();
 	    frag.area.endDraw();
 	}
 
-	preDraw();
+	preDraw(current - elapsed);
 
 	graph.beginDraw();
 	graph.background(0);
@@ -88,10 +102,13 @@ abstract public class Pattern extends LXPattern {
 	elapsed = current;
     }
 
-    public abstract void setup();
+    public void setup() {
+    }
 
-    void preDraw() {
+    void preDraw(float vdelta) {
 	frag.area.beginDraw();
+	frag.area.background(0);
+	frag.elapsed += vdelta * frag.rate.value();
 	frag.drawFragment();
 	frag.area.endDraw();
 	frag.area.loadPixels();
