@@ -36,7 +36,7 @@ abstract public class Pattern extends LXPattern {
     List<Fragment> frags = new ArrayList<>();
 
     public void addFragment(Fragment f) {
-	this.frags.add(f);
+	frags.add(f);
 
 	for (Parameter p : f.params) {
 	    CompoundParameter cp = new CompoundParameter(p.name, p.value, p.min, p.max);

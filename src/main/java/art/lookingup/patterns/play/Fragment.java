@@ -26,7 +26,7 @@ abstract public class Fragment {
 	this.height = height;
 	this.elapsed = 0;
 	this.image = new PImage(this.width, this.height, ARGB);
-	this.rate = newParameter("rate", 1, -1, 1);
+	this.rate = newParameter(String.format("rate-%s", this.hashCode()), 1, -1, 1);
     }
 
     protected Parameter newParameter(String name, float init, float min, float max) {

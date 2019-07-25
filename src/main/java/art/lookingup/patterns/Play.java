@@ -21,6 +21,6 @@ public class Play extends Pattern {
 	super(lx, app, width, height);
 
 	this.addFragment(new Spiral(lx, width, height));
-	this.addFragment(new Balls(lx, width, height));
+	//this.addFragment(new Balls(lx, width, height));
     }
 };

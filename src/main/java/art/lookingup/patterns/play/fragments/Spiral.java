@@ -3,6 +3,7 @@ package art.lookingup.patterns.play.fragments;
 import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.Parameter;
 import art.lookingup.colors.Gradient;
+import art.lookingup.Projection;
 
 import heronarts.lx.LX;
 
@@ -16,6 +17,10 @@ public class Spiral extends Fragment {
     final Parameter pitch;
     final Parameter fill;
 
+    final Projection projection;
+
+    static final int numSections = 24;
+
     // @@@ redo this pattern as a repeating scan over an image?
     Gradient gradients[];
     float strokeWidth;
@@ -26,6 +31,7 @@ public class Spiral extends Fragment {
 	this.pitch = newParameter("pitch", 640, 8, 1000);
 	this.fill = newParameter("fill", 0.1f, 0, 1);
 	this.gradients = new Gradient[maxCount+1];
+	this.projection = new Projection(lx.getModel());
 
 	this.notifyChange();
     }
@@ -59,14 +65,26 @@ public class Spiral extends Fragment {
 
 	for (int idx = 0; idx < count; idx++) {
 	    float base = -incr - spin * incr;
-	    float spirals = (float)count;
-	    float y0 = base + ((float)idx / spirals) * incr;
+	    float spirals = (float) count;
+	    float startY = base + ((float) idx / spirals) * incr;
 	    int c = gradients[count].index(idx);
 	    area.stroke(c);
 
-	    for (float y = y0; y < height+incr; y += incr) {
-		area.line(0, y, width, y+incr);
+	    for (float y = startY; y < height+incr; y += incr) {
+		for (float s = 0; s < numSections; s++) {
+		    float br = s / numSections;
+		    float er = (s + 1) / numSections;
+
+		    float x0 = width * br;
+		    float x1 = width * er;
+		    float y0 = y + incr * br;
+		    float y1 = y + incr * er;
+
+		    area.strokeWeight(strokeWidth / projection.xScale((x0 + x1) / 2, (y0 + y1) / 2));
+		    area.line(x0, y0, x1, y1);
+		}
 	    }
 	}
     }
 }
+
