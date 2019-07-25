@@ -24,18 +24,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.firmata4j.IODevice;
+import org.firmata4j.firmata.FirmataDevice;
 import processing.core.PApplet;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 
 public class ConeDown extends PApplet {
 	
@@ -161,6 +152,23 @@ public class ConeDown extends PApplet {
       addLogFileHandler(LOG_FILENAME_PREFIX);
     } catch (IOException ex) {
       logger.log(Level.SEVERE, "Error creating log file: " + LOG_FILENAME_PREFIX, ex);
+    }
+
+    // construct a Firmata device instance
+    IODevice device = new FirmataDevice("COM3"); // using the name of a port
+// IODevice device = new FirmataDevice(new NetworkTransport("192.168.1.18:4334")); // using a network address
+// subscribe to events using device.addEventListener(...);
+// and/or device.getPin(n).addEventListener(...);
+    try {
+      logger.info("Initializing Firmata");
+      device.start(); // initiate communication to the device
+      device.ensureInitializationIsDone(); // wait for initialization is done
+// sending commands to the board
+      device.stop(); // stop communication to the device
+    } catch (IOException ioex) {
+      logger.info("Firmata IOException ioex: " + ioex.getMessage());
+    } catch (InterruptedException iex) {
+      logger.info("Firmata: Interrupted Exception: " + iex.getMessage());
     }
 
     LXModel model = ConeDownModel.createModel();

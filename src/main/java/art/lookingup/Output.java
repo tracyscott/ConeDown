@@ -71,6 +71,8 @@ public class Output {
   public static String artnetIpAddress = "192.168.2.120";
   public static int artnetPort = 6454;
 
+  // TODO(tracy): We need to put out the points in the same order for the CNC-based panels that we did for
+  // the dimensions-based generated panels.
   public static void configureUnityArtNet(LX lx) {
     List<LXPoint> points = lx.getModel().getPoints();
     int numUniverses = (int)Math.ceil(((double)points.size())/170.0);
@@ -78,10 +80,66 @@ public class Output {
     List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
     int totalPointsOutput = 0;
 
+    // Output by panel.
+
+    int curUnivNum = 0;
+    int curDmxAddress = 0;
+
+
+    /*
+    int[] dmxChannelsForUniverse = new int[170];
+    for (Panel panel : ConeDownModel.allPanels) {
+      int numPanelPoints = panel.getPoints().size();
+     System.out.println("Adding points for panelType: " + panel.pointsWide + "," + panel.pointsHigh);
+     if (panel.panelRegion == Panel.PanelRegion.CONE) {
+       for (int col = 0; col < panel.pointsWide; col++) {
+        for (int row = 0; row < panel.pointsHigh; row++) {
+           CXPoint p = CXPoint.getCXPointAtTexCoord(panel.getPoints(), col, row);
+           dmxChannelsForUniverse[curDmxAddress++] = p.index;
+           if (curDmxAddress >= 170) {
+             System.out.println("Added points for universe number: " + curUnivNum);
+             ArtNetDatagram artnetDatagram = new ArtNetDatagram(dmxChannelsForUniverse, curUnivNum);
+             try {
+               artnetDatagram.setAddress(artnetIpAddress).setPort(artnetPort);
+             } catch (UnknownHostException uhex) {
+               logger.log(Level.SEVERE, "Configuring ArtNet: " + artnetIpAddress, uhex);
+             }
+             datagrams.add(artnetDatagram);
+             curUnivNum++;
+             curDmxAddress = 0;
+             dmxChannelsForUniverse = new int[170];
+           }
+         }
+       }
+     } else {
+       for (int row = 0; row < panel.pointsHigh; row++) {
+         for (int col = 0; col < panel.pointsWide; col++) {
+           CXPoint p = CXPoint.getCXPointAtTexCoord(panel.getPoints(), col, row);
+           dmxChannelsForUniverse[curDmxAddress++] = p.index;
+           if (curDmxAddress >= 170) {
+             System.out.println("Added points for universe number: " + curUnivNum);
+             ArtNetDatagram artnetDatagram = new ArtNetDatagram(dmxChannelsForUniverse, curUnivNum);
+             try {
+               artnetDatagram.setAddress(artnetIpAddress).setPort(artnetPort);
+             } catch (UnknownHostException uhex) {
+               logger.log(Level.SEVERE, "Configuring ArtNet: " + artnetIpAddress, uhex);
+             }
+             datagrams.add(artnetDatagram);
+             curUnivNum++;
+             curDmxAddress = 0;
+             dmxChannelsForUniverse = new int[170];
+           }
+         }
+       }
+     }
+    }
+    */
+
     for (int univNum = 0; univNum < numUniverses; univNum++) {
       int[] dmxChannelsForUniverse = new int[170];
       for (int i = 0; i < 170 && totalPointsOutput < points.size(); i++) {
-        dmxChannelsForUniverse[i] = totalPointsOutput;
+        LXPoint p = points.get(univNum*170 + i);
+        dmxChannelsForUniverse[i] = p.index;
         totalPointsOutput++;
       }
       System.out.println("Added points for universe number: " + univNum);
