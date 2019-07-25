@@ -385,6 +385,8 @@ public class ConeDownModel extends LXModel {
     POINTS_WIDE = scoopPointsWide; // Could compute this by maxing everything but we know it is the most.
     POINTS_HIGH = dancePointsHigh + scoopPointsHigh + conePointsHigh;
 
+    logger.info("Computed POINTS_WIDExPOINTS_HIGH: " + POINTS_WIDE + "x" + POINTS_HIGH);
+
     float scoopYOffset = 0.75f;
     for (LXPoint p : conePoints) {
       float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
@@ -609,5 +611,5 @@ public class ConeDownModel extends LXModel {
   }
 
   public static int POINTS_WIDE = 112;
-  public static int POINTS_HIGH = 83;
+  public static int POINTS_HIGH = 84;
 }

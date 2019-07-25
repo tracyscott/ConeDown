@@ -5,17 +5,14 @@ import com.google.common.reflect.ClassPath;
 import heronarts.lx.LXEffect;
 import heronarts.lx.LXPattern;
 import heronarts.lx.model.LXModel;
-import heronarts.lx.model.LXPoint;
 import heronarts.lx.studio.LXStudio;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.FileHandler;
@@ -24,8 +21,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import org.firmata4j.IODevice;
-import org.firmata4j.firmata.FirmataDevice;
 import processing.core.PApplet;
 
 public class ConeDown extends PApplet {
@@ -89,6 +84,8 @@ public class ConeDown extends PApplet {
   public static UIMidiControl uiMidiControl;
   public static com.giantrainbow.OSCSensor oscSensor;
   public static OSCSensorUI oscSensorUI;
+  public static UIFirmata firmataPortUI;
+
 
   @Override
   public void settings() {
@@ -154,23 +151,6 @@ public class ConeDown extends PApplet {
       logger.log(Level.SEVERE, "Error creating log file: " + LOG_FILENAME_PREFIX, ex);
     }
 
-    // construct a Firmata device instance
-    IODevice device = new FirmataDevice("COM3"); // using the name of a port
-// IODevice device = new FirmataDevice(new NetworkTransport("192.168.1.18:4334")); // using a network address
-// subscribe to events using device.addEventListener(...);
-// and/or device.getPin(n).addEventListener(...);
-    try {
-      logger.info("Initializing Firmata");
-      device.start(); // initiate communication to the device
-      device.ensureInitializationIsDone(); // wait for initialization is done
-// sending commands to the board
-      device.stop(); // stop communication to the device
-    } catch (IOException ioex) {
-      logger.info("Firmata IOException ioex: " + ioex.getMessage());
-    } catch (InterruptedException iex) {
-      logger.info("Firmata: Interrupted Exception: " + iex.getMessage());
-    }
-
     LXModel model = ConeDownModel.createModel();
 
     LXStudio.Flags flags = new LXStudio.Flags();
@@ -210,6 +190,9 @@ public class ConeDown extends PApplet {
   }
 
   public void onUIReady(LXStudio lx, LXStudio.UI ui) {
+    firmataPortUI = (UIFirmata) new UIFirmata(lx.ui, lx).setExpanded(true).addToContainer(lx.ui.leftPane.global);
+    ConeFirmata.reloadFirmata(firmataPortUI.getStringParameter(UIFirmata.FIRMATA_PORT).getString(), firmataPortUI.numPins,
+        firmataPortUI.getDiscreteParameter(UIFirmata.START_PIN).getValuei(), firmataPortUI.getPinParameters());
     oscSensor = new com.giantrainbow.OSCSensor(lx);
     lx.engine.registerComponent("oscsensor", oscSensor);
     //modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);

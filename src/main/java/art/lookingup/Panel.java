@@ -460,12 +460,14 @@ public class Panel {
     pointsHigh = 0;
     int xCoord = 0;
     int yCoord = 0;
+    float danceFloorPanelMargin = 1.5f / ConeDownModel.inchesPerMeter;
+
     // X,Y here are in panel-local coordinates.
-    for (float y = ConeDownModel.panelMargin; y < this.height - ConeDownModel.panelMargin; y+= pitchInMeters) {
+    for (float y = danceFloorPanelMargin; y < this.height - danceFloorPanelMargin; y+= pitchInMeters) {
       pointsWide = 0;
       xCoord = 0;
       float percentYDone = y / height;
-      for (float x = ConeDownModel.panelMargin; x < width - ConeDownModel.panelMargin; x += pitchInMeters)
+      for (float x = danceFloorPanelMargin; x < width - danceFloorPanelMargin; x += pitchInMeters)
       {
         float percentXDone = x / width;
         double ptX = panelXStart + (panelXFinish-panelXStart) * percentYDone + xOffset;
