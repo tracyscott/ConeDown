@@ -31,7 +31,7 @@ public class Output {
   public static final int RAVE_UNIVERSES = RAVE_OUTPUTS * RAVE_UNIVERSES_PER_OUTPUT;
 
   public static List<List<Integer>> outputs = new ArrayList<List<Integer>>(MAX_OUTPUTS);
-
+    
   /**
    * Loads a wiring.txt file that is written by PixelMapping Processing sketch.
    *

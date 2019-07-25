@@ -231,7 +231,7 @@ public class Panel {
 
     pointsWide = maxXCoord + 1;
     pointsHigh = maxYCoord + 1;
-    logger.info("panel dimensions: " + pointsWide + "x" + pointsHigh);
+    // logger.info("panel dimensions: " + pointsWide + "x" + pointsHigh);
 
     Collections.sort(points);
 
@@ -552,7 +552,7 @@ public class Panel {
       XPath xpath = xpf.newXPath();
       XPathExpression expression = xpath.compile(xpathExpression);
       NodeList svgPaths = (NodeList)expression.evaluate(document, XPathConstants.NODESET);
-      logger.log(Level.INFO, "Num total nodes: " + svgPaths.getLength());
+      // logger.log(Level.INFO, "Num total nodes: " + svgPaths.getLength());
       float minPanelBoundaryX = Float.MAX_VALUE;
       float minPanelBoundaryY = Float.MAX_VALUE;
       float minPanelBoundarySum = Float.MAX_VALUE;
@@ -835,7 +835,7 @@ public class Panel {
     } else {
       // lets adjust points relative to bottom left, which is first panel boundary pt.
       // TODO(tracy): convert from cm to meters.
-      logger.info("bottomRightY " + panelBoundaryPts.get(0)[1]);
+      // logger.info("bottomRightY " + panelBoundaryPts.get(0)[1]);
       float bottomLeftX = panelBoundaryPts.get(0)[0];
       float bottomLeftY = panelBoundaryPts.get(0)[1];
       float bottomRightX = panelBoundaryPts.get(1)[0];
@@ -872,8 +872,8 @@ public class Panel {
     bottomWidth = panelBoundaryPts.get(1)[0] - panelBoundaryPts.get(0)[0];
     topWidth = panelBoundaryPts.get(2)[0] - panelBoundaryPts.get(3)[0];
     height = panelBoundaryPts.get(2)[1] - panelBoundaryPts.get(1)[1];
-    logger.info("Detected panel dimensions: (" + bottomWidth + "-" + topWidth + ")x" + height);
-    logger.info("bottom right: " + panelBoundaryPts.get(0)[0] + "," + panelBoundaryPts.get(0)[1]);
+    // logger.info("Detected panel dimensions: (" + bottomWidth + "-" + topWidth + ")x" + height);
+    // logger.info("bottom right: " + panelBoundaryPts.get(0)[0] + "," + panelBoundaryPts.get(0)[1]);
     return points;
   }
 

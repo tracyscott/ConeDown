@@ -1,9 +1,9 @@
-package art.lookingup.patterns;
+package art.lookingup.patterns.play.fragments;
 
 import java.util.Random;
 
 import heronarts.lx.LX;
-import heronarts.lx.parameter.CompoundParameter;
+
 import processing.core.PGraphics;
 import processing.core.PImage;
 
@@ -13,32 +13,29 @@ import art.lookingup.Projection;
 import art.lookingup.colors.Colors;
 import art.lookingup.colors.Gradient;
 import art.lookingup.patterns.shapes.Parabola;
+import art.lookingup.patterns.play.Fragment;
+import art.lookingup.patterns.play.Parameter;
 
-public class Balls extends PGPixelPerfect {
-    final static public int maxCount = 100;
-    final static public int maxSize = 100;
-    final static public float xRate = 100;
-    final static public float yRate = 10;
+public class Balls extends Fragment {
+  final static public int maxCount = 100;
+  final static public int maxSize = 100;
+  final static public float xRate = 1;
+  final static public float yRate = 10;
 
-  public CompoundParameter sizeKnob = new CompoundParameter("size", 10, 0, maxSize);
-  public CompoundParameter speedKnob = new CompoundParameter("speed", 0.5, 0, 1);
-  public CompoundParameter countKnob = new CompoundParameter("count", 1, 1, maxCount);
+  final Parameter sizeParam;
+  final Parameter countParam;
 
   public Projection projection;
-  Random random = new Random();
 
-  public Balls(LX lx) {
-    super(lx, "");
-    addParameter(sizeKnob);
-    addParameter(speedKnob);
-    addParameter(countKnob);
-    removeParameter(fpsKnob);
+    public Balls(LX lx, int width, int height) {
+	super(width, height);
 
-    this.projection = new Projection(lx.getModel());
-    this.balls = new Ball[maxCount];
-  }
+	this.sizeParam = newParameter("size", 10, 0, maxSize);
+	this.countParam = newParameter("count", 1, 1, maxCount);
 
-  float relapsed;
+	this.projection = new Projection(lx.getModel());
+	this.balls = new Ball[maxCount];
+    }
 
   public class Ball {
       float dp;
@@ -61,8 +58,8 @@ public class Balls extends PGPixelPerfect {
       }
 
       void update(float e) {
-	  xcurrent += vp * (e - elapsed) * (float) speedKnob.getValue() * xRate;
-	  elapsed = e;
+	  // @@@ doesn't support reverse; fix
+	  xcurrent += vp * (e - elapsed) * xRate;
       }
 
       float getX() {
@@ -83,14 +80,14 @@ public class Balls extends PGPixelPerfect {
   Ball []balls;
 
     @Override
-    public void preDraw(double deltaMs) {
+    public void setup() {
 	if (gradient != null) {
 	    return;
 	}
 
-	PGraphics pg = ConeDown.pApplet.createGraphics(1, 1);
-	pg.beginDraw();
-	gradient = Gradient.compute(pg, maxCount);
+	Random random = new Random();
+
+	gradient = Gradient.compute(area, maxCount);
 	for (int i = 0; i < maxCount; i++) {
 	    this.balls[i] = new Ball((float) (0.3 + 0.7 * random.nextDouble()),
 				     (float) random.nextDouble() * ConeDownModel.POINTS_WIDE,
@@ -99,39 +96,34 @@ public class Balls extends PGPixelPerfect {
 				     (float) (0.1 + 0.9 * random.nextDouble()) * ConeDownModel.POINTS_WIDE,
 				     gradient.index(random.nextInt(gradient.size())));
 	}
-	pg.endDraw();
     }    
 
   @Override
-  public void draw(double deltaMs) {
-    pg.background(0);
-
-    relapsed += (float)(speedKnob.getValue() * deltaMs / 1000);
-
-    int count = (int)countKnob.getValue();
+  public void drawFragment() {
+      int count = (int)countParam.value();
 
     for (int i = 0; i < count; i++) {
 	Ball b = balls[i];
 
-	b.update(relapsed);
+	b.update(elapsed());
 
 	float x = b.getX();
 	float y = b.getY();
 
-	pg.pushMatrix();
-	pg.translate(x, y);
+	area.pushMatrix();
+	area.translate(x, y);
 
-	pg.noStroke();
-	pg.fill(b.color);
+	area.noStroke();
+	area.fill(b.color);
 
-	float d = b.dp * (float)sizeKnob.getValue();
+	float d = b.dp * sizeParam.value();
 
-	pg.scale(projection.xScale(0, y), 1);
+	area.scale(projection.xScale(0, y), 1);
 
 	// TODO fix the seam, double draw near borders
-	pg.ellipse(0, 0, d, d);
+	area.ellipse(0, 0, d, d);
 
-	pg.popMatrix();
+	area.popMatrix();
     }
   }
 }
