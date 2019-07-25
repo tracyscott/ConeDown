@@ -39,6 +39,7 @@ public class Panel {
     E1,
     E2,
     F,
+    X,
   }
 
   final static public String[] panelFilenames = {
@@ -51,6 +52,7 @@ public class Panel {
       "E",
       "E",
       "F",
+      "X",
   };
 
   final static public int[] numPanelsAround =
@@ -64,6 +66,7 @@ public class Panel {
       16,
       16,
       8,
+      16,
   };
 
   final static public float[] faceSlope = {
@@ -73,6 +76,7 @@ public class Panel {
       -7f,
       0f,
       -35f,
+      0f,
       0f,
       0f,
   };
@@ -231,10 +235,12 @@ public class Panel {
 
     Collections.sort(points);
 
-    // logger.info("panelType = " + panelFilenames[panelType.ordinal()]);
-    // for (CXPoint p : points) {
-    //   logger.info("point " + p.x + "," + p.y + " texX,texY: " + p.xCoord + "," + p.yCoord);
-    // }
+    logger.info("panelType = " + panelFilenames[panelType.ordinal()]);
+    /*
+    for (CXPoint p : points) {
+      logger.info("point " + p.x + "," + p.y + " texX,texY: " + p.xCoord + "," + p.yCoord);
+    }
+    */
   }
 
   /**
@@ -454,20 +460,19 @@ public class Panel {
     pointsHigh = 0;
     int xCoord = 0;
     int yCoord = 0;
+    float danceFloorPanelMargin = 1.5f / ConeDownModel.inchesPerMeter;
+
     // X,Y here are in panel-local coordinates.
-    for (float y = ConeDownModel.panelMargin; y < this.height - ConeDownModel.panelMargin; y+= pitchInMeters) {
+    for (float y = danceFloorPanelMargin; y < this.height - danceFloorPanelMargin; y+= pitchInMeters) {
       pointsWide = 0;
       xCoord = 0;
       float percentYDone = y / height;
-      for (float x = ConeDownModel.panelMargin; x < width - ConeDownModel.panelMargin; x += pitchInMeters)
+      for (float x = danceFloorPanelMargin; x < width - danceFloorPanelMargin; x += pitchInMeters)
       {
         float percentXDone = x / width;
         double ptX = panelXStart + (panelXFinish-panelXStart) * percentYDone + xOffset;
         double ptZ = panelZStart + (panelZFinish-panelZStart) * percentXDone;
         double ptY = 0f;
-        if (danceXPanel == 0 && danceYPanel == 0) {
-          System.out.println("Adding point: " + ptX + "," + ptZ + " coord: " + xCoord + "," + yCoord);
-        }
         CXPoint point = new CXPoint(this, ptX, 0f, ptZ, xCoord, yCoord, 0f, 0f);
 
         points.add(point);

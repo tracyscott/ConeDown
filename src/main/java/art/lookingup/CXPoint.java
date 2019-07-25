@@ -173,4 +173,12 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
     return points.get(closestPointIndex);
   }
 
+  public static CXPoint getCXPointAtTexCoord(List<CXPoint> points, int x, int y) {
+    for (CXPoint p : points) {
+      if (p.xCoord == x && p.yCoord == y)
+        return p;
+    }
+    return null;
+  }
+
 }

@@ -92,6 +92,7 @@ public class Flags extends RPattern {
     flag = flags[round((float)(flagKnob.getValue()))];
   }
 
+  /* TODO(tracy): This needs to be fixed  to use texture space and not vertical space (or maybe not?)*/
   public void render(double deltaMs) {
     int numRows = ConeDownModel.POINTS_HIGH;
     int flagNum = round((float)(flagKnob.getValue()));
@@ -108,7 +109,8 @@ public class Flags extends RPattern {
       // distribute the extra pixel rows.  Need different logic for exact proportions
       // using blacked out pixels.
       if (flag == lgbtFlag || flag == bullFlag || flag == panFlag) {
-        colors[p.index] = flag[rowNumber / ((numRows + 2) / flag.length)];
+        int flagIndex = rowNumber / ((numRows + 5) / flag.length);
+        colors[p.index] = flag[flagIndex];
       } else if (flag == transFlag) {
         colors[p.index] = flag[rowNumber / ((numRows + 4) / flag.length)];
       } else if (flag == biFlag) {

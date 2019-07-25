@@ -15,7 +15,8 @@ public class Projection {
 
     public Projection(LXModel model) {
 	for (LXPoint lxp : model.points) {
-	    int []coords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) lxp);
+	    int []coords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) lxp, ConeDownModel.POINTS_WIDE,
+          ConeDownModel.POINTS_HIGH,0);
 
 	    tree = tree.add((CXPoint) lxp, Geometries.point(coords[0], coords[1]));
 	}
@@ -24,8 +25,9 @@ public class Projection {
     public float xScale(float x, float y) {
         for (Entry<CXPoint, Point> point :
             tree.nearest(Geometries.point(x, y), 100, 1).toBlocking().toIterable()) {
-	    return ConeDownModel.xScale(point.value());
+	    return ConeDownModel.xScale(point.value(), ConeDownModel.POINTS_WIDE);
         }
+	// TODO(jmacd) @@@ Should scale based on Y too!
 	return 1;
     }
 }

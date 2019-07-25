@@ -5,11 +5,14 @@ import static processing.core.PConstants.P2D;
 import static processing.core.PConstants.P3D;
 
 import art.lookingup.ConeDown;
+import art.lookingup.ConeDownModel;
 import com.google.common.annotations.Beta;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
-import heronarts.lx.parameter.CompoundParameter;
+import heronarts.lx.parameter.*;
+
 import java.util.Random;
+
 import processing.core.PGraphics;
 
 /** Abstract base class for all Processing PGraphics drawing and mapping to the Rainbow. */
@@ -18,11 +21,17 @@ abstract class PGBase extends RPattern {
       new CompoundParameter("Fps", GLOBAL_FRAME_RATE, 0.0, GLOBAL_FRAME_RATE + 10)
           .setDescription("Controls the frames per second.");
 
+  public final DiscreteParameter renderTarget =
+      new DiscreteParameter("Tgt", 0, 0, 4);
+
   protected PGraphics pg;
 
   protected double currentFrame = 0.0;
   protected int previousFrame = -1;
   protected double deltaDrawMs = 0.0;
+  protected String drawMode = "";
+  protected int renderWidth = 0;
+  protected int renderHeight = 0;
 
   /** Indicates whether {@link #setup()} has been called. */
   private boolean setupCalled;
@@ -46,14 +55,51 @@ abstract class PGBase extends RPattern {
 
   public PGBase(LX lx, int width, int height, String drawMode) {
     super(lx);
+    this.drawMode = drawMode;
+    renderWidth = width;
+    renderHeight = height;
 
-    if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
-      pg = ConeDown.pApplet.createGraphics(width, height, drawMode);
-    } else {
-      pg = ConeDown.pApplet.createGraphics(width, height);
-    }
-
+    createPGraphics();
     addParameter(fpsKnob);
+    addParameter(renderTarget);
+
+    renderTarget.addListener(new LXParameterListener() {
+      @Override
+      public void onParameterChanged(LXParameter parameter) {
+        DiscreteParameter iKnob = (DiscreteParameter) parameter;
+        // recreate our our pgraphics.
+        int which = iKnob.getValuei();
+        switch (which) {
+          case 0:  // Default full render.
+            renderWidth = ConeDownModel.POINTS_WIDE;
+            renderHeight = ConeDownModel.POINTS_HIGH;
+            break;
+          case 1:
+            renderWidth = ConeDownModel.dancePointsWide;
+            renderHeight = ConeDownModel.dancePointsHigh;
+            break;
+          case 2:
+            renderWidth = ConeDownModel.scoopPointsWide;
+            renderHeight = ConeDownModel.scoopPointsHigh;
+            break;
+          case 3:
+            renderWidth = ConeDownModel.conePointsWide;
+            renderHeight = ConeDownModel.conePointsHigh;
+            break;
+        }
+        createPGraphics();
+      }
+    });
+  }
+
+  protected void createPGraphics() {
+    if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
+      pg = ConeDown.pApplet.createGraphics(renderWidth, renderHeight, drawMode);
+    } else {
+      pg = ConeDown.pApplet.createGraphics(renderWidth, renderHeight);
+    }
+    pg.beginDraw();
+    pg.endDraw();
   }
 
   /**

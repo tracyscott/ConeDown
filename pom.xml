@@ -132,6 +132,12 @@
             <version>1.0.1-ALPHA</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.kurbatov</groupId>
+            <artifactId>firmata4j</artifactId>
+            <version>2.3.7</version>
+        </dependency>
+
         <!-- Building with fat P3LX.jar from Mark
         <dependency>
             <groupId>heronarts</groupId>

@@ -4,6 +4,7 @@ import art.lookingup.CXPoint;
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 
+import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXModel;
 import heronarts.lx.model.LXPoint;
 import java.util.logging.Logger;
@@ -68,7 +69,8 @@ public class RenderImageUtil {
     image.loadPixels();
     for (int cindex = 0; cindex < colors.length; cindex++) {
       CXPoint p = (CXPoint) lxModel.points[cindex];
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder(p); //ConeDownModel.pointToImageCoordinates(p);
+      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder(p, ConeDownModel.POINTS_WIDE,
+          ConeDownModel.POINTS_HIGH,0); //ConeDownModel.pointToImageCoordinates(p);
       colors[cindex] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
     }
 
@@ -77,16 +79,86 @@ public class RenderImageUtil {
   public static void imageToPointsPixelPerfect(LXModel lxModel, PImage image, int[] colors, int xOffset, int yOffset) {
     image.loadPixels();
     for (LXPoint p : ConeDownModel.conePoints) {
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p);
+      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p, ConeDownModel.POINTS_WIDE,
+          ConeDownModel.POINTS_HIGH, 0);
       colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
     }
     for (LXPoint p : ConeDownModel.scoopPoints) {
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p);
+      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p, ConeDownModel.POINTS_WIDE,
+          ConeDownModel.POINTS_HIGH, 0);
       colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
     }
     for (LXPoint p : ConeDownModel.dancePoints) {
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p);
+      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p, ConeDownModel.POINTS_WIDE,
+          ConeDownModel.POINTS_HIGH, 0);
       colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+    }
+  }
+
+  /**
+   * Apply our render target image to the appropriate set of points based on which target
+   * we have selected.  0 = default, should just use existing method above for now.
+   * 1 = dance floor
+   * 2 = scoop
+   * 3 = cone
+   * @param renderTarget
+   * @param image
+   * @param colors
+   */
+  public static void sampleRenderTarget(int renderTarget, PImage image, int[] colors, int xOffset, int yOffset) {
+    // Dance floor is easy, since there is no texture coordinate offsets.
+    image.loadPixels();
+    int yTexCoordOffset = 0;
+    int pointsWide = ConeDownModel.POINTS_WIDE;
+    int pointsHigh = ConeDownModel.POINTS_HIGH;
+    switch (renderTarget) {
+      case 0:
+        yTexCoordOffset = 0;
+        pointsWide = ConeDownModel.POINTS_WIDE;
+        pointsHigh = ConeDownModel.POINTS_HIGH;
+        break;
+      case 1:
+        yTexCoordOffset = 0;
+        pointsWide = ConeDownModel.dancePointsWide;
+        pointsHigh = ConeDownModel.dancePointsHigh;
+        break;
+      case 2:
+        yTexCoordOffset = ConeDownModel.dancePointsHigh;
+        pointsWide = ConeDownModel.scoopPointsWide;
+        pointsHigh = ConeDownModel.scoopPointsHigh;
+        break;
+      case 3:
+        yTexCoordOffset = ConeDownModel.dancePointsHigh + ConeDownModel.scoopPointsHigh;
+        pointsWide = ConeDownModel.conePointsWide;
+        pointsHigh = ConeDownModel.conePointsHigh;
+        break;
+    }
+
+    for (LXPoint p : ConeDownModel.conePoints) {
+      if (renderTarget == 0 || renderTarget == 3) {
+        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
+        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      } else {
+        colors[p.index] = LXColor.rgba(0, 0, 0, 0);
+      }
+    }
+
+    for (LXPoint p : ConeDownModel.scoopPoints) {
+      if (renderTarget == 0 || renderTarget == 2) {
+        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
+        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      } else {
+        colors[p.index] = LXColor.rgba(0, 0, 0, 0);
+      }
+    }
+
+    for (LXPoint p : ConeDownModel.dancePoints) {
+      if (renderTarget == 0 || renderTarget == 1) {
+        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
+        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      } else {
+        colors[p.index] = LXColor.rgba(0, 0, 0, 0);
+      }
     }
   }
 }
