@@ -43,9 +43,10 @@ public class ConeDownModel extends LXModel {
   public static float inchesPerMeter = 39.3701f;
   static public float panelMargin = 2.0f / inchesPerMeter;
   static public float panel8Radius = 10.2f * 12.0f / inchesPerMeter;
-  static public float panel7Radius = 9.5f * 12.0f / inchesPerMeter;
-  static public float panel6Radius = 8.7f * 12.0f / inchesPerMeter;
-  static public float panel5Radius = 8.7f * 12.0f / inchesPerMeter;
+  static public float panel7Radius =  9.5f * 12.0f / inchesPerMeter;
+  // panel 6 will be disabled.
+  static public float panel6Radius = 2.0f * 8.7f * 12.0f / inchesPerMeter;
+  static public float panel5Radius =  8.7f * 12.0f / inchesPerMeter;
   static public float panel4Radius = 8f * 12.0f / inchesPerMeter;
   static public float panel3Radius = 6.0f * 12.0f / inchesPerMeter;
   static public float panel2Radius = 6f * 12.0f / inchesPerMeter;
@@ -75,11 +76,11 @@ public class ConeDownModel extends LXModel {
   static public float panel6Width = (6.0f *12.0f + 3.34375f) / inchesPerMeter;
   static public float panel6Height = 7.0f / inchesPerMeter;
   static public float panel5Width = (6.0f * 12.0f + 3.375f) / inchesPerMeter;
-  static public float panel5Height = (4.0f * 12.0f + 5.609375f) / inchesPerMeter;
+  static public float panel5Height = (5.5f * 12.0f + 5.609375f) / inchesPerMeter; // was 4.0f
   static public float panel4Width = (6.0f * 12.0f + 3.34375f) / inchesPerMeter;
   static public float panel4TopWidth = (4.0f * 12.0f + 7.34375f) / inchesPerMeter;
   // Adjust for rotation 0.55f fudge factor right now.
-  static public float panel4Height = 0.65f * (2.0f * 12.0f + 9f + 5f/16f) / inchesPerMeter;
+  static public float panel4Height = 0.8f * (2.0f * 12.0f + 9f + 5f/16f) / inchesPerMeter;
   static public float panel3Width = (4.0f * 12.0f + 7.640625f) / inchesPerMeter;
   static public float panel3Height = (1.0f * 12.0f + 7.59375f) / inchesPerMeter;
   static public float panel2Width = (4.0f * 12.0f + 7.640625f) / inchesPerMeter;
@@ -226,6 +227,7 @@ public class ConeDownModel extends LXModel {
     //
     //
     layerWidth = 0;
+    /*
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(panel6Width, panel6Width, panel6Height, pitch, xOffset, yOffset, zOffset, panelNum,
           yCoordOffset, panel6Radius, false, 6);
@@ -246,6 +248,7 @@ public class ConeDownModel extends LXModel {
     System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel6Height;
+    */
 
     //
     // PANEL E
@@ -283,6 +286,11 @@ public class ConeDownModel extends LXModel {
       //    yCoordOffset, panel4Radius, false, 4);
       conePanels.add(panel);
       xOffset += panel4Width;
+      /*
+      CXPoint p1 = CXPoint.getCXPointAtTexCoord(panel.getPoints(), 0, 0);
+      CXPoint p2 = CXPoint.getCXPointAtTexCoord(panel.getPoints(), 0, 1);
+      logger.info("Distance on D: " + p1.distance(p2));
+      */
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
       System.out.println("Adding " + panel.getPoints().size() + " points");

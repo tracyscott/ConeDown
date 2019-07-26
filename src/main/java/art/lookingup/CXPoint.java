@@ -2,7 +2,6 @@ package art.lookingup;
 
 import heronarts.lx.model.LXPoint;
 
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -75,10 +74,17 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
     }
   }
 
-  static public float rowColDistThresh = 0.2f * ConeDownModel.inchesPerMeter;
+  // was 0.2f * inchesPerMeter
+  static public float rowColDistThresh = 3.0f;
 
-  public float distanceSquared(CXPoint p) {
+  public float distanceSquaredXY(CXPoint p) {
     return (x-p.x)*(x-p.x) + (y-p.y)*(y-p.y);
+  }
+
+  public float distanceSquared(CXPoint p) { return (x-p.x)*(x-p.x) + (y-p.y)*(y-p.y); }
+
+  public float distance(CXPoint p) {
+    return (float)Math.sqrt(distanceSquared(p));
   }
 
   public float verticalDistance(CXPoint p) {

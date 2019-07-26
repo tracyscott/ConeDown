@@ -1,5 +1,11 @@
 package art.lookingup;
 
+import org.kabeja.dxf.*;
+import org.kabeja.dxf.helpers.Point;
+import org.kabeja.parser.DXFParser;
+import org.kabeja.parser.ParseException;
+import org.kabeja.parser.Parser;
+import org.kabeja.parser.ParserBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -21,7 +27,7 @@ import java.util.logging.Logger;
 public class Panel {
   private static final Logger logger = Logger.getLogger(Panel.class.getName());
 
-  public static float CNC_SCALE = 1/150f;
+  public static float CNC_SCALE = 1/ConeDownModel.inchesPerMeter;
 
   public enum PanelRegion {
     SCOOP,
@@ -102,8 +108,9 @@ public class Panel {
   public int pointsWide;
   public int pointsHigh;
 
-  List<CXPoint> points;
-  List<Float[]> panelBoundaryPts = new ArrayList<Float[]>(4);
+  public List<CXPoint> points;
+  public List<Float[]> panelBoundaryPts = new ArrayList<Float[]>(4);
+  public BPoint[] bPoints = new BPoint[4];
 
   /**
    * Create a panel based on reading a panel definition file.
@@ -120,11 +127,13 @@ public class Panel {
     boolean mirror = false;
     if (panelType == PanelType.A2 || panelType == PanelType.B2 || panelType == PanelType.E2)
       mirror = true;
+
     String filename = panelFilenames[panelType.ordinal()];
 
-    points = loadPanelSVG("panel_"+ filename + ".svg", mirror);
-    // Points are now in panel local coordinate space.
+    points = loadDXFPanel(filename + "_LED.dxf", mirror);
+    //points = loadPanelSVG("panel_"+ filename + ".svg", mirror);
 
+    // Points are now in panel local coordinate space.
     textureMapPoints();
 
     for (CXPoint p : points) {
@@ -152,7 +161,7 @@ public class Panel {
       panelZStart = (panelZFinish - panelZStart) * 0.5f + panelZStart;
     }
 
-    System.out.println("yCoordOffset =" + yCoordOffset + " pointsHigh=" + pointsHigh);
+    logger.info("yCoordOffset =" + yCoordOffset + " pointsHigh=" + pointsHigh);
     for (CXPoint p : points) {
       float angle = 90f + 45f/2f + (angleIncr * faceNum());
       p.rotX(faceSlope[panelType.ordinal()]);
@@ -235,12 +244,13 @@ public class Panel {
 
     Collections.sort(points);
 
-    logger.info("panelType = " + panelFilenames[panelType.ordinal()]);
+
     /*
     for (CXPoint p : points) {
       logger.info("point " + p.x + "," + p.y + " texX,texY: " + p.xCoord + "," + p.yCoord);
     }
     */
+
   }
 
   /**
@@ -377,7 +387,7 @@ public class Panel {
     double panelXFinish = radius * Math.cos(Math.toRadians(panelAngle + angleIncr));
     double panelZFinish = radius * Math.sin(Math.toRadians(panelAngle + angleIncr));
 
-    System.out.println("yCoordOffset: " + yCoordOffset);
+    logger.info("yCoordOffset: " + yCoordOffset);
     pointsHigh = 0;
     int xCoord = 0;
     int yCoord = 0;
@@ -452,10 +462,10 @@ public class Panel {
     this.yPos = 0f;
     this.zPos = panelZStart;
 
-    System.out.println("dance panel X start: " + panelXStart);
-    System.out.println("dance panel Z start: " + panelZStart);
-    System.out.println("dance panel X finish: " + panelXFinish);
-    System.out.println("dance panel Z finish: " + panelZFinish);
+    logger.info("dance panel X start: " + panelXStart);
+    logger.info("dance panel Z start: " + panelZStart);
+    logger.info("dance panel X finish: " + panelXFinish);
+    logger.info("dance panel Z finish: " + panelZFinish);
 
     pointsHigh = 0;
     int xCoord = 0;
@@ -486,7 +496,7 @@ public class Panel {
     // Since all dance panels are uniform, we will just compute our yCoordOffset from the pointsHigh number
     // we compute above.
     yCoordOffset = danceYPanel * pointsHigh;
-    System.out.println("yCoordOffset: " + yCoordOffset);
+    logger.info("yCoordOffset: " + yCoordOffset);
   }
 
   public float panelStartAngle() {
@@ -499,6 +509,8 @@ public class Panel {
   }
 
   /**
+   * NOTE(tracy): This is old.  We now use DXF files directly.  Left for reference.
+   *
    * Loads a panel definition from an SVG file.  We convert the DWG to DXF online and then import DXF into
    * InkScape, select the entire object, reset the page size to fit the selection, and then save
    * the file to an SVG.
@@ -533,7 +545,7 @@ public class Panel {
    * @param filename
    * @return
    */
-
+  @Deprecated
   public List<CXPoint> loadPanelSVG(String filename, boolean mirror) {
     List<CXPoint> points = new ArrayList<CXPoint>();
 
@@ -681,13 +693,19 @@ public class Panel {
                  d="M -142.32283,870.70866 V 1122.5197"  top left to bottom left
                  d="M -142.32283,1122.5197 H 0"
               */
+              /* version 2
+                 d="M -3615,-5261.4803 H 0"
+                 d="m -3615,-5261.4803 v 6372" bottom left and top left
+                 d="M -3615,1110.5197 H 0"
+                 d="m 0,-5261.4803 v 6372" bottom right and top right
+              */
               if ("H".equals(values[2])) continue;
               String[] pos = values[1].split(",");
               Float[] panelBoundaryPos = new Float[2];
               panelBoundaryPos[0] = Float.parseFloat(pos[0]);
               panelBoundaryPos[1] = Float.parseFloat(pos[1]);
               panelBoundaryPts.add(panelBoundaryPos);
-              if ("V".equals(values[2])) {
+              if ("v".equals(values[2])) {
                 float vertical = Float.parseFloat(values[3]);
                 Float[] panelBoundaryPos2 = new Float[2];
                 panelBoundaryPos2[0] = panelBoundaryPos[0];
@@ -779,13 +797,17 @@ public class Panel {
     } else if (panelType == PanelType.E1 || panelType == panelType.E2) {
       /* d="M 0,870.70866 V 1122.5197"    top right to bottom right
          d="M -142.32283,870.70866 V 1122.5197"  top left to bottom left */
-      Float[] bottomLeft = panelBoundaryPts.get(3);
+      /* v2
+         d="m -3615,-5261.4803 v 6372" bottom left and top left
+         d="m 0,-5261.4803 v 6372" bottom right and top right
+       */
+      Float[] bottomLeft = panelBoundaryPts.get(0);
       bottomLeft[1] -= 900f;
-      Float[] bottomRight = panelBoundaryPts.get(1);
+      Float[] bottomRight = panelBoundaryPts.get(2);
       bottomRight[1] -= 900f;
-      Float[] topRight = panelBoundaryPts.get(0);
+      Float[] topRight = panelBoundaryPts.get(3);
       topRight[1] -= 900f;
-      Float[] topLeft = panelBoundaryPts.get(2);
+      Float[] topLeft = panelBoundaryPts.get(1);
       topLeft[1] -= 900f;
       panelBoundaryPts.clear();
       panelBoundaryPts.add(bottomLeft);
@@ -803,18 +825,6 @@ public class Panel {
       float bottomRightY = panelBoundaryPts.get(1)[1];
       float bottomLeftX = panelBoundaryPts.get(0)[0];
       float bottomLeftY = panelBoundaryPts.get(0)[1];
-
-      if (panelType == PanelType.E2) {
-        System.out.println("E2");
-      }
-
-      if (panelType == PanelType.A2) {
-        System.out.println("A2");
-      }
-
-      if (panelType  == PanelType.B2) {
-        System.out.println("B2");
-      }
 
       for (CXPoint p : points) {
         p.x = bottomRightX - p.x;
@@ -834,7 +844,6 @@ public class Panel {
 
     } else {
       // lets adjust points relative to bottom left, which is first panel boundary pt.
-      // TODO(tracy): convert from cm to meters.
       logger.info("bottomRightY " + panelBoundaryPts.get(0)[1]);
       float bottomLeftX = panelBoundaryPts.get(0)[0];
       float bottomLeftY = panelBoundaryPts.get(0)[1];
@@ -877,4 +886,160 @@ public class Panel {
     return points;
   }
 
+  /**
+   * Utility class for parsing and processing the DXF file.
+   */
+  static public class BPoint {
+    public BPoint(double x, double y) {
+      this.x = (float)x;
+      this.y = (float)y;
+    }
+    public BPoint(Point p) {
+      x = (float) p.getX();
+      y = (float) p.getY();
+    }
+    public void subtract(BPoint p) {
+      x = x - p.x;
+      y = y - p.y;
+    }
+    public void scale(float s) {
+      x = s * x;
+      y = s * y;
+    }
+    float x;
+    float y;
+  }
+
+  /**
+   * Load a panel from a DXF file.  We use the kabeja library to parse the DXF file.  This works much better
+   * than going through an Inkscape conversion step which really really wants to convert everything into
+   * pixel coordinates FFS.  Units are inches.  LED positions are circles with a radius greater than 0.5 aka
+   * 1/2 inch.  The cut boundaries of the panels are lines, unfortunately in random order wrt the bottom
+   * left again.
+   *
+   * @param filename The name of the .DXF file to load into this panel.
+   * @param mirror If true, the points will be mirrored around the right edge of the DXF layout.  This is
+   *               necessary for various panels that are actually half panels of a trapezoid.
+   * @return
+   */
+  public List<CXPoint> loadDXFPanel(String filename, boolean mirror) {
+    List<CXPoint> points = new ArrayList<CXPoint>();
+    Parser parser = ParserBuilder.createDefaultParser();
+
+    try {
+      parser.parse(filename, DXFParser.DEFAULT_ENCODING);
+      DXFDocument doc = parser.getDocument();
+      DXFLayer layer = doc.getDXFLayer("VISIBLE");
+      List<DXFCircle> arcs = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_CIRCLE);
+      logger.info("circles length: " + arcs.size());
+      for (DXFCircle c : arcs) {
+        Point centerPt = c.getCenterPoint();
+        // logger.info("circle: " + centerPt.getX() + "," + centerPt.getY() + " r=" + c.getRadius());
+        if (c.getRadius() > 0.5f) {
+          points.add(new CXPoint(this, centerPt.getX(), centerPt.getY(), 0f, 0, 0, 0f, 0f));
+        }
+      }
+      List<DXFLine> lines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_LINE);
+      int i = 0;
+      for (DXFLine l : lines) {
+        Point startPoint = l.getStartPoint();
+        Point endPoint = l.getEndPoint();
+        // Used this to log line coordinates to figure out the order of all four corners.
+        // logger.info("line: " + (int) startPoint.getX() + "," + (int) startPoint.getY() + " to " + (int) endPoint.getX() + "," + (int) endPoint.getY());
+        if (panelType == PanelType.A1 || panelType == PanelType.A2) {
+          if (i == 0) {
+            bPoints[0] = new BPoint(startPoint);
+            bPoints[1] = new BPoint(endPoint);
+          } else if (i == 2) {
+            bPoints[2] = new BPoint(endPoint);
+            bPoints[3] = new BPoint(startPoint);
+          }
+        }
+        if (panelType == PanelType.B1 || panelType == PanelType.B2) {
+          if (i == 1) {
+            bPoints[0] = new BPoint(startPoint);
+            bPoints[3] = new BPoint(endPoint);
+          } else if (i == 3) {
+            bPoints[2] = new BPoint(startPoint);
+            bPoints[1] = new BPoint(endPoint);
+          }
+        }
+        if (panelType == PanelType.C) {
+          if (i == 0) {
+            bPoints[3] = new BPoint(startPoint);
+            bPoints[2] = new BPoint(endPoint);
+          } else if (i == 2) {
+            bPoints[1] = new BPoint(endPoint);
+            bPoints[0] = new BPoint(startPoint);
+          }
+        }
+        if (panelType == PanelType.D) {
+          if (i == 0) {
+            bPoints[3] = new BPoint(startPoint);
+            bPoints[2] = new BPoint(endPoint);
+          } else if (i == 2) {
+            bPoints[1] = new BPoint(endPoint);
+            bPoints[0] = new BPoint(startPoint);
+          }
+        }
+        if (panelType == PanelType.E1 || panelType == PanelType.E2) {
+          if (i == 0) {
+            bPoints[3] = new BPoint(startPoint);
+            bPoints[2] = new BPoint(endPoint);
+          } else if (i == 2) {
+            bPoints[1] = new BPoint(endPoint);
+            bPoints[0] = new BPoint(startPoint);
+          }
+        }
+        i++;
+      }
+      BPoint bottomLeft = bPoints[0];
+      BPoint bottomRight  = bPoints[1];
+      BPoint topRight = bPoints[2];
+      BPoint topLeft = bPoints[3];
+
+      // Handle mirror situation
+      if (mirror) {
+        for (CXPoint p : points) {
+          p.x = bPoints[1].x - p.x;
+          p.y -= bPoints[1].y;
+          p.y *= 1f;
+        }
+        float bottomRightYTmp = bottomRight.y;
+        float bottomRightXTmp = bottomRight.x;
+        bottomRight.x = bottomRight.x - bottomLeft.x;
+        bottomRight.y = bottomLeft.y;
+        bottomLeft.x = 0f;
+        bottomLeft.y = bottomRightYTmp;
+        float tempX = topRight.x;
+        float tempY = topRight.y;
+        topRight.x = bottomRightXTmp - topLeft.x;
+        topRight.y = topLeft.y;
+        topLeft.x = bottomRightXTmp - tempX;
+        topLeft.y = tempY;
+      } else {
+        for (CXPoint p : points) {
+          p.x -= bottomLeft.x;
+          p.y -= bottomLeft.y;
+          p.y *= 1f;
+        }
+        bPoints[1].subtract(bPoints[0]);
+        bPoints[2].subtract(bPoints[0]);
+        bPoints[3].subtract(bPoints[0]);
+        bPoints[0].x = 0f;
+        bPoints[1].y = 0f;
+      }
+
+      for (BPoint p : bPoints) {
+        p.scale(CNC_SCALE);
+      }
+
+      bottomWidth = bottomRight.x - bottomLeft.x;
+      topWidth = topRight.x - topLeft.x;
+      height = topRight.y - bottomRight.y;
+    } catch (ParseException pex) {
+      logger.info("Parse exception: " + pex.getMessage());
+    }
+    return points;
+  }
 }
