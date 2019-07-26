@@ -27,6 +27,7 @@ public class Projection {
             tree.nearest(Geometries.point(x, y), 100, 1).toBlocking().toIterable()) {
 	    return ConeDownModel.xScale(point.value(), ConeDownModel.POINTS_WIDE);
         }
+	// TODO(jmacd) @@@ Should scale based on Y too!
 	return 1;
     }
 }
