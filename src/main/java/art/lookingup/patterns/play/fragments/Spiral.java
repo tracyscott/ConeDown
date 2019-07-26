@@ -71,7 +71,7 @@ public class Spiral extends Fragment {
 	    area.stroke(c);
 
 	    for (float y = startY; y < height+incr; y += incr) {
-		for (float s = 0; s < numSections; s++) {
+		for (float s = -1; s <= numSections; s++) {
 		    float br = s / numSections;
 		    float er = (s + 1) / numSections;
 
@@ -80,7 +80,15 @@ public class Spiral extends Fragment {
 		    float y0 = y + incr * br;
 		    float y1 = y + incr * er;
 
-		    area.strokeWeight(strokeWidth / projection.xScale((x0 + x1) / 2, (y0 + y1) / 2));
+		    // TODO @@@
+		    // area.strokeWeight(strokeWidth / projection.xScale((x0 + x1) / 2, (y0 + y1) / 2));
+
+		    if (s == 0) {
+			area.line(x0+width, y0, x1+width, y1);
+		    } else if (s == numSections - 1) {
+			area.line(x0-width, y0, x1-width, y1);
+		    }
+
 		    area.line(x0, y0, x1, y1);
 		}
 	    }
