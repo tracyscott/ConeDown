@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1564103867523,
+  "timestamp": 1564168742897,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -8126209,
+    "modulationColor": -16711790,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -105,7 +105,7 @@
               "exp": 0.0
             },
             "children": {},
-            "basis": 0.485230493393905
+            "basis": 0.5041904972038694
           }
         ],
         "modulations": [
@@ -461,15 +461,15 @@
               "Band-3": 0.0,
               "Band-4": 0.0,
               "Band-5": 0.0,
-              "Band-6": 0.021046293327266707,
-              "Band-7": 0.24579933322626735,
-              "Band-8": 0.3870210464851582,
-              "Band-9": 0.2625674580551923,
-              "Band-10": 0.0,
-              "Band-11": 0.0,
-              "Band-12": 0.06847533973225539,
-              "Band-13": 0.16461830643267028,
-              "Band-14": 0.0,
+              "Band-6": 0.01425688282586901,
+              "Band-7": 0.1634074796559406,
+              "Band-8": 0.23489173891128623,
+              "Band-9": 0.252731688824236,
+              "Band-10": 0.17072222062228148,
+              "Band-11": 0.14308298446069723,
+              "Band-12": 0.2060346693123174,
+              "Band-13": 0.2031817576906102,
+              "Band-14": 0.08199148403233014,
               "Band-15": 0.0,
               "Band-16": 0.0
             },
@@ -1050,7 +1050,7 @@
           }
         ],
         "clips": [],
-        "patternIndex": 2,
+        "patternIndex": 9,
         "patterns": [
           {
             "id": 247,
@@ -1351,6 +1351,36 @@
                 "id": 3673,
                 "class": "heronarts.lx.LXModulationEngine",
                 "modulationColor": -16711926,
+                "internal": {},
+                "parameters": {
+                  "label": "Modulation"
+                },
+                "children": {},
+                "modulators": [],
+                "modulations": [],
+                "triggers": []
+              }
+            }
+          },
+          {
+            "id": 4254,
+            "class": "art.lookingup.patterns.GLTest",
+            "modulationColor": -16384,
+            "internal": {
+              "expanded": true,
+              "modulationExpanded": false,
+              "autoCycleEligible": true
+            },
+            "parameters": {
+              "label": "GLTest",
+              "Fps": 40.0,
+              "Tgt": 0
+            },
+            "children": {
+              "modulation": {
+                "id": 4255,
+                "class": "heronarts.lx.LXModulationEngine",
+                "modulationColor": -3604225,
                 "internal": {},
                 "parameters": {
                   "label": "Modulation"

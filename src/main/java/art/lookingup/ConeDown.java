@@ -213,9 +213,7 @@ public class ConeDown extends PApplet {
       lx.engine.output.enabled.setValue(false);
 
     rainbowOSC = new RainbowOSC(lx);
-
-
-
+    
     // Disable preview for faster UI.
     //lx.ui.preview.setVisible(false);
   }

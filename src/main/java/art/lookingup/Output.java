@@ -168,8 +168,23 @@ public class Output {
     }
   }
 
+  /**
+   * Each Pixlite output covers one sixteenth of the installation.  Dance floor is another 1 or 2 outputs.
+   * Probably 2.
+   * @param lx
+   */
   public static void configureArtNetOutput(LX lx) {
-    loadWiring("wiring.txt");
+
+    int sixteenthNum = 0;
+
+    for (sixteenthNum = 0; sixteenthNum < 16; sixteenthNum++) {
+      // Handle scoop panels.
+    }
+
+  }
+
+  public static void configureUnityArtNetOutput(LX lx) {
+    //loadWiring("wiring.txt");
     // This only works if we have less than 170 lxpoints.
     String artNetIpAddress = ConeDown.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_IP).getString();
     int artNetIpPort = Integer.parseInt(ConeDown.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_PORT).getString());

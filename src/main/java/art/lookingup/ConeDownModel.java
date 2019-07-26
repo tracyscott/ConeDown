@@ -123,6 +123,8 @@ public class ConeDownModel extends LXModel {
   static public int conePointsWide = 0;
   static public int conePointsHigh = 0;
 
+  static public int numLayers = 8;
+  static public List<List<Panel>> panelLayers = new ArrayList<List<Panel>>(numLayers);
 
   public static ConeDownModel createModel() {
     List<LXPoint> allPoints = new ArrayList<LXPoint>();
@@ -174,11 +176,13 @@ public class ConeDownModel extends LXModel {
     //
     for (int rows = 0; rows < numPanel8Layers; rows++) {
       layerWidth = 0;
+      List<Panel> scoopLayer = new ArrayList<Panel>();
       for (int panelNum = 0; panelNum < scoopSides; panelNum++) {
         Panel panel = new Panel(panel8Width, panel8Width, panel8Height, pitch, xOffset, yOffset, zOffset, panelNum,
             yCoordOffset,
             panel8Radius, true, 8);
         scoopPanels.add(panel);
+        scoopLayer.add(panel);
         xOffset += panel8Width;
         allPoints.addAll(panel.getPoints());
         scoopPoints.addAll(panel.getPoints());
@@ -187,6 +191,7 @@ public class ConeDownModel extends LXModel {
         layerWidth += panel.pointsWide;
         layerHeight = panel.pointsHigh;
       }
+      panelLayers.add(scoopLayer);
       if (layerWidth > scoopPointsWide) {
         scoopPointsWide = layerWidth;
       }
@@ -199,10 +204,12 @@ public class ConeDownModel extends LXModel {
     }
 
     layerWidth = 0;
+    List<Panel> scoopLayer = new ArrayList<Panel>();
     for (int panelNum = 0; panelNum <scoopSides; panelNum++) {
       Panel panel = new Panel(panel7Width, panel7Width, panel7Height, pitch, xOffset, yOffset, zOffset, panelNum,
           yCoordOffset, panel7Radius, true, 7);
       scoopPanels.add(panel);
+      scoopLayer.add(panel);
       xOffset += panel7Width;
       allPoints.addAll(panel.getPoints());
       scoopPoints.addAll(panel.getPoints());
@@ -211,6 +218,7 @@ public class ConeDownModel extends LXModel {
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
+    panelLayers.add(scoopLayer);
     if (layerWidth > scoopPointsWide) {
       scoopPointsWide = layerWidth;
     }
@@ -254,11 +262,13 @@ public class ConeDownModel extends LXModel {
     // PANEL E
     //
     layerWidth = 0;
+    List<Panel> coneLayer = new ArrayList<Panel>();
     for (int panelNum = 0; panelNum < Panel.numPanelsAround[Panel.PanelType.E1.ordinal()]; panelNum++) {
       Panel panel = new Panel((panelNum%2==0)? Panel.PanelType.E1: Panel.PanelType.E2, yOffset, panelNum, yCoordOffset, panel5Radius);
       //Panel panel = new Panel(panel5Width, panel5Width, panel5Height, pitch, xOffset, yOffset, zOffset, panelNum,
       //    yCoordOffset, panel5Radius, false, 5);
       conePanels.add(panel);
+      coneLayer.add(panel);
       xOffset += panel5Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
@@ -267,6 +277,7 @@ public class ConeDownModel extends LXModel {
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
+    panelLayers.add(coneLayer);
     if (layerWidth > conePointsWide) {
       conePointsWide = layerWidth;
     }
@@ -280,11 +291,13 @@ public class ConeDownModel extends LXModel {
     // PANEL D
     //
     layerWidth = 0;
+    coneLayer = new ArrayList<Panel>();
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(Panel.PanelType.D, yOffset, panelNum, yCoordOffset, panel4Radius);
       //Panel panel = new Panel(panel4Width, panel4Width, panel4Height, pitch, xOffset, yOffset, zOffset, panelNum,
       //    yCoordOffset, panel4Radius, false, 4);
       conePanels.add(panel);
+      coneLayer.add(panel);
       xOffset += panel4Width;
       /*
       CXPoint p1 = CXPoint.getCXPointAtTexCoord(panel.getPoints(), 0, 0);
@@ -298,6 +311,7 @@ public class ConeDownModel extends LXModel {
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
+    panelLayers.add(coneLayer);
     if (layerWidth > conePointsWide) {
       conePointsWide = layerWidth;
     }
@@ -311,11 +325,13 @@ public class ConeDownModel extends LXModel {
     // PANEL C
     //
     layerWidth = 0;
+    coneLayer = new ArrayList<Panel>();
     for (int panelNum = 0; panelNum < coneSides; panelNum++) {
       Panel panel = new Panel(Panel.PanelType.C, yOffset, panelNum, yCoordOffset, panel3Radius);
       //Panel panel = new Panel(panel3Width, panel3Width, panel3Height, pitch, xOffset, yOffset, zOffset, panelNum,
           //yCoordOffset, panel3Radius, false, 3);
       conePanels.add(panel);
+      coneLayer.add(panel);
       xOffset += panel3Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
@@ -324,6 +340,7 @@ public class ConeDownModel extends LXModel {
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
+    panelLayers.add(coneLayer);
     if (layerWidth > conePointsWide) {
       conePointsWide = layerWidth;
     }
@@ -337,12 +354,14 @@ public class ConeDownModel extends LXModel {
     // PANEL B
     //
     layerWidth = 0;
+    coneLayer = new ArrayList<Panel>();
     for (int panelNum = 0; panelNum < Panel.numPanelsAround[1]; panelNum++) {
       Panel panel = new Panel((panelNum%2==0)? Panel.PanelType.B1: Panel.PanelType.B2, yOffset, panelNum,
           yCoordOffset, panel2Radius);
       //Panel panel = new Panel(panel2Width, panel2Width, panel2Height, pitch, xOffset, yOffset, zOffset, panelNum,
           //yCoordOffset, panel2Radius, false, 2);
       conePanels.add(panel);
+      coneLayer.add(panel);
       xOffset += panel2Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
@@ -351,6 +370,7 @@ public class ConeDownModel extends LXModel {
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
+    panelLayers.add(coneLayer);
     if (layerWidth > conePointsWide) {
       conePointsWide = layerWidth;
     }
@@ -364,6 +384,7 @@ public class ConeDownModel extends LXModel {
     // PANEL A
     //
     layerWidth = 0;
+    coneLayer = new ArrayList<Panel>();
     for (int panelNum = 0; panelNum < Panel.numPanelsAround[0]; panelNum++) {
       //Panel panel = new Panel(panel1Width, panel1Width, panel1Height, pitch, xOffset, yOffset, zOffset, panelNum,
       //    yCoordOffset, panel1Radius, false, 1);
@@ -371,6 +392,7 @@ public class ConeDownModel extends LXModel {
       yCoordOffset, panel1Radius);
       exportPanelPoints(panel);
       conePanels.add(panel);
+      coneLayer.add(panel);
       //xOffset += panel1Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
@@ -379,6 +401,7 @@ public class ConeDownModel extends LXModel {
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
+    panelLayers.add(coneLayer);
     if (layerWidth > conePointsWide) {
       conePointsWide = layerWidth;
     }
