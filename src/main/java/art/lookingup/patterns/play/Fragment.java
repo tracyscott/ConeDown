@@ -24,7 +24,7 @@ abstract public class Fragment {
     protected Fragment(int width, int height) {
 	this.width = width;
 	this.height = height;
-	this.elapsed = 0;
+	this.elapsed = 0;  // Note: updated by Pattern.preDraw()
 	this.image = new PImage(this.width, this.height, ARGB);
 	this.rate = newParameter(String.format("rate-%s", this.hashCode()), 1, -1, 1);
     }
@@ -47,5 +47,26 @@ abstract public class Fragment {
 
     public void notifyChange() {}
 
+    public void preDrawFragment(float vdelta) {
+	elapsed += vdelta * rate.value();
+    }
+
     public abstract void drawFragment();
+
+    public void create(Pattern p) {
+	this.area = p.createGraphics(width, height);
+    }
+
+    public void render(float vdelta) {
+	preDrawFragment(vdelta);
+	
+	area.beginDraw();
+	area.background(0);
+	drawFragment();
+	area.endDraw();
+	area.loadPixels();
+	    
+	image.copy(area, 0, 0, width, height, 0, 0, width, height);
+	image.loadPixels();
+    }
 };

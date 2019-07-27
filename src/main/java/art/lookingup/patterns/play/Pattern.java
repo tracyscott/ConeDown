@@ -1,5 +1,8 @@
 package art.lookingup.patterns.play;
 
+// import static processing.core.PConstants.P2D;
+// import static processing.core.PConstants.P3D;
+
 import art.lookingup.CXPoint;
 import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.RenderImageUtil;
@@ -18,6 +21,8 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 
 abstract public class Pattern extends LXPattern {
+    public static final String gtype = "";  // or P2D or P3D
+    
     public final PApplet app;
 
     public PGraphics graph;
@@ -72,24 +77,29 @@ abstract public class Pattern extends LXPattern {
 	// Hmm
     }
 
+    PGraphics createGraphics(int width, int height) {
+	if (gtype == "") {
+	    return app.createGraphics(width, height);
+	}
+	return app.createGraphics(width, height, gtype);
+    }
+
     void render(double deltaMs) {
 	current += (float)(speedKnob.getValue() * (deltaMs / 1e4));
 
 	if (!init) {
 	    init = true;
 
-	    this.graph = app.createGraphics(width, height);
+	    this.graph = createGraphics(width, height);
 
 	    for (Fragment f : frags) {
-		f.area = app.createGraphics(f.width, f.height);
+		f.create(this);
 	    }
 		
 	    setup();
 
 	    for (Fragment f : frags) {
-		f.area.beginDraw();
 		f.setup();
-		f.area.endDraw();
 	    }
 	}
 
@@ -111,15 +121,7 @@ abstract public class Pattern extends LXPattern {
 
     void preDraw(float vdelta) {
 	for (Fragment f : frags) {
-	    f.area.beginDraw();
-	    f.area.background(0);
-	    f.elapsed += vdelta * f.rate.value();
-	    f.drawFragment();
-	    f.area.endDraw();
-	    f.area.loadPixels();
-
-	    f.image.copy(f.area, 0, 0, width, height, 0, 0, width, height);
-	    f.image.loadPixels();
+	    f.render(vdelta);
 	}
     }
 }

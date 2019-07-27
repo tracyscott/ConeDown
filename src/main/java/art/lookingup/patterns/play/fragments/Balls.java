@@ -85,6 +85,7 @@ public class Balls extends Fragment {
 	    return;
 	}
 
+	area.beginDraw();
 	Random random = new Random();
 
 	gradient = Gradient.compute(area, maxCount);
@@ -96,6 +97,8 @@ public class Balls extends Fragment {
 				     (float) (0.1 + 0.9 * random.nextDouble()) * ConeDownModel.POINTS_WIDE,
 				     gradient.index(random.nextInt(gradient.size())));
 	}
+
+	area.endDraw();
     }    
 
   @Override
