@@ -68,7 +68,7 @@ public class Output {
     return true;
   }
 
-  public static String artnetIpAddress = "192.168.1.114";
+  public static String artnetIpAddress = "192.168.2.120";
   public static int artnetPort = 6454;
 
   // TODO(tracy): We need to put out the points in the same order for the CNC-based panels that we did for
