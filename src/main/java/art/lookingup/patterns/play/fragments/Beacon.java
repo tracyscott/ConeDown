@@ -66,6 +66,10 @@ public class Beacon extends Fragment {
 	    split = frag1;
 	}
 	// TODO is there a floating point copy -- using textures?
-	area.copy(whole.image, 0, 0, halfw, whole.height, base, 0, halfw, height);
+	area.copy(whole.image, 0, 0, halfw, height, base, 0, halfw, height);
+
+	int right = width - base - halfw;
+	area.copy(split.image, 0, 0, right, height, base+halfw, 0, right, height);
+	area.copy(split.image, 0, 0, base, height, 0, 0, base, height);
     }    
 }

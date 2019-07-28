@@ -17,10 +17,9 @@ import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.Parameter;
 
 public class Balls extends Fragment {
+  final static public int rateMult = 100;
   final static public int maxCount = 100;
   final static public int maxSize = 100;
-  final static public float xRate = 1;
-  final static public float yRate = 10;
 
   final Parameter sizeParam;
   final Parameter countParam;
@@ -42,8 +41,8 @@ public class Balls extends Fragment {
       float xcurrent;
       float x0;
       float vp;
+      float elap;
       float period;
-      float elapsed;
       int color;
       Parabola parabola;
 
@@ -58,8 +57,8 @@ public class Balls extends Fragment {
       }
 
       void update(float e) {
-	  // @@@ doesn't support reverse; fix
-	  xcurrent += vp * (e - elapsed) * xRate;
+	  xcurrent += vp * (e - elap) * rateMult;
+	  this.elap = e;
       }
 
       float getX() {

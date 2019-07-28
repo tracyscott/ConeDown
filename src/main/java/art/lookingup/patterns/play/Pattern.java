@@ -32,7 +32,7 @@ abstract public class Pattern extends LXPattern {
     public final int height;
 
     public final CompoundParameter speedKnob =
-	new CompoundParameter("GlobalSpeed", 1, 0, 10000)
+	new CompoundParameter("GlobalSpeed", 1, 0, 10)
         .setDescription("Varies global speed.");
 
     boolean init;
