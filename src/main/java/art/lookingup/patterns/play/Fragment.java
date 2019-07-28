@@ -2,6 +2,10 @@ package art.lookingup.patterns.play;
 
 import static processing.core.PConstants.ARGB;
 
+import heronarts.lx.parameter.CompoundParameter;
+import heronarts.lx.parameter.LXParameter;
+
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +59,16 @@ abstract public class Fragment {
 
     public void create(Pattern p) {
 	this.area = p.createGraphics(width, height);
+    }
+
+    public void registerParameters(Parameter.Adder adder) {
+	for (Parameter p : params) {
+	    CompoundParameter cp = new CompoundParameter(p.name, p.value, p.min, p.max);
+	    cp.addListener((LXParameter lxp)->{
+		    p.setValue((float) lxp.getValue());
+		});
+	    adder.registerParameter(cp);
+	}
     }
 
     public void render(float vdelta) {

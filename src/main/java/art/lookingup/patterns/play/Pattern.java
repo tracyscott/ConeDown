@@ -7,14 +7,15 @@ import art.lookingup.CXPoint;
 import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.RenderImageUtil;
 
+import heronarts.lx.parameter.CompoundParameter;
+import heronarts.lx.parameter.LXParameter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.model.LXPoint;
-import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.LXParameter;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -31,7 +32,7 @@ abstract public class Pattern extends LXPattern {
     public final int height;
 
     public final CompoundParameter speedKnob =
-	new CompoundParameter("GlobalSpeed", 1, 0, 10)
+	new CompoundParameter("GlobalSpeed", 1, 0, 10000)
         .setDescription("Varies global speed.");
 
     boolean init;
@@ -42,14 +43,9 @@ abstract public class Pattern extends LXPattern {
 
     public void addFragment(Fragment f) {
 	frags.add(f);
-
-	for (Parameter p : f.params) {
-	    CompoundParameter cp = new CompoundParameter(p.name, p.value, p.min, p.max);
-	    cp.addListener((LXParameter lxp)->{
-		    p.setValue((float) lxp.getValue());
-		});
-	    addParameter(cp);
-	}
+	f.registerParameters((LXParameter cp)->{
+		addParameter(cp);
+	    });
     }
 
     public Pattern(LX lx, PApplet app, int width, int height) {

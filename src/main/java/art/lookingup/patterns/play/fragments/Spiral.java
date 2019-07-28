@@ -50,9 +50,11 @@ public class Spiral extends Fragment {
     public void setup() {
 	super.setup();
 
+	this.area.beginDraw();
 	for (int count = 3; count <= maxCount; count += 3) {
 	    this.gradients[count] = Gradient.compute(area, count);
 	}
+	this.area.endDraw();
     }
 
     @Override

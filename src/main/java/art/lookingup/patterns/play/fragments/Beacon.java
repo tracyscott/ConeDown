@@ -2,6 +2,7 @@ package art.lookingup.patterns.play.fragments;
 
 import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.Pattern;
+import art.lookingup.patterns.play.Parameter;
 
 import heronarts.lx.LX;
 
@@ -35,7 +36,14 @@ public class Beacon extends Fragment {
     public void setup() {
 	frag0.setup();
 	frag1.setup();
-    }    
+    }
+
+    @Override
+    public void registerParameters(Parameter.Adder adder) {
+	super.registerParameters(adder);
+	frag0.registerParameters(adder);
+	frag1.registerParameters(adder);
+    }
     
     @Override
     public void drawFragment() {
@@ -57,6 +65,7 @@ public class Beacon extends Fragment {
 	    whole = frag0;
 	    split = frag1;
 	}
-	area.copy(whole.image, 0, 0, whole.width, whole.height, base, 0, halfw, height);
+	// TODO is there a floating point copy -- using textures?
+	area.copy(whole.image, 0, 0, halfw, whole.height, base, 0, halfw, height);
     }    
 }
