@@ -123,7 +123,7 @@ public class Balls extends Fragment {
 
 	area.scale(projection.xScale(0, y), 1);
 
-	// TODO fix the seam, double draw near borders
+	// TODO @@@ fix the seam, double draw near borders
 	area.ellipse(0, 0, d, d);
 
 	area.popMatrix();

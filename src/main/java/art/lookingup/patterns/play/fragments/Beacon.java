@@ -50,28 +50,38 @@ public class Beacon extends Fragment {
     @Override
     public void drawFragment() {
 	float f0base = (elapsed() / period) % width;
-	int base;
+	float base;
+	float shift;
+	int baseInt;
 	Fragment whole;
 	Fragment split;
-	final int halfw = (int)(width/2f + 0.5);
-
+	int halfw = (int)(width/2f + 0.5);
+	
 
 	if (f0base > halfw) {
-	    base = (int)(f0base - halfw + 0.5);
+	    base = f0base - halfw;
 	    whole = frag1;
 	    split = frag0;
 	} else {
-	    base = (int)(f0base + 0.5);
+	    base = f0base;
 	    whole = frag0;
 	    split = frag1;
 	}
 
-	// TODO HERE shift fractional pixels
+	baseInt = (int)base;
+	shift = base - baseInt;	
 
-	area.copy(whole.image, 0, 0, halfw, height, base, 0, halfw, height);
+	area.pushMatrix();
 
-	int right = width - base - halfw;
-	area.copy(split.image, 0, 0, right, height, base+halfw, 0, right, height);
-	area.copy(split.image, 0, 0, base, height, 0, 0, base, height);
+	// TODO when this is (-shift) it's disturbing :)
+	area.translate(-1+shift, 0);
+
+	area.copy(whole.image, 0, 0, halfw, height, baseInt, 0, halfw, height);
+
+	int right = width - baseInt - halfw;
+	area.copy(split.image, 0, 0, right, height, baseInt+halfw, 0, right, height);
+	area.copy(split.image, 0, 0, baseInt, height, 0, 0, baseInt, height);
+
+	area.popMatrix();
     }    
 }

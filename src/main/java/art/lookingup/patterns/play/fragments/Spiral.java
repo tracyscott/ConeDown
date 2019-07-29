@@ -22,7 +22,6 @@ public class Spiral extends Fragment {
 
     static final int numSections = 24;
 
-    // @@@ redo this pattern as a repeating scan over an image?
     Gradient gradients[];
     float strokeWidth;
     
@@ -67,7 +66,8 @@ public class Spiral extends Fragment {
 	area.strokeWeight(strokeWidth);
 
 	for (int idx = 0; idx < count; idx++) {
-	    // @@@ something broken around here
+	    // @@@ broken around here; the pattern *disappears*
+	    // (corksrews off screen) after a while.
 	    float base = -incr - spin * incr;
 	    float spirals = (float) count;
 	    float startY = base + ((float) idx / spirals) * incr;
@@ -83,9 +83,6 @@ public class Spiral extends Fragment {
 		    float x1 = width * er;
 		    float y0 = y + incr * br;
 		    float y1 = y + incr * er;
-
-		    // TODO @@@
-		    // area.strokeWeight(strokeWidth / projection.xScale((x0 + x1) / 2, (y0 + y1) / 2));
 
 		    if (s == 0) {
 			area.line(x0+width, y0, x1+width, y1);
