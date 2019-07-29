@@ -51,13 +51,11 @@ public class Beacon extends Fragment {
     public void drawFragment() {
 	float f0base = (elapsed() / period) % width;
 	float base;
-	float shift;
 	int baseInt;
 	Fragment whole;
 	Fragment split;
 	int halfw = (int)(width/2f + 0.5);
 	
-
 	if (f0base > halfw) {
 	    base = f0base - halfw;
 	    whole = frag1;
@@ -69,16 +67,15 @@ public class Beacon extends Fragment {
 	}
 
 	baseInt = (int)base;
-	shift = base - baseInt;	
+
+	float shift = base - baseInt;
 
 	area.pushMatrix();
+	area.translate(shift, 0);
 
-	// TODO when this is (-shift) it's disturbing :)
-	area.translate(-1+shift, 0);
+	area.copy(whole.image, baseInt, 0, halfw, height, baseInt, 0, halfw, height);
 
-	area.copy(whole.image, 0, 0, halfw, height, baseInt, 0, halfw, height);
-
-	int right = width - baseInt - halfw;
+	int right = (int)(width - base - halfw);
 	area.copy(split.image, 0, 0, right, height, baseInt+halfw, 0, right, height);
 	area.copy(split.image, 0, 0, baseInt, height, 0, 0, baseInt, height);
 

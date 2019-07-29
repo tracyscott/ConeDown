@@ -35,7 +35,7 @@ abstract public class Fragment {
 	this.image = new PImage(this.width, this.height, ARGB);
 
 	fragNum++;
-	this.rate = newParameter(String.format("rate-%d", fragNum), 1, -10, 10);
+	this.rate = newParameter(String.format("rate-%d", fragNum), 0, -1, 1);
     }
 
     protected Parameter newParameter(String name, float init, float min, float max) {
