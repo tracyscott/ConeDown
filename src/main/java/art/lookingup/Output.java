@@ -10,12 +10,17 @@ import heronarts.lx.output.LXDatagramOutput;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static art.lookingup.ConeDownModel.panelLayers;
 
 /**
  * Handles output from our 'colors' buffer to our DMX lights.  Currently using E1.31.
@@ -177,10 +182,89 @@ public class Output {
 
     int sixteenthNum = 0;
 
+    Set wireFilesWritten = new HashSet();
     for (sixteenthNum = 0; sixteenthNum < 16; sixteenthNum++) {
-      // Handle scoop panels.
-    }
+      for (List<Panel> layer : panelLayers) {
+        Panel panel = layer.get(0);
+        logger.info("");
+        logger.info("panel: " + Panel.panelTypeNames[panel.panelType.ordinal()]);
+        logger.info("dim: " + panel.pointsWide + "x" + panel.pointsHigh);
+        logger.info("sixteenth: " + sixteenthNum);
+        // C and D panels each span an entire octant (2 sixteenths).  To minimize
+        // leds per output we alternate C and D on different outputs.
+        if (panel.panelType == Panel.PanelType.C && sixteenthNum % 2 == 0) {
+          panel = layer.get(sixteenthNum / 2);
+        } else if (panel.panelType == Panel.PanelType.D && sixteenthNum % 2 == 1) {
+          logger.info("Assign panel to D panel");
+          panel = layer.get(sixteenthNum / 2);
+        } else if (!(panel.panelType == Panel.PanelType.C || panel.panelType == Panel.PanelType.D)) {
+          panel = layer.get(sixteenthNum);
+        } else {
+          continue; // Skip C or D if it is not their turn.
+        }
+        List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
+        // For each panel we wire from bottom left to bottom right and then move up one pixel
+        // and then wire backwards from right to left, etc.  We can use our texture coordinates
+        // to navigate the points on a panel.
+        boolean movingLeft = false;
+        for (int rowNum = 0; rowNum < panel.pointsHigh; rowNum++) {
+          for (int colNum = 0; colNum < panel.pointsWide; colNum++) {
+            int x = colNum;
+            if (movingLeft) {
+              x = (panel.pointsWide - 1) - colNum;
+            }
+            CXPoint p = panel.getCXPointAtTexCoord(x, rowNum);
+            logger.info("point at: " + x + "," + rowNum);
+            pointsWireOrder.add(p);
+          }
+          movingLeft = !movingLeft;
+        }
 
+        // Write points and wiring file.  These can be used with Pixel Mapper sketch to visually inspect
+        // the result of the mapping code.
+        // Only write once per panelType.
+        if (!wireFilesWritten.contains(panel.panelType)) {
+          String pointsFilename = "points_panel_" + Panel.panelTypeNames[panel.panelType.ordinal()] + ".csv";
+          String wiringFilename = "wiring_panel_" + Panel.panelTypeNames[panel.panelType.ordinal()] + ".txt";
+          writePointsFile(pointsFilename, pointsWireOrder);
+          writeWiringFile(wiringFilename, pointsWireOrder);
+          wireFilesWritten.add(panel.panelType);
+        }
+      }
+    }
+    logger.info("layers: " + panelLayers.size());
+  }
+
+  static public void writePointsFile(String filename, List<CXPoint> points) {
+    try {
+      PrintWriter lxpointsFile = new PrintWriter(filename);
+      for (CXPoint p : points) {
+        if (p == null) logger.info("p was null");
+        else logger.info("p not null");
+        if (p.panel.panelType == Panel.PanelType.D) {
+          logger.info("D panel");
+        }
+        lxpointsFile.println(p.panelLocalX + "," + p.panelLocalY);
+      }
+      lxpointsFile.close();
+    } catch (IOException ioex) {
+      logger.info("IOException writing " + filename + ": " + ioex.getMessage());
+    }
+  }
+
+  static public void writeWiringFile(String filename, List<CXPoint> points) {
+    try {
+      PrintWriter wiringFile = new PrintWriter(filename);
+      int pNum = 0;
+      wiringFile.println(":0");
+      for (LXPoint p : points) {
+        wiringFile.println(pNum);
+        pNum++;
+      }
+      wiringFile.close();
+    } catch (IOException ioex) {
+      logger.info("IOException writing " + filename + ": " + ioex.getMessage());
+    }
   }
 
   public static void configureUnityArtNetOutput(LX lx) {

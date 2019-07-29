@@ -158,7 +158,7 @@ public class ConeDown extends PApplet {
     //flags.isP3LX = true;
     //flags.immutableModel = true;
     flags.useGLPointCloud = false;
-    flags.startMultiThreaded = true;
+    flags.startMultiThreaded = false;
     //flags.showFramerate = true;
 
     logger.info("Current renderer:" + sketchRenderer());
@@ -213,7 +213,7 @@ public class ConeDown extends PApplet {
       lx.engine.output.enabled.setValue(false);
 
     rainbowOSC = new RainbowOSC(lx);
-    
+
     // Disable preview for faster UI.
     //lx.ui.preview.setVisible(false);
   }

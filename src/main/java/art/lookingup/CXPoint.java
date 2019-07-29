@@ -14,6 +14,8 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
   public int yCoord;
   public float angle;
   public float radius;
+  public float panelLocalX;
+  public float panelLocalY;
 
   public static final float EPSILON = 4f;
 
@@ -24,6 +26,11 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
     this.yCoord = yCoord;
     this.angle = angle;
     this.radius = radius;
+  }
+
+  public void storePanelLocalXY() {
+    this.panelLocalX = x;
+    this.panelLocalY = y;
   }
 
   public void rotX(float degrees) {
@@ -75,7 +82,7 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
   }
 
   // was 0.2f * inchesPerMeter
-  static public float rowColDistThresh = 3.0f;
+  static public float rowColDistThresh = 2.0f;
 
   public float distanceSquaredXY(CXPoint p) {
     return (x-p.x)*(x-p.x) + (y-p.y)*(y-p.y);

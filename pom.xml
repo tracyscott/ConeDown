@@ -145,6 +145,13 @@
             <version>0.5</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.thomasdiewald</groupId>
+            <artifactId>pixelflow</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+
+
         <!-- Building with fat P3LX.jar from Mark
         <dependency>
             <groupId>heronarts</groupId>

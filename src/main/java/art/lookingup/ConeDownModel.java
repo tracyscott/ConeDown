@@ -181,6 +181,7 @@ public class ConeDownModel extends LXModel {
         Panel panel = new Panel(panel8Width, panel8Width, panel8Height, pitch, xOffset, yOffset, zOffset, panelNum,
             yCoordOffset,
             panel8Radius, true, 8);
+        panel.panelType = Panel.PanelType.G;
         scoopPanels.add(panel);
         scoopLayer.add(panel);
         xOffset += panel8Width;
@@ -203,11 +204,13 @@ public class ConeDownModel extends LXModel {
       xOffset = 0f;
     }
 
+    /*
     layerWidth = 0;
     List<Panel> scoopLayer = new ArrayList<Panel>();
     for (int panelNum = 0; panelNum <scoopSides; panelNum++) {
       Panel panel = new Panel(panel7Width, panel7Width, panel7Height, pitch, xOffset, yOffset, zOffset, panelNum,
           yCoordOffset, panel7Radius, true, 7);
+      panel.panelType = Panel.PanelType.F;
       scoopPanels.add(panel);
       scoopLayer.add(panel);
       xOffset += panel7Width;
@@ -227,6 +230,8 @@ public class ConeDownModel extends LXModel {
     System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel7Height;
+    */
+
     allPanels.addAll(scoopPanels);
 
     //

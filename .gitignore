@@ -16,3 +16,7 @@ pixliteconfig.json
 lxpoints.ply
 panel.svg
 jmacd.lxp
+points_panel_*.csv
+wiring_panel_*.txt
+shaders/*
+

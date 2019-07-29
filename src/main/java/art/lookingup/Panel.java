@@ -45,7 +45,7 @@ public class Panel {
     E1,
     E2,
     F,
-    X,
+    G,
   }
 
   final static public String[] panelFilenames = {
@@ -58,7 +58,20 @@ public class Panel {
       "E",
       "E",
       "F",
-      "X",
+      "G",
+  };
+
+  final static public String[] panelTypeNames = {
+      "A1",
+      "A2",
+      "B1",
+      "B2",
+      "C",
+      "D",
+      "E1",
+      "E2",
+      "F",
+      "G",
   };
 
   final static public int[] numPanelsAround =
@@ -140,6 +153,7 @@ public class Panel {
       // Convert to meters.
       p.x *= CNC_SCALE;
       p.y *= CNC_SCALE;
+      p.storePanelLocalXY();
     }
 
     float angleIncr = 360f / numFullPanelsAround();
@@ -1040,5 +1054,9 @@ public class Panel {
       logger.info("Parse exception: " + pex.getMessage());
     }
     return points;
+  }
+
+  public CXPoint getCXPointAtTexCoord(int x, int y) {
+    return CXPoint.getCXPointAtTexCoord(points, x, y);
   }
 }
