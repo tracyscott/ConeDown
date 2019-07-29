@@ -17,9 +17,10 @@ import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.Parameter;
 
 public class Balls extends Fragment {
-  final static public int rateMult = 100;
-  final static public int maxCount = 100;
-  final static public int maxSize = 100;
+  final static float period = 0.1f;
+  final static int rateMult = 100;
+  final static int maxCount = 100;
+  final static int maxSize = 100;
 
   final Parameter sizeParam;
   final Parameter countParam;
@@ -107,7 +108,7 @@ public class Balls extends Fragment {
     for (int i = 0; i < count; i++) {
 	Ball b = balls[i];
 
-	b.update(elapsed());
+	b.update(elapsed() * period);
 
 	float x = b.getX();
 	float y = b.getY();

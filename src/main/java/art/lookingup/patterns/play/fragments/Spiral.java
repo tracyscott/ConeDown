@@ -10,7 +10,8 @@ import heronarts.lx.LX;
 import processing.core.PGraphics;
 
 public class Spiral extends Fragment {
-
+    static final float period = 100f;
+    
     static final int maxCount = 99;
 
     final Parameter triples;
@@ -61,11 +62,12 @@ public class Spiral extends Fragment {
     public void drawFragment() {
 	int count = (int)triples.value() * 3;
 	float incr = pitch.value();
-	float spin = elapsed();
+	float spin = elapsed() / period;
 
 	area.strokeWeight(strokeWidth);
 
 	for (int idx = 0; idx < count; idx++) {
+	    // @@@ something broken around here
 	    float base = -incr - spin * incr;
 	    float spirals = (float) count;
 	    float startY = base + ((float) idx / spirals) * incr;

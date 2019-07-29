@@ -9,6 +9,8 @@ import heronarts.lx.LX;
 import processing.core.PGraphics;
 
 public class Beacon extends Fragment {
+    static final float period = 0.1f;
+    
     final Fragment frag0;
     final Fragment frag1;
 
@@ -47,14 +49,12 @@ public class Beacon extends Fragment {
     
     @Override
     public void drawFragment() {
-	// There are three copies
-	float f0base = elapsed() % width;
+	float f0base = (elapsed() / period) % width;
 	int base;
 	Fragment whole;
 	Fragment split;
 	final int halfw = (int)(width/2f + 0.5);
 
-	// Note: time is passing too slowly, etc. @@@
 
 	if (f0base > halfw) {
 	    base = (int)(f0base - halfw + 0.5);
@@ -65,7 +65,9 @@ public class Beacon extends Fragment {
 	    whole = frag0;
 	    split = frag1;
 	}
-	// TODO is there a floating point copy -- using textures?
+
+	// TODO HERE shift fractional pixels
+
 	area.copy(whole.image, 0, 0, halfw, height, base, 0, halfw, height);
 
 	int right = width - base - halfw;

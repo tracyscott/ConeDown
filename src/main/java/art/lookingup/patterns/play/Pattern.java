@@ -32,7 +32,7 @@ abstract public class Pattern extends LXPattern {
     public final int height;
 
     public final CompoundParameter speedKnob =
-	new CompoundParameter("GlobalSpeed", 1, 0, 10)
+	new CompoundParameter("GlobalSpeed", 1, 0, 2)
         .setDescription("Varies global speed.");
 
     boolean init;
@@ -81,7 +81,7 @@ abstract public class Pattern extends LXPattern {
     }
 
     void render(double deltaMs) {
-	current += (float)(speedKnob.getValue() * (deltaMs / 1e4));
+	current += (float)(speedKnob.getValue() * (deltaMs / 1e3));
 
 	if (!init) {
 	    init = true;

@@ -25,12 +25,17 @@ abstract public class Fragment {
 
     float elapsed;
 
+    static int fragNum;
+
     protected Fragment(int width, int height) {
+
 	this.width = width;
 	this.height = height;
 	this.elapsed = 0;  // Note: updated by Pattern.preDraw()
 	this.image = new PImage(this.width, this.height, ARGB);
-	this.rate = newParameter(String.format("rate-%s", this.hashCode()), 1, -1, 1);
+
+	fragNum++;
+	this.rate = newParameter(String.format("rate-%d", fragNum), 1, -10, 10);
     }
 
     protected Parameter newParameter(String name, float init, float min, float max) {
