@@ -39,7 +39,7 @@ public class UIPixliteConfig extends UIConfig {
       boolean originalEnabled = lx.engine.output.enabled.getValueb();
       lx.engine.output.enabled.setValue(false);
       lx.engine.output.removeChild(Output.datagramOutput);
-      Output.configureArtNetOutput(lx);
+      Output.configurePixliteOutput(lx);
       parameterChanged = false;
       lx.engine.output.enabled.setValue(originalEnabled);
     }

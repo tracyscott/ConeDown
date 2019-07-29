@@ -178,16 +178,27 @@ public class Output {
    * Probably 2.
    * @param lx
    */
-  public static void configureArtNetOutput(LX lx) {
+  public static void configurePixliteOutput(LX lx) {
+    List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
+
+    String artNetIpAddress = ConeDown.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_IP).getString();
+    int artNetIpPort = Integer.parseInt(ConeDown.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_PORT).getString());
+    logger.log(Level.INFO, "Using ArtNet: " + artNetIpAddress + ":" + artNetIpPort);
 
     int sixteenthNum = 0;
-
+    int universesPerSixteenth = 3;
     Set wireFilesWritten = new HashSet();
     for (sixteenthNum = 0; sixteenthNum < 16; sixteenthNum++) {
+      int univStartNum = sixteenthNum * universesPerSixteenth;
+      // First we will collect all our points in wire order.  These points will span multiple
+      // panels and multiple universes.  Once we have all the points for a given sixteenth wire
+      // then we will start packing them into ArtNetDatagrams with 170 points per universe.
+      List<CXPoint> allPointsWireOrder = new ArrayList<CXPoint>();
       for (List<Panel> layer : panelLayers) {
+        // NOTE(Tracy):
         Panel panel = layer.get(0);
         logger.info("");
-        logger.info("panel: " + Panel.panelTypeNames[panel.panelType.ordinal()]);
+        logger.info("panel layer: " + Panel.panelTypeNames[panel.panelType.ordinal()]);
         logger.info("dim: " + panel.pointsWide + "x" + panel.pointsHigh);
         logger.info("sixteenth: " + sixteenthNum);
         // C and D panels each span an entire octant (2 sixteenths).  To minimize
@@ -202,6 +213,7 @@ public class Output {
         } else {
           continue; // Skip C or D if it is not their turn.
         }
+        logger.info("panelType: " + Panel.panelTypeNames[panel.panelType.ordinal()]);
         List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
         // For each panel we wire from bottom left to bottom right and then move up one pixel
         // and then wire backwards from right to left, etc.  We can use our texture coordinates
@@ -214,7 +226,7 @@ public class Output {
               x = (panel.pointsWide - 1) - colNum;
             }
             CXPoint p = panel.getCXPointAtTexCoord(x, rowNum);
-            logger.info("point at: " + x + "," + rowNum);
+            // logger.info("point at: " + x + "," + rowNum);
             pointsWireOrder.add(p);
           }
           movingLeft = !movingLeft;
@@ -230,7 +242,60 @@ public class Output {
           writeWiringFile(wiringFilename, pointsWireOrder);
           wireFilesWritten.add(panel.panelType);
         }
+
+        // pointsWireOrder contains our points in wiring order for this panel.
+        allPointsWireOrder.addAll(pointsWireOrder);
       }
+
+      // NOTE(tracy): We have to create ArtNetDatagram with the actual numbers of our points or else it
+      // will puke internally. i.e. we can't just use 170 but then pass it less than 170 points so we
+      // need to figure out how large to make our channel array for the last universe.
+      int lastUniverseCount = allPointsWireOrder.size() - 170 * (universesPerSixteenth - 1);
+      int numUniverses = (int)Math.ceil((float)allPointsWireOrder.size()/170f);
+
+      int[] thisUniverseIndices = new int[170];
+      int curIndex = 0;
+      int curUnivOffset = 0;
+      for (CXPoint pt : allPointsWireOrder) {
+        thisUniverseIndices[curIndex] = pt.index;
+        curIndex++;
+        if (curIndex == 170 || (curUnivOffset == numUniverses - 1 && curIndex == lastUniverseCount)) {
+          logger.log(Level.INFO, "Adding datagram: universe=" + (univStartNum+curUnivOffset) + " points=" + curIndex);
+          ArtNetDatagram datagram = new ArtNetDatagram(thisUniverseIndices, curIndex*3, univStartNum + curUnivOffset);
+          try {
+            datagram.setAddress(artNetIpAddress).setPort(artNetIpPort);
+          } catch (UnknownHostException uhex) {
+            logger.log(Level.SEVERE, "Configuring ArtNet: " + artNetIpAddress + ":" + artNetIpPort, uhex);
+          }
+          datagrams.add(datagram);
+          curUnivOffset++;
+          curIndex = 0;
+          if (curUnivOffset == numUniverses - 1) {
+            thisUniverseIndices = new int[lastUniverseCount];
+          } else {
+            thisUniverseIndices = new int[170];
+          }
+        }
+      }
+    }
+
+    try {
+      datagramOutput = new LXDatagramOutput(lx);
+      for (ArtNetDatagram datagram : datagrams) {
+        datagramOutput.addDatagram(datagram);
+      }
+      try {
+        datagramOutput.addDatagram(new ArtSyncDatagram().setAddress(artNetIpAddress).setPort(artNetIpPort));
+      } catch (UnknownHostException uhex) {
+        logger.log(Level.SEVERE, "Unknown host for ArtNet sync.", uhex);
+      }
+    } catch (SocketException sex) {
+      logger.log(Level.SEVERE, "Initializing LXDatagramOutput failed.", sex);
+    }
+    if (datagramOutput != null) {
+      lx.engine.output.addChild(datagramOutput);
+    } else {
+      logger.log(Level.SEVERE, "Did not configure output, error during LXDatagramOutput init");
     }
     logger.info("layers: " + panelLayers.size());
   }
