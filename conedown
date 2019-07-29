@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1564432142328,
+  "timestamp": 1564439894477,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -16711863,
+    "modulationColor": -65443,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -105,7 +105,7 @@
               "exp": 0.0
             },
             "children": {},
-            "basis": 0.9079159054231268
+            "basis": 0.8733122998935117
           }
         ],
         "modulations": [
@@ -1042,8 +1042,8 @@
             },
             "parameters": {
               "label": "Blur",
-              "enabled": false,
-              "amount": 0.5
+              "enabled": true,
+              "amount": 0.4999999888241291
             },
             "children": {
               "modulation": {
@@ -1094,7 +1094,7 @@
           }
         ],
         "clips": [],
-        "patternIndex": 10,
+        "patternIndex": 3,
         "patterns": [
           {
             "id": 247,
@@ -1108,7 +1108,7 @@
             "parameters": {
               "label": "RandomTri",
               "Fps": 9.999999776482582,
-              "Tgt": 3,
+              "Tgt": 0,
               "palette": 0,
               "sides": 3,
               "bgalpha": 0.0,
@@ -2338,22 +2338,22 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 31.465988721159324,
-          "theta": 41.27804701673415,
-          "phi": -0.03539825619672084,
-          "x": 1.0220918515115045,
-          "y": 5.426140887197107,
-          "z": -0.6624930403795588
+          "radius": 18.171406073684786,
+          "theta": 47.464632487571905,
+          "phi": 0.14159286970267043,
+          "x": 1.6558256460702978,
+          "y": 3.0073601114563644,
+          "z": -1.188106023999353
         },
         "cue": [
           {
             "active": false,
-            "radius": 31.465988721159324,
-            "theta": 41.27804701673415,
-            "phi": -0.03539825619672084,
-            "x": 1.0220918515115045,
-            "y": 5.426140887197107,
-            "z": -0.6624930403795588
+            "radius": 18.171406073684786,
+            "theta": 47.464632487571905,
+            "phi": 0.14159286970267043,
+            "x": 1.6558256460702978,
+            "y": 3.0073601114563644,
+            "z": -1.188106023999353
           },
           {
             "active": false,

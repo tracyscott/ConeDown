@@ -42,7 +42,7 @@ public class ConeDownModel extends LXModel {
 
   public static float inchesPerMeter = 39.3701f;
   static public float panelMargin = 2.0f / inchesPerMeter;
-  static public float panel8Radius = 10.2f * 12.0f / inchesPerMeter;
+  static public float panel8Radius = 9.7f * 12.0f / inchesPerMeter;
   static public float panel7Radius =  9.5f * 12.0f / inchesPerMeter;
   // panel 6 will be disabled.
   static public float panel6Radius = 2.0f * 8.7f * 12.0f / inchesPerMeter;
@@ -177,10 +177,18 @@ public class ConeDownModel extends LXModel {
     for (int rows = 0; rows < numPanel8Layers; rows++) {
       layerWidth = 0;
       List<Panel> scoopLayer = new ArrayList<Panel>();
+      float radius = panel8Radius;
+      if (rows == 0) {
+        radius = panel8Radius - 5.0f / inchesPerMeter;
+      }
+
       for (int panelNum = 0; panelNum < scoopSides; panelNum++) {
+        Panel panel = new Panel((rows==0)? Panel.PanelType.H: Panel.PanelType.G, yOffset, panelNum, yCoordOffset, radius);
+        /*
         Panel panel = new Panel(panel8Width, panel8Width, panel8Height, pitch, xOffset, yOffset, zOffset, panelNum,
             yCoordOffset,
             panel8Radius, true, 8);
+            */
         panel.panelType = Panel.PanelType.G;
         scoopPanels.add(panel);
         scoopLayer.add(panel);

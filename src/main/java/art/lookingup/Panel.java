@@ -46,6 +46,7 @@ public class Panel {
     E2,
     F,
     G,
+    H,
   }
 
   final static public String[] panelFilenames = {
@@ -58,6 +59,7 @@ public class Panel {
       "E",
       "E",
       "F",
+      "G",
       "G",
   };
 
@@ -72,6 +74,7 @@ public class Panel {
       "E2",
       "F",
       "G",
+      "H",
   };
 
   final static public int[] numPanelsAround =
@@ -86,6 +89,7 @@ public class Panel {
       16,
       8,
       16,
+      16,
   };
 
   final static public float[] faceSlope = {
@@ -98,6 +102,8 @@ public class Panel {
       0f,
       0f,
       0f,
+      -10f,
+      10f,
   };
 
   public PanelRegion panelRegion;
@@ -138,12 +144,19 @@ public class Panel {
     this.radius = radius;
 
     boolean mirror = false;
+    boolean flip = false;
+
     if (panelType == PanelType.A2 || panelType == PanelType.B2 || panelType == PanelType.E2)
       mirror = true;
 
+    if (panelType == panelType.H || panelType == panelType.G)
+      scoop = true;
+    if (panelType == PanelType.H) {
+      flip = true;
+    }
     String filename = panelFilenames[panelType.ordinal()];
 
-    points = loadDXFPanel(filename + "_LED.dxf", mirror);
+    points = loadDXFPanel(filename + "_LED.dxf", mirror, flip);
     //points = loadPanelSVG("panel_"+ filename + ".svg", mirror);
 
     // Points are now in panel local coordinate space.
@@ -178,6 +191,9 @@ public class Panel {
     logger.info("yCoordOffset =" + yCoordOffset + " pointsHigh=" + pointsHigh);
     for (CXPoint p : points) {
       float angle = 90f + 45f/2f + (angleIncr * faceNum());
+      if (panelType == PanelType.G || panelType == PanelType.H) {
+        angle = 90f + 45/4f + (angleIncr * faceNum());
+      }
       p.rotX(faceSlope[panelType.ordinal()]);
       p.rotY(angle);
       // Layout panels horizontally for debugging.
@@ -331,6 +347,11 @@ public class Panel {
       return p/2;
     else
       return p;
+  }
+
+  public int numFacesAround() {
+    int numFaces = numPanelsAround[panelType.ordinal()];
+    return numFaces;
   }
 
   /**
@@ -560,7 +581,7 @@ public class Panel {
    * @return
    */
   @Deprecated
-  public List<CXPoint> loadPanelSVG(String filename, boolean mirror) {
+  public List<CXPoint> loadPanelSVG(String filename, boolean mirror, boolean flip) {
     List<CXPoint> points = new ArrayList<CXPoint>();
 
     String drawingSvg = "";
@@ -935,7 +956,7 @@ public class Panel {
    *               necessary for various panels that are actually half panels of a trapezoid.
    * @return
    */
-  public List<CXPoint> loadDXFPanel(String filename, boolean mirror) {
+  public List<CXPoint> loadDXFPanel(String filename, boolean mirror, boolean flip) {
     List<CXPoint> points = new ArrayList<CXPoint>();
     Parser parser = ParserBuilder.createDefaultParser();
 
@@ -1004,6 +1025,21 @@ public class Panel {
             bPoints[0] = new BPoint(startPoint);
           }
         }
+        if (panelType == PanelType.G || panelType == PanelType.H) {
+          logger.info("line: " + (int) startPoint.getX() + "," + (int) startPoint.getY() + " to " +
+              (int) endPoint.getX() + "," + (int) endPoint.getY());
+          // -20,20 to 20,20 top left to top right
+          // -22,-21 to -20,20  bottom left top left
+          // 22,-21 to -22,-21 bottom right bottom left
+          // 22,-21 to 20,20 bottom right top right
+          if (i == 0) {
+            bPoints[3] = new BPoint(startPoint);
+            bPoints[2] = new BPoint(endPoint);
+          } else if (i == 2) {
+            bPoints[1] = new BPoint(startPoint);
+            bPoints[0] = new BPoint(endPoint);
+          }
+        }
         i++;
       }
       BPoint bottomLeft = bPoints[0];
@@ -1016,7 +1052,6 @@ public class Panel {
         for (CXPoint p : points) {
           p.x = bPoints[1].x - p.x;
           p.y -= bPoints[1].y;
-          p.y *= 1f;
         }
         float bottomRightYTmp = bottomRight.y;
         float bottomRightXTmp = bottomRight.x;
@@ -1030,11 +1065,40 @@ public class Panel {
         topRight.y = topLeft.y;
         topLeft.x = bottomRightXTmp - tempX;
         topLeft.y = tempY;
+      } else if (flip) {
+        float bottomRightXTmp = bottomRight.x;
+        float bottomRightYTmp = bottomRight.y;
+        for (CXPoint p : points) {
+          p.y = bottomRight.y - p.y;
+        }
+        topLeft.y = bottomLeft.y - topLeft.y;
+        topRight.y = bottomRight.y - topRight.y;
+        // Now we need to swap tops and bottoms.
+        BPoint oldTopLeft = topLeft;
+        BPoint oldTopRight = topRight;
+        topRight = bottomRight;
+        topLeft = bottomLeft;
+        bottomRight = oldTopRight;
+        bottomLeft = oldTopLeft;
+        // Now adjust points by bottom left
+        for (CXPoint p : points) {
+          p.x -= bottomLeft.x;
+          p.y -= bottomLeft.y;
+        }
+        // Now fix up the official boundary points and make bottomLeft at 0,0
+        bPoints[0] = bottomLeft;
+        bPoints[1] = bottomRight;
+        bPoints[2] = topRight;
+        bPoints[3] = topLeft;
+        bPoints[1].subtract(bPoints[0]);
+        bPoints[2].subtract(bPoints[0]);
+        bPoints[3].subtract(bPoints[0]);
+        bPoints[0].x = 0f;
+        bPoints[1].y = 0f;
       } else {
         for (CXPoint p : points) {
           p.x -= bottomLeft.x;
           p.y -= bottomLeft.y;
-          p.y *= 1f;
         }
         bPoints[1].subtract(bPoints[0]);
         bPoints[2].subtract(bPoints[0]);
@@ -1042,6 +1106,7 @@ public class Panel {
         bPoints[0].x = 0f;
         bPoints[1].y = 0f;
       }
+
 
       for (BPoint p : bPoints) {
         p.scale(CNC_SCALE);
