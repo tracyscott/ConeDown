@@ -505,7 +505,7 @@ public class Panel {
     pointsHigh = 0;
     int xCoord = 0;
     int yCoord = 0;
-    float danceFloorPanelMargin = 1.5f / ConeDownModel.inchesPerMeter;
+    float danceFloorPanelMargin = 3.5f / ConeDownModel.inchesPerMeter;
 
     // X,Y here are in panel-local coordinates.
     for (float y = danceFloorPanelMargin; y < this.height - danceFloorPanelMargin; y+= pitchInMeters) {

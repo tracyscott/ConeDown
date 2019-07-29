@@ -64,10 +64,10 @@ public class ConeDownModel extends LXModel {
   static public float YAxisOffset = 1.0f;
 
   // Dance floor
-  static public int dancePanelsWide = 4;
-  static public int dancePanelsHigh = 4;
-  static public float panel9Width = (3.0f * 12.0f) / inchesPerMeter;
-  static public float panel9Height = (3.0f * 12.0f) / inchesPerMeter;
+  static public int dancePanelsWide = 3;
+  static public int dancePanelsHigh = 3;
+  static public float panel9Width = (4.0f * 12.0f) / inchesPerMeter;
+  static public float panel9Height = (4.0f * 12.0f) / inchesPerMeter;
 
   static public float panel8Width = (3.0f * 12.0f + 8.125f) / inchesPerMeter;
   static public float panel8Height = panel8Width;
