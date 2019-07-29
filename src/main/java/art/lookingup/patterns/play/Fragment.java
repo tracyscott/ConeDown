@@ -2,6 +2,10 @@ package art.lookingup.patterns.play;
 
 import static processing.core.PConstants.ARGB;
 
+import heronarts.lx.parameter.CompoundParameter;
+import heronarts.lx.parameter.LXParameter;
+
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +25,17 @@ abstract public class Fragment {
 
     float elapsed;
 
+    static int fragNum;
+
     protected Fragment(int width, int height) {
+
 	this.width = width;
 	this.height = height;
-	this.elapsed = 0;
+	this.elapsed = 0;  // Note: updated by Pattern.preDraw()
 	this.image = new PImage(this.width, this.height, ARGB);
-	this.rate = newParameter(String.format("rate-%s", this.hashCode()), 1, -1, 1);
+
+	fragNum++;
+	this.rate = newParameter(String.format("rate-%d", fragNum), 0, -1, 1);
     }
 
     protected Parameter newParameter(String name, float init, float min, float max) {
@@ -47,5 +56,36 @@ abstract public class Fragment {
 
     public void notifyChange() {}
 
+    public void preDrawFragment(float vdelta) {
+	elapsed += vdelta * rate.value();
+    }
+
     public abstract void drawFragment();
+
+    public void create(Pattern p) {
+	this.area = p.createGraphics(width, height);
+    }
+
+    public void registerParameters(Parameter.Adder adder) {
+	for (Parameter p : params) {
+	    CompoundParameter cp = new CompoundParameter(p.name, p.value, p.min, p.max);
+	    cp.addListener((LXParameter lxp)->{
+		    p.setValue((float) lxp.getValue());
+		});
+	    adder.registerParameter(cp);
+	}
+    }
+
+    public void render(float vdelta) {
+	preDrawFragment(vdelta);
+	
+	area.beginDraw();
+	area.background(0);
+	drawFragment();
+	area.endDraw();
+	area.loadPixels();
+	    
+	image.copy(area, 0, 0, width, height, 0, 0, width, height);
+	image.loadPixels();
+    }
 };

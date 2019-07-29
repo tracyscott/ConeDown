@@ -10,7 +10,8 @@ import heronarts.lx.LX;
 import processing.core.PGraphics;
 
 public class Spiral extends Fragment {
-
+    static final float period = 100f;
+    
     static final int maxCount = 99;
 
     final Parameter triples;
@@ -21,7 +22,6 @@ public class Spiral extends Fragment {
 
     static final int numSections = 24;
 
-    // @@@ redo this pattern as a repeating scan over an image?
     Gradient gradients[];
     float strokeWidth;
     
@@ -50,20 +50,24 @@ public class Spiral extends Fragment {
     public void setup() {
 	super.setup();
 
+	this.area.beginDraw();
 	for (int count = 3; count <= maxCount; count += 3) {
 	    this.gradients[count] = Gradient.compute(area, count);
 	}
+	this.area.endDraw();
     }
 
     @Override
     public void drawFragment() {
 	int count = (int)triples.value() * 3;
 	float incr = pitch.value();
-	float spin = elapsed();
+	float spin = elapsed() / period;
 
 	area.strokeWeight(strokeWidth);
 
 	for (int idx = 0; idx < count; idx++) {
+	    // @@@ broken around here; the pattern *disappears*
+	    // (corksrews off screen) after a while.
 	    float base = -incr - spin * incr;
 	    float spirals = (float) count;
 	    float startY = base + ((float) idx / spirals) * incr;
@@ -71,7 +75,7 @@ public class Spiral extends Fragment {
 	    area.stroke(c);
 
 	    for (float y = startY; y < height+incr; y += incr) {
-		for (float s = 0; s < numSections; s++) {
+		for (float s = -1; s <= numSections; s++) {
 		    float br = s / numSections;
 		    float er = (s + 1) / numSections;
 
@@ -80,7 +84,12 @@ public class Spiral extends Fragment {
 		    float y0 = y + incr * br;
 		    float y1 = y + incr * er;
 
-		    area.strokeWeight(strokeWidth / projection.xScale((x0 + x1) / 2, (y0 + y1) / 2));
+		    if (s == 0) {
+			area.line(x0+width, y0, x1+width, y1);
+		    } else if (s == numSections - 1) {
+			area.line(x0-width, y0, x1-width, y1);
+		    }
+
 		    area.line(x0, y0, x1, y1);
 		}
 	    }

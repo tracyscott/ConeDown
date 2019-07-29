@@ -17,10 +17,10 @@ import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.Parameter;
 
 public class Balls extends Fragment {
-  final static public int maxCount = 100;
-  final static public int maxSize = 100;
-  final static public float xRate = 1;
-  final static public float yRate = 10;
+  final static float period = 0.1f;
+  final static int rateMult = 100;
+  final static int maxCount = 100;
+  final static int maxSize = 100;
 
   final Parameter sizeParam;
   final Parameter countParam;
@@ -42,8 +42,8 @@ public class Balls extends Fragment {
       float xcurrent;
       float x0;
       float vp;
+      float elap;
       float period;
-      float elapsed;
       int color;
       Parabola parabola;
 
@@ -58,8 +58,8 @@ public class Balls extends Fragment {
       }
 
       void update(float e) {
-	  // @@@ doesn't support reverse; fix
-	  xcurrent += vp * (e - elapsed) * xRate;
+	  xcurrent += vp * (e - elap) * rateMult;
+	  this.elap = e;
       }
 
       float getX() {
@@ -85,6 +85,7 @@ public class Balls extends Fragment {
 	    return;
 	}
 
+	area.beginDraw();
 	Random random = new Random();
 
 	gradient = Gradient.compute(area, maxCount);
@@ -96,6 +97,8 @@ public class Balls extends Fragment {
 				     (float) (0.1 + 0.9 * random.nextDouble()) * ConeDownModel.POINTS_WIDE,
 				     gradient.index(random.nextInt(gradient.size())));
 	}
+
+	area.endDraw();
     }    
 
   @Override
@@ -105,7 +108,7 @@ public class Balls extends Fragment {
     for (int i = 0; i < count; i++) {
 	Ball b = balls[i];
 
-	b.update(elapsed());
+	b.update(elapsed() * period);
 
 	float x = b.getX();
 	float y = b.getY();
@@ -120,7 +123,7 @@ public class Balls extends Fragment {
 
 	area.scale(projection.xScale(0, y), 1);
 
-	// TODO fix the seam, double draw near borders
+	// TODO @@@ fix the seam, double draw near borders
 	area.ellipse(0, 0, d, d);
 
 	area.popMatrix();
