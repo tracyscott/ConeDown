@@ -6,6 +6,8 @@ import heronarts.lx.osc.LXOscListener;
 import heronarts.lx.osc.OscMessage;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -141,8 +143,15 @@ public class RainbowOSC implements LXOscListener {
         }
       }
     } catch (Exception ex) {
-      logger.severe("Error handling OSC message: " + ex.getMessage());
+      logger.severe("Error handling OSC message: " + ex.getMessage() + ": " + stacktraceToString(ex));
     }
+  }
+
+  static public String stacktraceToString(Throwable t) {
+    StringWriter sw = new StringWriter();
+    PrintWriter pw = new PrintWriter(sw);
+    t.printStackTrace(pw);
+    return sw.toString(); // stack trace as a string
   }
 
   public void sendOscMessage(OscMessage message) {

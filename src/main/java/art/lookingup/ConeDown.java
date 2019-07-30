@@ -89,7 +89,7 @@ public class ConeDown extends PApplet {
 
   @Override
   public void settings() {
-    size(1200, 678, P3D);
+    size(1400, 678, P3D);
   }
 
   /**
@@ -172,7 +172,7 @@ public class ConeDown extends PApplet {
 
     // Put this here because it needs to be after file loads in order to find appropriate channels.
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
-    //modeSelector.standardMode.setActive(true);
+    modeSelector.standardMode.setActive(true);
     //frameRate(GLOBAL_FRAME_RATE);
   }
 

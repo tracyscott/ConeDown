@@ -1,5 +1,6 @@
 package art.lookingup.ui;
 
+import art.lookingup.patterns.UninterruptiblePattern;
 import com.giantrainbow.UtilsForLX;
 import heronarts.lx.*;
 import heronarts.lx.parameter.BooleanParameter;
@@ -31,8 +32,8 @@ public class UIModeSelector extends UICollapsibleSection {
 
   static public BoundedParameter timePerChannelP = new BoundedParameter("MultiT", 60000.0, 2000.0, 360000.0);
   static public BoundedParameter timePerChannelP2 = new BoundedParameter("GifT", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP3 = new BoundedParameter("SpecialT", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP4 = new BoundedParameter("RbwT", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP3 = new BoundedParameter("StdT", 60000.0, 2000.0, 360000.0);
+  static public BoundedParameter timePerChannelP4 = new BoundedParameter("IceT", 60000.0, 2000.0, 360000.0);
   static public BoundedParameter timePerChannelP5 = new BoundedParameter("TPerCh5", 60000.0, 2000.0, 360000.0);
 
   static public BoundedParameter fadeTimeP = new BoundedParameter("FadeT", 1000.0, 0.000, 10000.0);
@@ -42,7 +43,7 @@ public class UIModeSelector extends UICollapsibleSection {
   public final UIKnob timePerChannel4;
   public final UIKnob fadeTime;
 
-  public String[] standardModeChannelNames = { "MULTI", "GIF", "SPECIAL", "RBW"};
+  public String[] standardModeChannelNames = { "MULTI", "GIF", "STD", "ICE"};
   public List<LXChannelBus> standardModeChannels = new ArrayList<LXChannelBus>(standardModeChannelNames.length);
   public int currentPlayingChannel = 0;
   public int previousPlayingChannel = 0;
@@ -83,6 +84,11 @@ public class UIModeSelector extends UICollapsibleSection {
     .setActive(false)
     .addToContainer(this);
 
+    for (String channelName: standardModeChannelNames) {
+      LXChannelBus ch = UtilsForLX.getChannelByLabel(lx, channelName);
+      standardModeChannels.add(ch);
+    }
+
     standardMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
       public void onToggle(boolean on) {
         if (on) {
@@ -92,10 +98,6 @@ public class UIModeSelector extends UICollapsibleSection {
           instrumentMode.setActive(false);
           // Build our list of Standard Channels based on our names.  Putting it here allows it to
           // work after loading a new file (versus startup initialization).
-          for (String channelName: standardModeChannelNames) {
-            LXChannelBus ch = UtilsForLX.getChannelByLabel(lx, channelName);
-            standardModeChannels.add(ch);
-          }
           setStandardChannelsEnabled(true);
         } else {
           logger.info("Disabling standard mode.");
@@ -191,7 +193,7 @@ public class UIModeSelector extends UICollapsibleSection {
       LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
       if (channel != null)
         channel.enabled.setValue(false);
-      channel = UtilsForLX.getChannelByLabel(lx, "RBW");
+      channel = UtilsForLX.getChannelByLabel(lx, "ICE");
       if (channel != null)
         channel.enabled.setValue(false);
 
@@ -203,10 +205,10 @@ public class UIModeSelector extends UICollapsibleSection {
       LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
       if (channel != null)
         channel.enabled.setValue(false);
-      channel = UtilsForLX.getChannelByLabel(lx, "RBW");
+      channel = UtilsForLX.getChannelByLabel(lx, "ICE");
       if (channel != null)
         channel.enabled.setValue(false);
-
+      standardMode.setActive(true);
     } else if ("Interactive".equalsIgnoreCase(mode)) {
       // TODO
     } else if ("Instrument".equalsIgnoreCase(mode)) {
@@ -219,18 +221,18 @@ public class UIModeSelector extends UICollapsibleSection {
       LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
       if (channel != null)
         channel.enabled.setValue(true);
-      channel = UtilsForLX.getChannelByLabel(lx, "RBW");
+      channel = UtilsForLX.getChannelByLabel(lx, "ICE");
       if (channel != null)
         channel.enabled.setValue(false);
 
       // Need to find TEXT channel and enable it.
-    } else if ("Rainbow".equalsIgnoreCase(mode)) {
-      // Disable standard mode and set RBW channel active.  First, no fade
+    } else if ("Ice".equalsIgnoreCase(mode)) {
+      // Disable standard mode and set ICE channel active.  First, no fade
       audioMode.setActive(false);
       interactiveMode.setActive(false);
       instrumentMode.setActive(false);
       setStandardChannelsEnabled(false);
-      LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "RBW");
+      LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "ICE");
       if (channel != null)
         channel.enabled.setValue(true);
       channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
@@ -245,7 +247,7 @@ public class UIModeSelector extends UICollapsibleSection {
       // We don't want to inactivate current channel, we just want to
       // inactivate the auto-scheduling.
       standardMode.setActive(false);
-      LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "RBW");
+      LXChannelBus channel = UtilsForLX.getChannelByLabel(lx, "ICE");
       if (channel != null)
         channel.enabled.setValue(false);
       channel = UtilsForLX.getChannelByLabel(lx, "TEXT");
@@ -311,28 +313,25 @@ public class UIModeSelector extends UICollapsibleSection {
       // Disable Standard-mode channel switching for AnimatedTextPP patterns to prevent
       // fading in the middle of text.  We achieve this by effectively stalling the
       // currentChannelPlayTime until the current channel is no longer an
-      // AnimatedTextPP pattern.
-      // NOTE: This is currently commented out for ConeDown.  A more general implementation
-      // would be to have certain patterns implement an interface e.g. UninterruptiblePattern
-      // and then just check for instanceof UninterruptiblePattern.
+      // UninterruptiblePattern pattern.
       LXChannelBus channelBus = standardModeChannels.get(currentPlayingChannel);
       if (channelBus instanceof LXChannel) {
         LXChannel c = (LXChannel) channelBus;
         if (c.patterns.size() > 0) {
-          //LXPattern p = c.getActivePattern();
-          //if (p instanceof AnimatedTextPP || p instanceof Cylon || p instanceof NyanCat) {
-          //  currentChannelPlayTime = 0.0;
-          //}
+          LXPattern p = c.getActivePattern();
+          if (p instanceof UninterruptiblePattern) {
+            currentChannelPlayTime = 0.0;
+          }
         }
       } else if (channelBus instanceof LXGroup) {
         LXGroup g = (LXGroup) channelBus;
         if (g.channels.size() > 0) {
           for (LXChannel c : g.channels) {
             if (c.patterns.size() > 0) {
-              //LXPattern p = c.getActivePattern();
-              //if (p instanceof AnimatedTextPP || p instanceof Cylon || p instanceof NyanCat) {
-              //  currentChannelPlayTime = 0.0;
-              //}
+              LXPattern p = c.getActivePattern();
+              if (p instanceof UninterruptiblePattern) {
+                currentChannelPlayTime = 0.0;
+              }
             }
           }
         }

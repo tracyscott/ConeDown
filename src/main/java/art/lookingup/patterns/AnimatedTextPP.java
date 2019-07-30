@@ -24,7 +24,7 @@ import processing.core.PFont;
 import processing.core.PGraphics;
 
 @LXCategory(LXCategory.FORM)
-public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI {
+public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI, UninterruptiblePattern {
   private static final Logger logger = Logger.getLogger(AnimatedTextPP.class.getName());
 
   public final StringParameter textKnob = new StringParameter("str", "");
