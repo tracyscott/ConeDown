@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1564439894477,
+  "timestamp": 1564513419370,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -65443,
+    "modulationColor": -5570816,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -105,7 +105,7 @@
               "exp": 0.0
             },
             "children": {},
-            "basis": 0.8733122998935117
+            "basis": 0.10041499025694221
           }
         ],
         "modulations": [
@@ -774,24 +774,24 @@
           "label": "GIF",
           "arm": false,
           "selected": false,
-          "enabled": false,
+          "enabled": true,
           "cue": false,
           "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
           "midiChannel": 16,
-          "autoCycleEnabled": true,
+          "autoCycleEnabled": false,
           "autoCycleMode": 0,
           "autoCycleTimeSecs": 30.0,
-          "transitionEnabled": true,
+          "transitionEnabled": false,
           "transitionTimeSecs": 5.0,
           "transitionBlendMode": 0
         },
         "children": {},
         "effects": [],
         "clips": [],
-        "patternIndex": 4,
+        "patternIndex": 2,
         "patterns": [
           {
             "id": 1801,
@@ -810,7 +810,8 @@
               "fitSrc": false,
               "xOff": 16.0,
               "yOff": 16.0,
-              "gif": "hx_clr_002"
+              "gif": "hx_clr_002",
+              "Tgt": 0
             },
             "children": {
               "modulation": {
@@ -845,7 +846,8 @@
               "fitSrc": false,
               "xOff": 23.999999463558197,
               "yOff": 23.999999463558197,
-              "gif": "hx_clr_001"
+              "gif": "hx_clr_001",
+              "Tgt": 0
             },
             "children": {
               "modulation": {
@@ -875,12 +877,13 @@
             "parameters": {
               "label": "RainbowGIFPP",
               "Fps": 24.60000079125166,
-              "scaleAmt": 0.2836000160127878,
+              "scaleAmt": 0.7413000057823956,
               "scaleSrc": true,
               "fitSrc": false,
               "xOff": 55.99999874830246,
               "yOff": 87.99999803304672,
-              "gif": "hexeosis_clr05"
+              "gif": "hexeosis_clr05",
+              "Tgt": 0
             },
             "children": {
               "modulation": {
@@ -915,7 +918,8 @@
               "fitSrc": false,
               "xOff": 31.999999284744263,
               "yOff": 39.99999910593033,
-              "gif": "hx_clr_003"
+              "gif": "hx_clr_003",
+              "Tgt": 0
             },
             "children": {
               "modulation": {
@@ -950,7 +954,8 @@
               "fitSrc": false,
               "xOff": 47.999998927116394,
               "yOff": 39.99999910593033,
-              "gif": "hx_clr_003"
+              "gif": "hx_clr_003",
+              "Tgt": 0
             },
             "children": {
               "modulation": {
@@ -985,7 +990,8 @@
               "fitSrc": false,
               "xOff": 32.0,
               "yOff": 64.0,
-              "gif": "hx_1058-5"
+              "gif": "hx_1058-5",
+              "Tgt": 0
             },
             "children": {
               "modulation": {
@@ -1037,13 +1043,13 @@
             "class": "heronarts.lx.effect.BlurEffect",
             "modulationColor": -16711908,
             "internal": {
-              "expanded": true,
+              "expanded": false,
               "modulationExpanded": false
             },
             "parameters": {
               "label": "Blur",
-              "enabled": true,
-              "amount": 0.4999999888241291
+              "enabled": false,
+              "amount": 0.5
             },
             "children": {
               "modulation": {
@@ -1066,7 +1072,7 @@
             "class": "art.lookingup.patterns.MaskEffect",
             "modulationColor": -65466,
             "internal": {
-              "expanded": true,
+              "expanded": false,
               "modulationExpanded": false
             },
             "parameters": {
@@ -1094,7 +1100,7 @@
           }
         ],
         "clips": [],
-        "patternIndex": 3,
+        "patternIndex": 13,
         "patterns": [
           {
             "id": 247,
@@ -1523,6 +1529,49 @@
                 "id": 5060,
                 "class": "heronarts.lx.LXModulationEngine",
                 "modulationColor": -10485505,
+                "internal": {},
+                "parameters": {
+                  "label": "Modulation"
+                },
+                "children": {},
+                "modulators": [],
+                "modulations": [],
+                "triggers": []
+              }
+            }
+          },
+          {
+            "id": 5265,
+            "class": "art.lookingup.patterns.AnimatedTextPP",
+            "modulationColor": -65282,
+            "internal": {
+              "expanded": true,
+              "modulationExpanded": false,
+              "autoCycleEligible": true
+            },
+            "parameters": {
+              "label": "AnimatedTextPP",
+              "Fps": 50.0,
+              "Tgt": 3,
+              "str": "Keep Going!!",
+              "XSpd": 0.6000000983476639,
+              "clockwise": false,
+              "oneShot": false,
+              "reset": false,
+              "advP": false,
+              "font": 1,
+              "mult": true,
+              "osc": false,
+              "fontsize": 9,
+              "centr": false,
+              "fade": 1.0,
+              "which": 0
+            },
+            "children": {
+              "modulation": {
+                "id": 5266,
+                "class": "heronarts.lx.LXModulationEngine",
+                "modulationColor": -8257792,
                 "internal": {},
                 "parameters": {
                   "label": "Modulation"
@@ -2338,9 +2387,9 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 18.171406073684786,
-          "theta": 47.464632487571905,
-          "phi": 0.14159286970267043,
+          "radius": 21.140365431338644,
+          "theta": 48.611229764019456,
+          "phi": -0.19026550301631623,
           "x": 1.6558256460702978,
           "y": 3.0073601114563644,
           "z": -1.188106023999353
@@ -2348,9 +2397,9 @@
         "cue": [
           {
             "active": false,
-            "radius": 18.171406073684786,
-            "theta": 47.464632487571905,
-            "phi": 0.14159286970267043,
+            "radius": 21.140365431338644,
+            "theta": 48.611229764019456,
+            "phi": -0.19026550301631623,
             "x": 1.6558256460702978,
             "y": 3.0073601114563644,
             "z": -1.188106023999353
