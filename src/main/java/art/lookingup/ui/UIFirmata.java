@@ -31,7 +31,7 @@ public class UIFirmata extends UIConfig {
 
     registerStringParameter(FIRMATA_PORT, "COM3");
 
-    for (int y = 0; y < numTilesHigh; y++) {
+    for (int y = numTilesHigh-1; y >=0 ; y--) {
       for (int x = 0; x < numTilesWide; x++) {
         registerCompoundParameter(NAME_BASE + x + "_" + y, 0f, 0f, 1f);
       }
