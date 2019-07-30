@@ -48,9 +48,9 @@ public class ConeDownModel extends LXModel {
   static public float panel6Radius = 2.0f * 8.7f * 12.0f / inchesPerMeter;
   static public float panel5Radius =  8.7f * 12.0f / inchesPerMeter;
   static public float panel4Radius = 8f * 12.0f / inchesPerMeter;
-  static public float panel3Radius = 6.0f * 12.0f / inchesPerMeter;
-  static public float panel2Radius = 6f * 12.0f / inchesPerMeter;
-  static public float panel1Radius = 5f * 12.0f / inchesPerMeter;
+  static public float panel3Radius = 6.1f * 12.0f / inchesPerMeter;
+  static public float panel2Radius = 6.1f * 12.0f / inchesPerMeter;
+  static public float panel1Radius = 5.4f * 12.0f / inchesPerMeter;
 
   static public float pitch = 6.0f; // Pitch in Inches
   static public float coneTilt = -15.0f; // degrees around Z axis
