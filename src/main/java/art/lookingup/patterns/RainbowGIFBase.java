@@ -51,6 +51,8 @@ abstract class RainbowGIFBase extends RPattern implements CustomDeviceUI {
   public final StringParameter gifKnob =
       new StringParameter("gif", "")
           .setDescription("Animated gif");
+  public final DiscreteParameter renderTarget =
+      new DiscreteParameter("Tgt", 0, 0, 4);
 
   protected List<FileItem> fileItems = new ArrayList<FileItem>();
   protected UIItemList.ScrollList fileItemList;
@@ -102,7 +104,7 @@ abstract class RainbowGIFBase extends RPattern implements CustomDeviceUI {
    *
    * @param gifname the sprite's name, not including parent paths or the ".gif" suffix
    */
-  private void loadGif(String gifname) {
+  protected void loadGif(String gifname) {
     logger.info("Loading gif: " + gifname);
     PImage[] newImages = PathUtils.loadSprite(ConeDown.pApplet, filesDir + gifname + ".gif");
     if (scaleSrc.getValueb()) {
@@ -199,6 +201,7 @@ abstract class RainbowGIFBase extends RPattern implements CustomDeviceUI {
     fitButton.setParameter(fitSrc);
     fitButton.setMomentary(false);
     fitButton.addToContainer(knobsContainer);
+    new UIKnob(renderTarget).addToContainer(knobsContainer);
     knobsContainer.addToContainer(device);
 
 
