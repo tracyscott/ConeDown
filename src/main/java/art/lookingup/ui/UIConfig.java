@@ -120,7 +120,10 @@ public class UIConfig extends UICollapsibleSection implements LXParameterListene
   }
 
   public void buildUI(LXStudio.UI ui) {
-    int knobsPerRow = 4;
+    buildUI(ui, 4);
+  }
+
+  public void buildUI(LXStudio.UI ui, int knobsPerRow) {
     int knobCountThisRow = 0;
     setTitle(title);
     setLayout(UI2dContainer.Layout.VERTICAL);

@@ -191,7 +191,7 @@ public class ConeDown extends PApplet {
 
   public void onUIReady(LXStudio lx, LXStudio.UI ui) {
     firmataPortUI = (UIFirmata) new UIFirmata(lx.ui, lx).setExpanded(true).addToContainer(lx.ui.leftPane.global);
-    ConeFirmata.reloadFirmata(firmataPortUI.getStringParameter(UIFirmata.FIRMATA_PORT).getString(), firmataPortUI.numPins,
+    ConeFirmata.reloadFirmata(firmataPortUI.getStringParameter(UIFirmata.FIRMATA_PORT).getString(), firmataPortUI.numTiles,
         firmataPortUI.getDiscreteParameter(UIFirmata.START_PIN).getValuei(), firmataPortUI.getPinParameters());
     oscSensor = new com.giantrainbow.OSCSensor(lx);
     lx.engine.registerComponent("oscsensor", oscSensor);
