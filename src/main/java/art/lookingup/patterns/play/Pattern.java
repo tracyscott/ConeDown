@@ -1,7 +1,6 @@
 package art.lookingup.patterns.play;
 
-// import static processing.core.PConstants.P2D;
-// import static processing.core.PConstants.P3D;
+import static processing.core.PConstants.P2D;
 
 import art.lookingup.CXPoint;
 import art.lookingup.ConeDownModel;
@@ -22,8 +21,8 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 
 abstract public class Pattern extends LXPattern {
-    public static final String gtype = "";  // or P2D or P3D
-    
+    public static final String gtype = P2D;  // or "" or P3D
+
     public final PApplet app;
 
     public PGraphics graph;
@@ -67,7 +66,7 @@ abstract public class Pattern extends LXPattern {
     public void onActive() {
 	// Hmmm
     }
-    
+
     @Override
     public void onInactive() {
 	// Hmm
@@ -91,7 +90,7 @@ abstract public class Pattern extends LXPattern {
 	    for (Fragment f : frags) {
 		f.create(this);
 	    }
-		
+
 	    setup();
 
 	    for (Fragment f : frags) {
@@ -107,7 +106,7 @@ abstract public class Pattern extends LXPattern {
 	graph.endDraw();
 	graph.loadPixels();
 
-	RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), graph, colors);	
+	RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), graph, colors);
 
 	elapsed = current;
     }
