@@ -81,7 +81,7 @@ public class Output {
   public static void configureUnityArtNet(LX lx) {
     List<LXPoint> points = lx.getModel().getPoints();
     int numUniverses = (int)Math.ceil(((double)points.size())/170.0);
-    System.out.println("Num universes: " + numUniverses);
+    logger.info("Num universes: " + numUniverses);
     List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
     int totalPointsOutput = 0;
 
@@ -147,7 +147,7 @@ public class Output {
         dmxChannelsForUniverse[i] = p.index;
         totalPointsOutput++;
       }
-      System.out.println("Added points for universe number: " + univNum);
+      logger.info("Added points for universe number: " + univNum);
       ArtNetDatagram artnetDatagram = new ArtNetDatagram(dmxChannelsForUniverse, univNum);
       try {
         artnetDatagram.setAddress(artnetIpAddress).setPort(artnetPort);
@@ -369,11 +369,10 @@ public class Output {
             if (outputNumber > RAVE_OUTPUTS/2) pIndex += 1050;
             thisUniverseIndices[pointNum] = pIndex;
            }
-          System.out.println("thisUniverseIndices.length: " + thisUniverseIndices.length);
+          logger.info("thisUniverseIndices.length: " + thisUniverseIndices.length);
           for (int k = 0; k < thisUniverseIndices.length; k++) {
-            System.out.print("" + thisUniverseIndices[k] + ",");
+            logger.info("" + thisUniverseIndices[k] + ",");
           }
-          System.out.println("");
           logger.log(Level.INFO, "Adding datagram: output=" + outputNumber + " universe=" + universeNumber + " points=" + pointNum);
           ArtNetDatagram artNetDatagram = new ArtNetDatagram(thisUniverseIndices, dataLength*3, universeNumber);
           try {

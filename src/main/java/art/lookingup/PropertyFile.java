@@ -14,11 +14,14 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Utility class for saving and loading of properties.
  */
 public class PropertyFile {
+  private static final Logger logger = Logger.getLogger(PropertyFile.class.getName());
+
   public String filename;
   public JsonObject obj;
   public static final int TYPE_STRING = 0;
@@ -51,9 +54,9 @@ public class PropertyFile {
       writer.setIndent("  ");
       new GsonBuilder().create().toJson(obj, writer);
       writer.close();
-      System.out.println("PropertyFile saved successfully to " + file.toString());
+      logger.info("PropertyFile saved successfully to " + file.toString());
     } catch (IOException iox) {
-      System.err.println(iox.getMessage());
+      logger.info(iox.getMessage());
       throw iox;
     }
   }
@@ -67,9 +70,9 @@ public class PropertyFile {
     try {
       fr = new FileReader(file);
       obj = new Gson().fromJson(fr, JsonObject.class);
-      System.out.println("PropertyFile loaded successfully from " + file.toString());
+      logger.info("PropertyFile loaded successfully from " + file.toString());
     } catch (IOException iox) {
-      System.err.println("Could not load property file: " + iox.getMessage());
+      logger.info("Could not load property file: " + iox.getMessage());
       throw iox;
     } finally {
       if (fr != null) {

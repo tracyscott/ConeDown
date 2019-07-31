@@ -6,22 +6,10 @@ import org.kabeja.parser.DXFParser;
 import org.kabeja.parser.ParseException;
 import org.kabeja.parser.Parser;
 import org.kabeja.parser.ParserBuilder;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Panel {
@@ -290,40 +278,6 @@ public class Panel {
 
   }
 
-  /**
-   * For reference, the interpolation based code
-   *
-   *     // Need the panel anglea of the endpoint
-   *     double panelXFinish = radius * Math.cos(Math.toRadians(panelAngle + angleIncr));
-   *     double panelZFinish = radius * Math.sin(Math.toRadians(panelAngle + angleIncr));
-   *     double panelXStartTop = radius * 1f * Math.cos(Math.toRadians(panelAngle));
-   *     double panelZStartTop = radius * 1f * Math.sin(Math.toRadians(panelAngle));
-   *     double panelXFinishTop = radius * 0.9f * Math.cos(Math.toRadians(panelAngle + angleIncr));
-   *     double panelZFinishTop = radius * 0.9f * Math.cos(Math.toRadians(panelAngle + angleIncr));
-   *
-   *      if (isHalfPanel() && isFirstHalfPanel()) {
-   *       panelXFinish = (panelXFinish - panelXStart) * 0.5f + panelXStart;
-   *       panelZFinish = (panelZFinish - panelZStart) * 0.5f + panelZStart;
-   *       panelXFinishTop = (panelXFinishTop - panelXStartTop) * 0.5f + panelXStartTop;
-   *       panelZFinishTop = (panelZFinishTop - panelZStartTop) * 0.5f + panelZStartTop;
-   *     } else if (isHalfPanel() && !isFirstHalfPanel()) {
-   *       panelXStartTop = (panelXFinishTop - panelXStartTop) * 0.5f + panelXStartTop;
-   *       panelZStartTop = (panelZFinishTop - panelZStartTop) * 0.5f + panelZStartTop;
-   *     }
-   *       double percentY = p.y / height;
-   *       double widthAtY = topWidth + (1f - percentY) * (bottomWidth - topWidth);
-   *       double percentX = p.x / bottomWidth;
-   *       double startPtX = panelXStart + percentY * (panelXStartTop - panelXStart);
-   *       double startPtZ = panelZStart + percentY * (panelZStartTop - panelZStart);
-   *       double endPtX = panelXFinish + percentY * (panelXFinishTop - panelXFinish);
-   *       double endPtZ = panelZFinish + percentY * (panelZFinishTop - panelZFinish);
-   *       //p.x = (float)(startPtX + percentX * (endPtX - startPtX));
-   *       //p.z = (float)(startPtZ + percentX * (endPtZ - startPtZ));
-   *       //p.x = (float)(panelXStart + percentX * (panelXFinish - panelXStart));
-   *       //p.z = (float)(panelZStart + percentX * (panelZFinish - panelZStart));
-   *
-   *
-   */
   /**
    * Returns the number of panels used around the structure.  Either 8 or 16, depending on panelType.
    * @return

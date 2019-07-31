@@ -108,10 +108,10 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI, Un
     addParameter(fadeTime);
     addParameter(whichText);
 
-    logger.info("listing fonts");
+    // logger.info("listing fonts");
     String[] fontNames = PFont.list();
     for (String fontName : fontNames) {
-      logger.info("Font: " + fontName);
+      // logger.info("Font: " + fontName);
     }
     //font = RainbowStudio.pApplet.createFont("04b", fontSize, true);
     font = ConeDown.pApplet.createFont("PressStart2P", 24, false);

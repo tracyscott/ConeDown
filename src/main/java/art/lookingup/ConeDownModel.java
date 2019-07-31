@@ -151,8 +151,8 @@ public class ConeDownModel extends LXModel {
         dancePanels.add(panel);
         allPoints.addAll(panel.getPoints());
         dancePoints.addAll(panel.getPoints());
-        System.out.println("Adding dancefloor points: " + panel.getPoints().size());
-        System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+        logger.info("Adding dancefloor points: " + panel.getPoints().size());
+        logger.info("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
         layerHeight = panel.pointsHigh;
         layerWidth += panel.pointsWide;
       }
@@ -195,8 +195,8 @@ public class ConeDownModel extends LXModel {
         xOffset += panel8Width;
         allPoints.addAll(panel.getPoints());
         scoopPoints.addAll(panel.getPoints());
-        System.out.println("Adding " + panel.getPoints().size() + " points");
-        System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+        logger.info("Adding " + panel.getPoints().size() + " points");
+        logger.info("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
         layerWidth += panel.pointsWide;
         layerHeight = panel.pointsHigh;
       }
@@ -207,7 +207,7 @@ public class ConeDownModel extends LXModel {
       scoopPointsHigh += layerHeight;
       yCoordOffset += layerHeight;
       yOffset += panel8Height;
-      System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+      logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
       layerDimensions.add("" + layerWidth + "x" + layerHeight);
       xOffset = 0f;
     }
@@ -225,8 +225,8 @@ public class ConeDownModel extends LXModel {
       xOffset += panel7Width;
       allPoints.addAll(panel.getPoints());
       scoopPoints.addAll(panel.getPoints());
-      System.out.println("Adding " + panel.getPoints().size() + " points");
-      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      logger.info("Adding " + panel.getPoints().size() + " points");
+      logger.info("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
@@ -236,7 +236,7 @@ public class ConeDownModel extends LXModel {
     }
     scoopPointsHigh += layerHeight;
     yCoordOffset += layerHeight;
-    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel7Height;
 
@@ -257,8 +257,8 @@ public class ConeDownModel extends LXModel {
       xOffset += panel6Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
-      System.out.println("Adding " + panel.getPoints().size() + " points");
-      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      logger.info("Adding " + panel.getPoints().size() + " points");
+      logger.info("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
@@ -267,7 +267,7 @@ public class ConeDownModel extends LXModel {
     }
     conePointsHigh += layerHeight;
     yCoordOffset += layerHeight;
-    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel6Height;
     */
@@ -286,8 +286,8 @@ public class ConeDownModel extends LXModel {
       xOffset += panel5Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
-      System.out.println("Adding " + panel.getPoints().size() + " points");
-      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      logger.info("Adding " + panel.getPoints().size() + " points");
+      logger.info("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
@@ -297,7 +297,7 @@ public class ConeDownModel extends LXModel {
     }
     conePointsHigh  += layerHeight;
     yCoordOffset += layerHeight;
-    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel5Height;
 
@@ -320,8 +320,8 @@ public class ConeDownModel extends LXModel {
       */
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
-      System.out.println("Adding " + panel.getPoints().size() + " points");
-      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      logger.info("Adding " + panel.getPoints().size() + " points");
+      logger.info("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
@@ -331,7 +331,7 @@ public class ConeDownModel extends LXModel {
     }
     conePointsHigh += layerHeight;
     yCoordOffset += layerHeight;
-    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel4Height;
 
@@ -349,8 +349,8 @@ public class ConeDownModel extends LXModel {
       xOffset += panel3Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
-      System.out.println("Adding " + panel.getPoints().size() + " points");
-      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      logger.info("Adding " + panel.getPoints().size() + " points");
+      logger.info("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
@@ -360,7 +360,7 @@ public class ConeDownModel extends LXModel {
     }
     conePointsHigh += layerHeight;
     yCoordOffset += layerHeight;
-    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel3Height;
 
@@ -379,8 +379,8 @@ public class ConeDownModel extends LXModel {
       xOffset += panel2Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
-      System.out.println("Adding " + panel.getPoints().size() + " points");
-      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      logger.info("Adding " + panel.getPoints().size() + " points");
+      logger.info("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
@@ -390,7 +390,7 @@ public class ConeDownModel extends LXModel {
     }
     conePointsHigh += layerHeight;
     yCoordOffset += layerHeight;
-    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel2Height;
 
@@ -410,8 +410,8 @@ public class ConeDownModel extends LXModel {
       //xOffset += panel1Width;
       allPoints.addAll(panel.getPoints());
       conePoints.addAll(panel.getPoints());
-      System.out.println("Adding " + panel.getPoints().size() + " points");
-      System.out.println("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
+      logger.info("Adding " + panel.getPoints().size() + " points");
+      logger.info("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
       layerWidth += panel.pointsWide;
       layerHeight = panel.pointsHigh;
     }
@@ -421,7 +421,7 @@ public class ConeDownModel extends LXModel {
     }
     conePointsHigh += layerHeight;
     yCoordOffset += layerHeight;
-    System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
+    logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel1Height;
 
@@ -432,7 +432,7 @@ public class ConeDownModel extends LXModel {
 
     logger.info("Computed POINTS_WIDExPOINTS_HIGH: " + POINTS_WIDE + "x" + POINTS_HIGH);
 
-    float scoopYOffset = 0.75f;
+    float scoopYOffset = 0.0f; // 0.75f;
     for (LXPoint p : conePoints) {
       float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
       p.x = (float)(p.x * Math.cos(Math.toRadians(-15)) + p.y * Math.sin(Math.toRadians(-15)));
@@ -442,10 +442,14 @@ public class ConeDownModel extends LXModel {
       float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
       p.x = (float)(p.x * Math.cos(Math.toRadians(-15)) + p.y * Math.sin(Math.toRadians(-15)));
       p.y = (float)(-p.x * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
+
+      if (p.y < 0f) {
+        logger.info("p below ground: " + p.y);
+      }
     }
-    System.out.println("All Layer Dimensions:");
+    logger.info("All Layer Dimensions:");
     for (String dim : layerDimensions) {
-      System.out.println(dim);
+      logger.info(dim);
     }
 
     // Export the one each of the panels per panelLayoutNum for use in the interactive
@@ -484,7 +488,7 @@ public class ConeDownModel extends LXModel {
       if (p.x > maxScoopY) maxScoopY = p.y;
     }
 
-    System.out.println("Total points: " + pointCount);
+    logger.info("Total points: " + pointCount);
 
     computedWidth = maxX - minX;
     computedHeight = maxY - minY;
@@ -503,7 +507,7 @@ public class ConeDownModel extends LXModel {
     exportPLY(points);
     exportPanelSVG();
 
-    System.out.println("Loading panel A");
+    logger.info("Loading panel A");
     //Panel panel = new Panel(0, 0, panel9Width, panel9Height, pitch, 9);
     //panel.points = loadPanelSVG(panel,"panel_A.svg");
     //Collections.sort(panel.points);
@@ -620,7 +624,7 @@ public class ConeDownModel extends LXModel {
     coordinates[0] = columnNumber;
     // Transpose for Processing Image coordinates, otherwise images are upside down.
     coordinates[1] = (POINTS_HIGH-1)-rowNumber;
-    //System.out.println ("x,y " + coordinates[0] + "," + coordinates[1]);
+    //logger.info ("x,y " + coordinates[0] + "," + coordinates[1]);
     return coordinates;
   }
 
