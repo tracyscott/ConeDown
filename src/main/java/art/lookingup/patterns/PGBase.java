@@ -22,7 +22,7 @@ abstract class PGBase extends RPattern {
           .setDescription("Controls the frames per second.");
 
   public final DiscreteParameter renderTarget =
-      new DiscreteParameter("Tgt", 0, 0, 4);
+      new DiscreteParameter("Tgt", 0, 0, 6);
 
   protected PGraphics pg;
 
@@ -85,6 +85,14 @@ abstract class PGBase extends RPattern {
           case 3:
             renderWidth = ConeDownModel.conePointsWide;
             renderHeight = ConeDownModel.conePointsHigh;
+            break;
+          case 4:  // Scoop + cone
+            renderWidth = Math.max(ConeDownModel.conePointsWide, ConeDownModel.scoopPointsWide);
+            renderHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.conePointsHigh;
+            break;
+          case 5:  // Dancefloor + scoop
+            renderWidth = ConeDownModel.scoopPointsWide;
+            renderHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.dancePointsHigh;
             break;
         }
         createPGraphics();

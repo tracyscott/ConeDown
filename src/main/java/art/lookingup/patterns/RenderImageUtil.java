@@ -132,10 +132,19 @@ public class RenderImageUtil {
         pointsWide = ConeDownModel.conePointsWide;
         pointsHigh = ConeDownModel.conePointsHigh;
         break;
+      case 4:  // scoop + cone
+        yTexCoordOffset = ConeDownModel.dancePointsHigh;
+        pointsWide = ConeDownModel.scoopPointsWide;
+        pointsHigh = ConeDownModel.scoopPointsHigh + ConeDownModel.conePointsHigh;
+        break;
+      case 5:  // dance + scoop
+        pointsWide = ConeDownModel.scoopPointsWide;
+        pointsHigh = ConeDownModel.dancePointsHigh + ConeDownModel.scoopPointsHigh;
+        break;
     }
 
     for (LXPoint p : ConeDownModel.conePoints) {
-      if (renderTarget == 0 || renderTarget == 3) {
+      if (renderTarget == 0 || renderTarget == 3 || renderTarget == 4) {
         int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
         colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
       } else {
@@ -144,7 +153,7 @@ public class RenderImageUtil {
     }
 
     for (LXPoint p : ConeDownModel.scoopPoints) {
-      if (renderTarget == 0 || renderTarget == 2) {
+      if (renderTarget == 0 || renderTarget == 2 || renderTarget == 5 || renderTarget == 4) {
         int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
         colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
       } else {
@@ -153,7 +162,7 @@ public class RenderImageUtil {
     }
 
     for (LXPoint p : ConeDownModel.dancePoints) {
-      if (renderTarget == 0 || renderTarget == 1) {
+      if (renderTarget == 0 || renderTarget == 1 || renderTarget == 5) {
         int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
         colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
       } else {

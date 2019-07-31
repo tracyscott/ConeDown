@@ -48,6 +48,14 @@ public class RainbowGIFPP extends RainbowGIFBase {
             imageWidth = ConeDownModel.conePointsWide;
             imageHeight = ConeDownModel.conePointsHigh;
             break;
+          case 4:  // Scoop + cone
+            imageWidth = Math.max(ConeDownModel.conePointsWide, ConeDownModel.scoopPointsWide);
+            imageHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.conePointsHigh;
+            break;
+          case 5:  // Dancefloor + scoop
+            imageWidth = ConeDownModel.scoopPointsWide;
+            imageHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.dancePointsHigh;
+            break;
         }
         // Reload the GIF with new dimensions.
         loadGif(gifKnob.getString());
