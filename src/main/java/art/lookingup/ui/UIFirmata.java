@@ -36,7 +36,7 @@ public class UIFirmata extends UIConfig {
         registerCompoundParameter(NAME_BASE + x + "_" + y, 0f, 0f, 1f);
       }
     }
-    registerDiscreteParameter(START_PIN, 8, 0, 40);
+    registerDiscreteParameter(START_PIN, 2, 0, 40);
     save();
 
     buildUI(ui, 3);

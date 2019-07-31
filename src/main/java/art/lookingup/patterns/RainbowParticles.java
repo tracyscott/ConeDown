@@ -5,10 +5,12 @@ import com.thomasdiewald.pixelflow.java.DwPixelFlow;
 import com.thomasdiewald.pixelflow.java.flowfieldparticles.DwFlowFieldParticles;
 import com.thomasdiewald.pixelflow.java.imageprocessing.DwFlowField;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwFilter;
+import com.thomasdiewald.pixelflow.java.imageprocessing.filter.DwLiquidFX;
 import com.thomasdiewald.pixelflow.java.imageprocessing.filter.Merge;
 import com.thomasdiewald.pixelflow.java.utils.DwUtils;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
+import heronarts.lx.parameter.CompoundParameter;
 import processing.core.PApplet;
 import processing.opengl.PGraphics2D;
 
@@ -21,9 +23,13 @@ import static processing.core.PConstants.*;
  */
 @LXCategory(LXCategory.FORM)
 public class RainbowParticles extends PGPixelPerfect {
+  CompoundParameter xPos = new CompoundParameter("x", 0.5f, 0f, 1f);
+  CompoundParameter yPos = new CompoundParameter("y", 0.5f, 0f, 1f);
+
   public RainbowParticles(LX lx) {
     super(lx, "");
-
+    addParameter(xPos);
+    addParameter(yPos);
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
     pg_canvas = (PGraphics2D) ConeDown.pApplet.createGraphics(pg.width, pg.height, P2D);
@@ -50,7 +56,7 @@ public class RainbowParticles extends PGPixelPerfect {
     pg_obstacles.fill(0, 255);
     pg_obstacles.rect(0, 0, pg.width, pg.height);
     pg_obstacles.fill(0, 0);
-    pg_obstacles.rect(2, 2, pg.width-4, pg.height-4);
+    pg_obstacles.rect(1, 1, pg.width-1, pg.height-1);
     pg_obstacles.endDraw();
 
     boolean[] RESIZED = { false };
@@ -76,16 +82,18 @@ public class RainbowParticles extends PGPixelPerfect {
     particles.param.shader_collision_mult = 0.30f;
     particles.param.steps = 1;
     particles.param.velocity_damping  = 1;
-    particles.param.size_display   = 3;
-    particles.param.size_collision = 3;
-    particles.param.size_cohesion  = 2;
-    particles.param.mul_coh = 1.00f;
+    particles.param.size_display   = 5;
+    particles.param.size_collision = 5;
+    particles.param.size_cohesion  = 4; //4
+    particles.param.mul_coh = 4.00f;
     particles.param.mul_col = 2.00f;
     particles.param.mul_obs = 3.00f;
 
     particles.param.wh_scale_col =  0;
-    particles.param.wh_scale_coh =  4;
+    particles.param.wh_scale_coh =  4; //4
     particles.param.wh_scale_obs =  0;
+
+    liquidfx = new DwLiquidFX(context);
 
     reset();
   }
@@ -100,6 +108,7 @@ public class RainbowParticles extends PGPixelPerfect {
   DwFlowFieldParticles particles;
   DwFlowField ff_acc;
   DwFlowField ff_impulse;
+  DwLiquidFX liquidfx;
 
   public void draw(double deltaDrawMs) {
     pg.background(0);
@@ -118,7 +127,8 @@ public class RainbowParticles extends PGPixelPerfect {
     pg_canvas.endDraw();
     particles.displayParticles(pg_canvas);
     pg.blendMode(REPLACE);
-    applyBloom();
+    applyLiquidFx();
+    //applyBloom();
     pg_canvas.loadPixels();
     pg_canvas.updatePixels();
     pg.image(pg_canvas, 0, 0);
@@ -130,6 +140,20 @@ public class RainbowParticles extends PGPixelPerfect {
   public void setTimestep(){
     particles.param.timestep = 1f/(fpsKnob.getValuef());
 //    particles.param.timestep = 1f/120;
+  }
+
+  public void applyLiquidFx() {
+    liquidfx.param.base_LoD           = 1;
+    liquidfx.param.base_blur_radius   = 1;
+    liquidfx.param.base_threshold     = 0.6f;
+    liquidfx.param.base_threshold_pow = 25;
+    liquidfx.param.highlight_enabled  = true;
+    liquidfx.param.highlight_LoD      = 1;
+    liquidfx.param.highlight_decay    = 0.6f;
+    liquidfx.param.sss_enabled        = true;
+    liquidfx.param.sss_LoD            = 3;
+    liquidfx.param.sss_decay          = 0.8f;
+    liquidfx.apply(pg_canvas);
   }
 
   public void applyBloom() {
@@ -160,33 +184,41 @@ public class RainbowParticles extends PGPixelPerfect {
     px = vw/2f;
     py = vh/4f;
     vx = 0;
-    vy = 4;
+    vy = 0;
 
-    DwFlowFieldParticles.SpawnRadial sr = new DwFlowFieldParticles.SpawnRadial();
+    DwFlowFieldParticles.SpawnRadial srt = new DwFlowFieldParticles.SpawnRadial();
+    DwFlowFieldParticles.SpawnRect sr = new DwFlowFieldParticles.SpawnRect();
+    DwFlowFieldParticles.SpawnRect sr2 = new DwFlowFieldParticles.SpawnRect();
 //    sr.num(count);
 //    sr.dim(radius, radius);
 //    sr.pos(px, vh-1-py);
 //    sr.vel(vx, vy);
 //    particles.spawn(vw, vh, sr);
 
-    if (((int)currentFrame) % 30 == 0) {
-      System.out.println("Spawning particles");
+    if (((int)currentFrame) % 4 == 0) {
+      //System.out.println("Spawning particles");
       count = ConeDown.pApplet.ceil(particles.getCount() * 0.0025f);
       count = 1000; //RainbowStudio.pApplet.min(RainbowStudio.pApplet.max(count, 1), 5000);
 
       float pr = particles.getCollisionSize() * 0.25f;
       radius = ConeDown.pApplet.ceil(ConeDown.pApplet.sqrt(count * pr * pr));
-      px = pg.width/2;
-      py = pg.height/2;
-      vx = 10f * +vel;
-      vy = 10f * -vel;
+      px = xPos.getValuef() * pg.width; //(float)Math.sin(currentFrame) * pg.width; //pg.width/(1+(int)currentFrame%5);
+      py = yPos.getValuef() * pg.height; // pg.height/2;
+      vx = 1f * +vel;
+      vy = 1f * -vel;
 
-      sr.num(count);
-      sr.dim(radius, radius);
+      sr.num(2, 2);
+      //sr.num(2);
+      sr.dim(1f, 1f); //radius, radius);
       sr.pos(px, vh-1-py);
       sr.vel(vx, vy);
-      System.out.println("px: " + px + " py:" + py + " vx:" + vx + " vy:" + vy + " vw: " + vw + " vh:" + vh);
+      sr2.num(2, 2);
+      sr2.dim(1f, 1f);
+      sr2.pos(px + 0.5f * pg.width, vh-1-py);
+      sr2.vel(vx, vy);
+      //System.out.println("px: " + px + " py:" + py + " vx:" + vx + " vy:" + vy + " vw: " + vw + " vh:" + vh);
       particles.spawn(vw, vh, sr);
+      particles.spawn(vw, vh, sr2);
     }
   }
 
@@ -314,8 +346,8 @@ public class RainbowParticles extends PGPixelPerfect {
 
       particles.param.col_A = new float[]{rgb1[0] * s1, rgb1[1] * s1, rgb1[2] * s1, 1.0f};
       particles.param.col_B = new float[]{rgb1[0] * s2, rgb1[1] * s2, rgb1[2] * s2, 0.0f};
-      //particles.param.col_A = new float[]{red, green, blue, 1.0f};
-      //particles.param.col_B = new float[]{red * 0.25f, green * 0.25f, blue * 0.25f, 0.0f};
+      particles.param.col_A = new float[]{red, green, blue, 1.0f};
+      particles.param.col_B = new float[]{red * 0.25f, green * 0.25f, blue * 0.25f, 0.0f};
     }
   }
 

@@ -43,7 +43,7 @@ public class ConeDownModel extends LXModel {
   public static float inchesPerMeter = 39.3701f;
   static public float panelMargin = 2.0f / inchesPerMeter;
   static public float panel8Radius = 9.7f * 12.0f / inchesPerMeter;
-  static public float panel7Radius =  9.5f * 12.0f / inchesPerMeter;
+  static public float panel7Radius =  9.0f * 12.0f / inchesPerMeter;
   // panel 6 will be disabled.
   static public float panel6Radius = 2.0f * 8.7f * 12.0f / inchesPerMeter;
   static public float panel5Radius =  8.7f * 12.0f / inchesPerMeter;
@@ -212,12 +212,13 @@ public class ConeDownModel extends LXModel {
       xOffset = 0f;
     }
 
-    /*
+
     layerWidth = 0;
     List<Panel> scoopLayer = new ArrayList<Panel>();
     for (int panelNum = 0; panelNum <scoopSides; panelNum++) {
-      Panel panel = new Panel(panel7Width, panel7Width, panel7Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel7Radius, true, 7);
+      Panel panel = new Panel(Panel.PanelType.F, yOffset, panelNum, yCoordOffset, panel7Radius);
+      //Panel panel = new Panel(panel7Width, panel7Width, panel7Height, pitch, xOffset, yOffset, zOffset, panelNum,
+      //    yCoordOffset, panel7Radius, true, 7);
       panel.panelType = Panel.PanelType.F;
       scoopPanels.add(panel);
       scoopLayer.add(panel);
@@ -238,7 +239,7 @@ public class ConeDownModel extends LXModel {
     System.out.println("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel7Height;
-    */
+
 
     allPanels.addAll(scoopPanels);
 

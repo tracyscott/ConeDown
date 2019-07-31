@@ -33,6 +33,7 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
     this.panelLocalY = y;
   }
 
+  /* Note this assumes a flat 2D plane of points in XY plane */
   public void rotX(float degrees) {
     float oldY = y;
     y = y * (float)Math.cos(Math.toRadians(degrees));
@@ -43,6 +44,12 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
     float oldX = x;
     x = (float) (x * Math.cos(Math.toRadians(degrees))) - z * (float)Math.sin(Math.toRadians(degrees));
     z = (float) (oldX * Math.sin(Math.toRadians(degrees))) + z * (float)Math.cos(Math.toRadians(degrees));
+  }
+
+  public void rot2D(float degrees) {
+    float oldX = x;
+    x = (float) (x * Math.cos(Math.toRadians(degrees))) - (float)(y * Math.sin(Math.toRadians(degrees)));
+    y = (float) (oldX * Math.sin(Math.toRadians(degrees))) + (float)(y * Math.cos(Math.toRadians(degrees)));
   }
 
   /*
