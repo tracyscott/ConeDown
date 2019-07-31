@@ -231,9 +231,14 @@ public class ConeDownModel extends LXModel {
       layerHeight = panel.pointsHigh;
     }
     panelLayers.add(scoopLayer);
+    /* NOTE(tracy): We don't want this 8x2 i.e. 128x2 layer to drive our render target width since it
+     * would cause aliasing in the big panels.  So the smaller width of the bigger panels is used to
+     * minimize aliasing.
+
     if (layerWidth > scoopPointsWide) {
       scoopPointsWide = layerWidth;
     }
+    */
     scoopPointsHigh += layerHeight;
     yCoordOffset += layerHeight;
     logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
@@ -505,13 +510,6 @@ public class ConeDownModel extends LXModel {
     rowScoopIncrLength = computedScoopHeight / (POINTS_HIGH - 1);
 
     exportPLY(points);
-    exportPanelSVG();
-
-    logger.info("Loading panel A");
-    //Panel panel = new Panel(0, 0, panel9Width, panel9Height, pitch, 9);
-    //panel.points = loadPanelSVG(panel,"panel_A.svg");
-    //Collections.sort(panel.points);
-    //exportPanelPoints(panel);
   }
 
 
@@ -527,43 +525,6 @@ public class ConeDownModel extends LXModel {
     } catch (IOException ioex) {
 
     }
-  }
-
-  public static void exportPanelSVG() {
-    Panel p = scoopPanels.get(0);
-    File file = new File("panel.svg");
-    //file.getParentFile().mkdirs();
-
-    /*
-    <?xml version="1.0" encoding="UTF-8" ?>
-<svg width="391" height="391" viewBox="-70.5 -70.5 391 391" xmlns="http://www.w3.org/2000/svg">
-  <rect x="25" y="25" width="200" height="200" fill="lime" stroke-width="4" stroke="pink" />
-  <circle cx="125" cy="125" r="75" fill="orange" />
-  <polyline points="50,150 50,200 200,200 200,100" stroke="red" stroke-width="4" fill="none" />
-  <line x1="50" y1="50" x2="200" y2="200" stroke="blue" stroke-width="4" />
-</svg>
-     */
-    float svgWidth = p.topWidth * 1000f;
-    float svgHeight = p.height * 1000f;
-    float xPos = 0.0f;
-    float yPos = 0.0f;
-    float panelWidth = p.topWidth * 1000f;
-    float panelHeight = p.height * 1000f;
-    // viewBox="-70.5 -70.5 391 391"
-    try {
-      PrintWriter printWriter = new PrintWriter(file);
-      printWriter.println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
-      printWriter.println("<svg width=\"" + svgWidth + "\" height=\"" + svgHeight + "\"  xmlns=\"http://www.w3.org/2000/svg\">");
-      printWriter.println("  <rect x=\"" + xPos + "\" y=\"" + yPos + "\" width=\"" + panelWidth + "\" height=\"" + panelHeight + "\" fill=\"white\" stroke-width=\"4\" stroke=\"black\" />");
-      for (LXPoint pt : p.points) {
-        printWriter.println("<circle cx=\"" + (pt.x - p.xPos)*1000f + "\" cy=\"" + (pt.y - p.yPos) * 1000f + "\" r=\"6\" stroke-width=\"1\" stroke=\"black\" fill=\"none\" />");
-      }
-      printWriter.println("</svg>");
-      printWriter.close();
-    } catch (IOException ioex) {
-      logger.log(Level.SEVERE, "Unable to export SVG: " + ioex.getMessage());
-    }
-
   }
 
   public static void exportPLY(List<LXPoint> points) {

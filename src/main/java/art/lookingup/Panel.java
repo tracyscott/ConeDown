@@ -182,7 +182,7 @@ public class Panel {
       panelZStart = (panelZFinish - panelZStart) * 0.5f + panelZStart;
     }
 
-    logger.info("yCoordOffset =" + yCoordOffset + " pointsHigh=" + pointsHigh);
+    // logger.info("yCoordOffset =" + yCoordOffset + " pointsHigh=" + pointsHigh);
     for (CXPoint p : points) {
       float angle =  90f + 45f/2f + (angleIncr * faceNum());
       if (panelType == PanelType.G || panelType == PanelType.H || panelType == PanelType.F) {
@@ -473,7 +473,7 @@ public class Panel {
       DXFDocument doc = parser.getDocument();
       DXFLayer layer = doc.getDXFLayer("VISIBLE");
       List<DXFCircle> arcs = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_CIRCLE);
-      logger.info("circles length: " + arcs.size());
+      // logger.info("circles length: " + arcs.size());
       for (DXFCircle c : arcs) {
         Point centerPt = c.getCenterPoint();
         // logger.info("circle: " + centerPt.getX() + "," + centerPt.getY() + " r=" + c.getRadius());
