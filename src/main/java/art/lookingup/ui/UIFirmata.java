@@ -33,7 +33,8 @@ public class UIFirmata extends UIConfig {
 
     for (int y = numTilesHigh-1; y >=0 ; y--) {
       for (int x = 0; x < numTilesWide; x++) {
-        registerCompoundParameter(NAME_BASE + x + "_" + y, 0f, 0f, 1f);
+        CompoundParameter cp = registerCompoundParameter(NAME_BASE + x + "_" + y, 0f, 0f, 1f);
+        cp.setValue(0f);  // Turn off sensor value on start up.
       }
     }
     registerDiscreteParameter(START_PIN, 2, 0, 40);
