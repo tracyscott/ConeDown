@@ -30,6 +30,12 @@ public class Beacon extends Fragment {
     @Override
     public void preDrawFragment(float vdelta) {
 	super.preDrawFragment(vdelta);
+
+	// TODO @@@
+	// float position = (elapsed() / period) % width;
+	// int posInt = (int) position;
+	// float poffset = position - posInt;
+
 	frag0.render(vdelta);
 	frag1.render(vdelta);
     }
@@ -54,7 +60,7 @@ public class Beacon extends Fragment {
 	int baseInt;
 	Fragment whole;
 	Fragment split;
-	int halfw = (int)(width/2f + 0.5);
+	int halfw = (int)(width/2 + 0.5);
 	
 	if (f0base > halfw) {
 	    base = f0base - halfw;
@@ -71,13 +77,13 @@ public class Beacon extends Fragment {
 	float shift = base - baseInt;
 
 	area.pushMatrix();
-	area.translate(shift, 0);
+	area.translate(-shift, 0);
 
 	area.copy(whole.image, baseInt, 0, halfw, height, baseInt, 0, halfw, height);
 
-	int right = (int)(width - base - halfw);
-	area.copy(split.image, 0, 0, right, height, baseInt+halfw, 0, right, height);
-	area.copy(split.image, 0, 0, baseInt, height, 0, 0, baseInt, height);
+	// int right = (int)(width - base - halfw);
+	// area.copy(split.image, 0, 0, right, height, baseInt+halfw, 0, right, height);
+	// area.copy(split.image, 0, 0, baseInt, height, 0, 0, baseInt, height);
 
 	area.popMatrix();
     }    

@@ -10,7 +10,7 @@ import heronarts.lx.LX;
 import processing.core.PGraphics;
 
 public class Spiral extends Fragment {
-    static final float period = 100f;
+    static final float period = 10f;
     
     static final int maxCount = 99;
 

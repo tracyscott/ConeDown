@@ -21,7 +21,10 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 
 abstract public class Pattern extends LXPattern {
-    public static final String gtype = P2D;  // or "" or P3D
+    // "" for builtin, P2D or P3D for opengl
+    public static final String gtype = "";
+
+    public static final int superSampling = 8;
 
     public final PApplet app;
 
@@ -73,6 +76,8 @@ abstract public class Pattern extends LXPattern {
     }
 
     PGraphics createGraphics(int width, int height) {
+	width *= superSampling;
+	height *= superSampling;
 	if (gtype == "") {
 	    return app.createGraphics(width, height);
 	}
@@ -102,7 +107,8 @@ abstract public class Pattern extends LXPattern {
 
 	graph.beginDraw();
 	graph.background(0);
-	graph.copy(frags.get(frags.size()-1).image, 0, 0, width, height, 0, 0, width, height);
+	graph.scale(superSampling, superSampling);
+	graph.copy(frags.get(frags.size()-1).image, 0, 0, width * superSampling, height * superSampling, 0, 0, width, height);
 	graph.endDraw();
 	graph.loadPixels();
 
