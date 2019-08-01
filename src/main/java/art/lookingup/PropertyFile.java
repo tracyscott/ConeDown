@@ -28,6 +28,7 @@ public class PropertyFile {
   public static final int TYPE_INT = 1;
   public static final int TYPE_FLOAT = 2;
   public static final int TYPE_DOUBLE = 3;
+  public static final int TYPE_BOOLEAN = 4;
 
   public PropertyFile(String filename) {
     this.filename = filename;
@@ -130,6 +131,15 @@ public class PropertyFile {
   public double getDouble(String key) throws NotFound {
     if (obj.has(key))
       return obj.get(key).getAsDouble();
+    else
+      throw new NotFound();
+  }
+
+  public void setBoolean(String key, boolean value) { obj.addProperty(key, value); }
+
+  public boolean getBoolean(String key) throws NotFound {
+    if (obj.has(key))
+      return obj.get(key).getAsBoolean();
     else
       throw new NotFound();
   }

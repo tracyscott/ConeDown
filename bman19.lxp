@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1564689750403,
+  "timestamp": 1564694857559,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -8322817,
+    "modulationColor": -851713,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -27,7 +27,7 @@
       "crossfader": 0.5,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 8,
+      "focusedChannel": 4,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -517,7 +517,7 @@
               "label": "Meter",
               "running": true,
               "trigger": false,
-              "gain": 24.959998905658722,
+              "gain": 41.95999890565872,
               "range": 25.50000050291419,
               "attack": 0.0,
               "release": 0.0,
@@ -583,9 +583,9 @@
           "label": "MULTI",
           "arm": false,
           "selected": false,
-          "enabled": false,
+          "enabled": true,
           "cue": false,
-          "fader": 0.005,
+          "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -798,7 +798,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.014,
+          "fader": 0.012,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -813,7 +813,7 @@
         "children": {},
         "effects": [],
         "clips": [],
-        "patternIndex": 5,
+        "patternIndex": 3,
         "patterns": [
           {
             "id": 1801,
@@ -1043,10 +1043,10 @@
         "parameters": {
           "label": "STD",
           "arm": false,
-          "selected": false,
-          "enabled": true,
+          "selected": true,
+          "enabled": false,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.0,
           "crossfadeGroup": 0,
           "blendMode": 4,
           "midiMonitor": false,
@@ -1070,7 +1070,7 @@
             },
             "parameters": {
               "label": "Blur",
-              "enabled": true,
+              "enabled": false,
               "amount": 0.5
             },
             "children": {
@@ -1088,41 +1088,10 @@
                 "triggers": []
               }
             }
-          },
-          {
-            "id": 2934,
-            "class": "art.lookingup.patterns.MaskEffect",
-            "modulationColor": -65466,
-            "internal": {
-              "expanded": true,
-              "modulationExpanded": false
-            },
-            "parameters": {
-              "label": "Mask",
-              "enabled": true,
-              "cone": true,
-              "scoop": true,
-              "dance": true
-            },
-            "children": {
-              "modulation": {
-                "id": 2935,
-                "class": "heronarts.lx.LXModulationEngine",
-                "modulationColor": -16750849,
-                "internal": {},
-                "parameters": {
-                  "label": "Modulation"
-                },
-                "children": {},
-                "modulators": [],
-                "modulations": [],
-                "triggers": []
-              }
-            }
           }
         ],
         "clips": [],
-        "patternIndex": 1,
+        "patternIndex": 5,
         "patterns": [
           {
             "id": 247,
@@ -1977,7 +1946,7 @@
         "children": {},
         "effects": [],
         "clips": [],
-        "patternIndex": 3,
+        "patternIndex": 1,
         "patterns": [
           {
             "id": 2218,
@@ -2142,10 +2111,10 @@
         "parameters": {
           "label": "ICE",
           "arm": false,
-          "selected": true,
-          "enabled": true,
+          "selected": false,
+          "enabled": false,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.0,
           "crossfadeGroup": 0,
           "blendMode": 4,
           "midiMonitor": false,
