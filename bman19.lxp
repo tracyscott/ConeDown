@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1564603550069,
+  "timestamp": 1564689750403,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -1966336,
+    "modulationColor": -8322817,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -583,9 +583,9 @@
           "label": "MULTI",
           "arm": false,
           "selected": false,
-          "enabled": true,
+          "enabled": false,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.005,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -798,7 +798,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.0,
+          "fader": 0.014,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -813,7 +813,7 @@
         "children": {},
         "effects": [],
         "clips": [],
-        "patternIndex": 3,
+        "patternIndex": 5,
         "patterns": [
           {
             "id": 1801,
@@ -1044,9 +1044,9 @@
           "label": "STD",
           "arm": false,
           "selected": false,
-          "enabled": false,
+          "enabled": true,
           "cue": false,
-          "fader": 0.002,
+          "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 4,
           "midiMonitor": false,
@@ -1122,7 +1122,7 @@
           }
         ],
         "clips": [],
-        "patternIndex": 14,
+        "patternIndex": 1,
         "patterns": [
           {
             "id": 247,
@@ -1279,7 +1279,12 @@
               "autoCycleEligible": true
             },
             "parameters": {
-              "label": "IceCream"
+              "label": "IceCream",
+              "Fps": 40.0,
+              "Tgt": 5,
+              "Flavor": 0,
+              "NumChips": 10,
+              "ChipSz": 2
             },
             "children": {
               "modulation": {
@@ -2138,17 +2143,17 @@
           "label": "ICE",
           "arm": false,
           "selected": true,
-          "enabled": false,
+          "enabled": true,
           "cue": false,
-          "fader": 0.015,
+          "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 4,
           "midiMonitor": false,
           "midiChannel": 16,
-          "autoCycleEnabled": true,
+          "autoCycleEnabled": false,
           "autoCycleMode": 0,
           "autoCycleTimeSecs": 60.0,
-          "transitionEnabled": true,
+          "transitionEnabled": false,
           "transitionTimeSecs": 5.0,
           "transitionBlendMode": 0
         },
@@ -2165,8 +2170,8 @@
             "parameters": {
               "label": "Mask",
               "enabled": false,
-              "cone": false,
-              "scoop": false,
+              "cone": true,
+              "scoop": true,
               "dance": true
             },
             "children": {
@@ -2216,7 +2221,7 @@
           }
         ],
         "clips": [],
-        "patternIndex": 4,
+        "patternIndex": 1,
         "patterns": [
           {
             "id": 1130,
@@ -2257,7 +2262,12 @@
               "autoCycleEligible": true
             },
             "parameters": {
-              "label": "IceCream"
+              "label": "IceCream",
+              "Fps": 2.5000008381903194,
+              "Tgt": 0,
+              "Flavor": 5,
+              "NumChips": 29,
+              "ChipSz": 4
             },
             "children": {
               "modulation": {
@@ -2559,22 +2569,22 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 21.705246161673983,
-          "theta": 49.33702863097008,
-          "phi": 0.46238929520143957,
-          "x": -0.03160229051718488,
-          "y": 1.6687859217636287,
-          "z": -5.424007979514499
+          "radius": 16.236704430167915,
+          "theta": 47.44809636270797,
+          "phi": 0.19690259483187356,
+          "x": -1.6021776055567898,
+          "y": 2.2839230964891613,
+          "z": -4.530208613085051
         },
         "cue": [
           {
             "active": false,
-            "radius": 21.705246161673983,
-            "theta": 49.33702863097008,
-            "phi": 0.46238929520143957,
-            "x": -0.03160229051718488,
-            "y": 1.6687859217636287,
-            "z": -5.424007979514499
+            "radius": 16.236704430167915,
+            "theta": 47.44809636270797,
+            "phi": 0.19690259483187356,
+            "x": -1.6021776055567898,
+            "y": 2.2839230964891613,
+            "z": -4.530208613085051
           },
           {
             "active": false,

@@ -16,6 +16,10 @@ abstract class PGPixelPerfect extends PGBase {
       drawMode);
   }
 
+  public PGPixelPerfect(LX lx, String drawMode, int width, int height) {
+    super(lx, width, height, drawMode);
+  }
+
   protected void imageToPoints() {
     RenderImageUtil.sampleRenderTarget(renderTarget.getValuei(), pg, colors, 0 ,0);
   }
