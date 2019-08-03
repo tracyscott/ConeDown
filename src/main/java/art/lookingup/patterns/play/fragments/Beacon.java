@@ -14,10 +14,13 @@ public class Beacon extends Fragment {
     final Fragment frag0;
     final Fragment frag1;
 
+    final int halfWidth;
+
     public Beacon(LX lx, int width, int height, Fragment f0, Fragment f1) {
 	super(width, height);
 	this.frag0 = f0;
 	this.frag1 = f1;
+	this.halfWidth = width / 2;
     }
 
     @Override
@@ -55,36 +58,52 @@ public class Beacon extends Fragment {
     
     @Override
     public void drawFragment() {
-	float f0base = (elapsed() / period) % width;
-	float base;
-	int baseInt;
-	Fragment whole;
-	Fragment split;
-	int halfw = (int)(width/2 + 0.5);
-	
-	if (f0base > halfw) {
-	    base = f0base - halfw;
-	    whole = frag1;
-	    split = frag0;
-	} else {
-	    base = f0base;
-	    whole = frag0;
-	    split = frag1;
+	int f0pos = (int)(elapsed() / period);
+
+	drawHalf(f0pos, frag0);
+	drawHalf(f0pos+halfWidth, frag1);
+    }
+
+    void drawHalf(int pos, Fragment f) {
+	int drawn = 0;
+	while (drawn < halfWidth) {
+	    pos %= width;
+
+	    int take = Math.min(width - pos, halfWidth - drawn);
+
+	    area.copy(f.image, pos, 0, take, height, pos, 0, take, height);
+
+	    drawn += take;
+	    pos += take;
 	}
+    }
 
-	baseInt = (int)base;
 
-	float shift = base - baseInt;
+	// int halfw = width/2;
+	// int wholeOff;
+	// int splitOff;
+	// int base;
+	// Fragment whole;
+	// Fragment split;
+	
+	// if (f0base < halfw) {
+	//     base = f0pos;
+	//     whole = frag0;
+	//     wholeOff = 0;
+	//     split = frag1;
+	//     splitOff = 
+	// } else {	    
+	//     base = (int)(f0base - halfw);
+	//     whole = frag1;
+	//     split = frag0;
+	// }
 
-	area.pushMatrix();
-	area.translate(-shift, 0);
+	// area.copy(whole.image, base, 0, halfw, height, base, 0, halfw, height);
 
-	area.copy(whole.image, baseInt, 0, halfw, height, baseInt, 0, halfw, height);
+	// @@@	area.rect(whole.image, base, 0, halfw, height, base, 0, halfw, height);
 
-	// int right = (int)(width - base - halfw);
-	// area.copy(split.image, 0, 0, right, height, baseInt+halfw, 0, right, height);
-	// area.copy(split.image, 0, 0, baseInt, height, 0, 0, baseInt, height);
+	// int right = width - base - halfw;
+	// area.copy(split.image, 0, 0, right, height, base+halfw, 0, right, height);
+	// area.copy(split.image, right, 0, width-right, height, 0, 0, base, height);
 
-	area.popMatrix();
-    }    
 }
