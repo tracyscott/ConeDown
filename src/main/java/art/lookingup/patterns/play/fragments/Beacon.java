@@ -71,12 +71,7 @@ public class Beacon extends Fragment {
     public void drawFragment() {
 	int f0pos = (int)(elapsed() / period);
 
-	System.err.println("F0pos " + f0pos);
-
 	drawHalf(f0pos, frag0);
-
-	System.err.println("F1pos " + f0pos + halfWidth);
-
 	drawHalf(f0pos+halfWidth, frag1);
     }
 
@@ -88,8 +83,6 @@ public class Beacon extends Fragment {
 	    int take = Math.min(width - pos, halfWidth - drawn);
 
 	    area.copy(f.image, pos, 0, take, height, pos, 0, take, height);
-
-	    System.err.println("copy " + pos + ":" + take);
 
 	    drawn += take;
 	    pos += take;

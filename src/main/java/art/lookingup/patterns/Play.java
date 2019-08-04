@@ -23,7 +23,7 @@ public class Play extends Pattern {
 	super(lx, app, width, height);
 
 	this.addFragment(new Beacon.Factory(new Solid.Factory(),
-					    new Solid.Factory()));
+					    new Spiral.Factory()));
 
 	// this.addFragment(new Beacon(lx,
 	// 			    width,

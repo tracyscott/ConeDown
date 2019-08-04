@@ -112,6 +112,8 @@ abstract public class Pattern extends LXPattern {
 	graph.endDraw();
 	graph.loadPixels();
 
+	// graph.get().save(String.format("/Users/jmacd/Desktop/dump/canvas-%s.png", counter++));
+
 	RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), graph, colors);
 
 	elapsed = current;
