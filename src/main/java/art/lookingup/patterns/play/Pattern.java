@@ -1,7 +1,6 @@
 package art.lookingup.patterns.play;
 
-// import static processing.core.PConstants.P2D;
-// import static processing.core.PConstants.P3D;
+import static processing.core.PConstants.P2D;
 
 import art.lookingup.CXPoint;
 import art.lookingup.ConeDownModel;
@@ -22,14 +21,17 @@ import processing.core.PGraphics;
 import processing.core.PImage;
 
 abstract public class Pattern extends LXPattern {
-    public static final String gtype = "";  // or P2D or P3D
-    
+    // "" for builtin, P2D or P3D for opengl
+    public static final String gtype = "";
+
+    public static final int superMult = 8;
+
     public final PApplet app;
 
     public PGraphics graph;
 
-    public final int width;
-    public final int height;
+    private final int width;
+    private final int height;
 
     public final CompoundParameter speedKnob =
 	new CompoundParameter("GlobalSpeed", 1, 0, 2)
@@ -41,7 +43,8 @@ abstract public class Pattern extends LXPattern {
 
     List<Fragment> frags = new ArrayList<>();
 
-    public void addFragment(Fragment f) {
+    public void addFragment(FragmentFactory ff) {
+	Fragment f = ff.create(lx, width * superMult, height * superMult);
 	frags.add(f);
 	f.registerParameters((LXParameter cp)->{
 		addParameter(cp);
@@ -67,13 +70,13 @@ abstract public class Pattern extends LXPattern {
     public void onActive() {
 	// Hmmm
     }
-    
+
     @Override
     public void onInactive() {
 	// Hmm
     }
 
-    PGraphics createGraphics(int width, int height) {
+    static PGraphics createGraphics(PApplet app, int width, int height) {
 	if (gtype == "") {
 	    return app.createGraphics(width, height);
 	}
@@ -86,12 +89,12 @@ abstract public class Pattern extends LXPattern {
 	if (!init) {
 	    init = true;
 
-	    this.graph = createGraphics(width, height);
+	    this.graph = createGraphics(app, width, height);
 
 	    for (Fragment f : frags) {
 		f.create(this);
 	    }
-		
+
 	    setup();
 
 	    for (Fragment f : frags) {
@@ -103,11 +106,15 @@ abstract public class Pattern extends LXPattern {
 
 	graph.beginDraw();
 	graph.background(0);
-	graph.copy(frags.get(frags.size()-1).image, 0, 0, width, height, 0, 0, width, height);
+	graph.copy(frags.get(frags.size()-1).image,
+		   0, 0, width * superMult, height * superMult,
+		   0, 0, width, height);
 	graph.endDraw();
 	graph.loadPixels();
 
-	RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), graph, colors);	
+	// graph.get().save(String.format("/Users/jmacd/Desktop/dump/canvas-%s.png", counter++));
+
+	RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), graph, colors);
 
 	elapsed = current;
     }

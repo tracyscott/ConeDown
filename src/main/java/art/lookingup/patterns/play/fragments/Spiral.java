@@ -1,6 +1,7 @@
 package art.lookingup.patterns.play.fragments;
 
 import art.lookingup.patterns.play.Fragment;
+import art.lookingup.patterns.play.FragmentFactory;
 import art.lookingup.patterns.play.Parameter;
 import art.lookingup.colors.Gradient;
 import art.lookingup.Projection;
@@ -10,7 +11,7 @@ import heronarts.lx.LX;
 import processing.core.PGraphics;
 
 public class Spiral extends Fragment {
-    static final float period = 100f;
+    static final float period = 10f;
     
     static final int maxCount = 99;
 
@@ -25,7 +26,15 @@ public class Spiral extends Fragment {
     Gradient gradients[];
     float strokeWidth;
     
-    public Spiral(LX lx, int width, int height) {
+    static public class Factory implements FragmentFactory {
+	public Factory() { }
+
+	public Fragment create(LX lx, int width, int height) {
+	    return new Spiral(lx, width, height);
+	}
+    };
+    
+    protected Spiral(LX lx, int width, int height) {
 	super(width, height);
 	this.triples = newParameter("triples", 4, 1, 10);
 	this.pitch = newParameter("pitch", 640, 8, 1000);

@@ -1,6 +1,7 @@
 package art.lookingup.patterns.play.fragments;
 
 import art.lookingup.patterns.play.Fragment;
+import art.lookingup.patterns.play.FragmentFactory;
 import art.lookingup.patterns.play.Pattern;
 import art.lookingup.patterns.play.Parameter;
 
@@ -14,10 +15,28 @@ public class Beacon extends Fragment {
     final Fragment frag0;
     final Fragment frag1;
 
+    final int halfWidth;
+
+    static public class Factory implements FragmentFactory {
+	FragmentFactory ff0;
+	FragmentFactory ff1;
+	public Factory(FragmentFactory ff0, FragmentFactory ff1) {
+	    this.ff0 = ff0;
+	    this.ff1 = ff1;
+	}
+
+	public Fragment create(LX lx, int width, int height) {
+	    return new Beacon(lx, width, height,
+			      ff0.create(lx, width, height),
+			      ff1.create(lx, width, height));
+	}
+    };
+    
     public Beacon(LX lx, int width, int height, Fragment f0, Fragment f1) {
 	super(width, height);
 	this.frag0 = f0;
 	this.frag1 = f1;
+	this.halfWidth = width / 2;
     }
 
     @Override
@@ -30,6 +49,7 @@ public class Beacon extends Fragment {
     @Override
     public void preDrawFragment(float vdelta) {
 	super.preDrawFragment(vdelta);
+
 	frag0.render(vdelta);
 	frag1.render(vdelta);
     }
@@ -49,36 +69,23 @@ public class Beacon extends Fragment {
     
     @Override
     public void drawFragment() {
-	float f0base = (elapsed() / period) % width;
-	float base;
-	int baseInt;
-	Fragment whole;
-	Fragment split;
-	int halfw = (int)(width/2f + 0.5);
-	
-	if (f0base > halfw) {
-	    base = f0base - halfw;
-	    whole = frag1;
-	    split = frag0;
-	} else {
-	    base = f0base;
-	    whole = frag0;
-	    split = frag1;
+	int f0pos = (int)(elapsed() / period);
+
+	drawHalf(f0pos, frag0);
+	drawHalf(f0pos+halfWidth, frag1);
+    }
+
+    void drawHalf(int pos, Fragment f) {
+	int drawn = 0;
+	while (drawn < halfWidth) {
+	    pos %= width;
+
+	    int take = Math.min(width - pos, halfWidth - drawn);
+
+	    area.copy(f.image, pos, 0, take, height, pos, 0, take, height);
+
+	    drawn += take;
+	    pos += take;
 	}
-
-	baseInt = (int)base;
-
-	float shift = base - baseInt;
-
-	area.pushMatrix();
-	area.translate(shift, 0);
-
-	area.copy(whole.image, baseInt, 0, halfw, height, baseInt, 0, halfw, height);
-
-	int right = (int)(width - base - halfw);
-	area.copy(split.image, 0, 0, right, height, baseInt+halfw, 0, right, height);
-	area.copy(split.image, 0, 0, baseInt, height, 0, 0, baseInt, height);
-
-	area.popMatrix();
-    }    
+    }
 }

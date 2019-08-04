@@ -22,23 +22,24 @@ abstract public class Fragment {
 
     public final int width;
     public final int height;
+    public final int num;
 
     float elapsed;
 
-    static int fragNum;
+    static int nextNum;
 
     protected Fragment(int width, int height) {
-
 	this.width = width;
 	this.height = height;
 	this.elapsed = 0;  // Note: updated by Pattern.preDraw()
 	this.image = new PImage(this.width, this.height, ARGB);
-
-	fragNum++;
-	this.rate = newParameter(String.format("rate-%d", fragNum), 0, -1, 1);
+	
+	this.num = nextNum++;
+	this.rate = newParameter("rate", 0, -1, 1);
     }
 
     protected Parameter newParameter(String name, float init, float min, float max) {
+	name = String.format("%s-%s", name, this.num);
 	Parameter p = new Parameter(this, name, init, min, max);
 	params.add(p);
 	return p;
@@ -63,7 +64,7 @@ abstract public class Fragment {
     public abstract void drawFragment();
 
     public void create(Pattern p) {
-	this.area = p.createGraphics(width, height);
+	this.area = p.createGraphics(p.app, width, height);
     }
 
     public void registerParameters(Parameter.Adder adder) {
@@ -80,8 +81,10 @@ abstract public class Fragment {
 	preDrawFragment(vdelta);
 	
 	area.beginDraw();
+	area.pushMatrix();
 	area.background(0);
 	drawFragment();
+	area.popMatrix();
 	area.endDraw();
 	area.loadPixels();
 	    
