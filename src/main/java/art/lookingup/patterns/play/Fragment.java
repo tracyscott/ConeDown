@@ -29,7 +29,6 @@ abstract public class Fragment {
     static int nextNum;
 
     protected Fragment(int width, int height) {
-
 	this.width = width;
 	this.height = height;
 	this.elapsed = 0;  // Note: updated by Pattern.preDraw()
@@ -65,7 +64,7 @@ abstract public class Fragment {
     public abstract void drawFragment();
 
     public void create(Pattern p) {
-	this.area = p.createGraphics(width, height);
+	this.area = p.createGraphics(p.app, width, height);
     }
 
     public void registerParameters(Parameter.Adder adder) {

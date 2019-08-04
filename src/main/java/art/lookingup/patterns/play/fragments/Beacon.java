@@ -1,6 +1,7 @@
 package art.lookingup.patterns.play.fragments;
 
 import art.lookingup.patterns.play.Fragment;
+import art.lookingup.patterns.play.FragmentFactory;
 import art.lookingup.patterns.play.Pattern;
 import art.lookingup.patterns.play.Parameter;
 
@@ -16,6 +17,21 @@ public class Beacon extends Fragment {
 
     final int halfWidth;
 
+    static public class Factory implements FragmentFactory {
+	FragmentFactory ff0;
+	FragmentFactory ff1;
+	public Factory(FragmentFactory ff0, FragmentFactory ff1) {
+	    this.ff0 = ff0;
+	    this.ff1 = ff1;
+	}
+
+	public Fragment create(LX lx, int width, int height) {
+	    return new Beacon(lx, width, height,
+			      ff0.create(lx, width, height),
+			      ff1.create(lx, width, height));
+	}
+    };
+    
     public Beacon(LX lx, int width, int height, Fragment f0, Fragment f1) {
 	super(width, height);
 	this.frag0 = f0;
@@ -33,11 +49,6 @@ public class Beacon extends Fragment {
     @Override
     public void preDrawFragment(float vdelta) {
 	super.preDrawFragment(vdelta);
-
-	// TODO @@@
-	// float position = (elapsed() / period) % width;
-	// int posInt = (int) position;
-	// float poffset = position - posInt;
 
 	frag0.render(vdelta);
 	frag1.render(vdelta);
@@ -60,7 +71,12 @@ public class Beacon extends Fragment {
     public void drawFragment() {
 	int f0pos = (int)(elapsed() / period);
 
+	System.err.println("F0pos " + f0pos);
+
 	drawHalf(f0pos, frag0);
+
+	System.err.println("F1pos " + f0pos + halfWidth);
+
 	drawHalf(f0pos+halfWidth, frag1);
     }
 
@@ -73,37 +89,10 @@ public class Beacon extends Fragment {
 
 	    area.copy(f.image, pos, 0, take, height, pos, 0, take, height);
 
+	    System.err.println("copy " + pos + ":" + take);
+
 	    drawn += take;
 	    pos += take;
 	}
     }
-
-
-	// int halfw = width/2;
-	// int wholeOff;
-	// int splitOff;
-	// int base;
-	// Fragment whole;
-	// Fragment split;
-	
-	// if (f0base < halfw) {
-	//     base = f0pos;
-	//     whole = frag0;
-	//     wholeOff = 0;
-	//     split = frag1;
-	//     splitOff = 
-	// } else {	    
-	//     base = (int)(f0base - halfw);
-	//     whole = frag1;
-	//     split = frag0;
-	// }
-
-	// area.copy(whole.image, base, 0, halfw, height, base, 0, halfw, height);
-
-	// @@@	area.rect(whole.image, base, 0, halfw, height, base, 0, halfw, height);
-
-	// int right = width - base - halfw;
-	// area.copy(split.image, 0, 0, right, height, base+halfw, 0, right, height);
-	// area.copy(split.image, right, 0, width-right, height, 0, 0, base, height);
-
 }

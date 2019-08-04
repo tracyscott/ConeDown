@@ -24,14 +24,14 @@ abstract public class Pattern extends LXPattern {
     // "" for builtin, P2D or P3D for opengl
     public static final String gtype = "";
 
-    public static final int superSampling = 8;
+    public static final int superMult = 8;
 
     public final PApplet app;
 
     public PGraphics graph;
 
-    public final int width;
-    public final int height;
+    private final int width;
+    private final int height;
 
     public final CompoundParameter speedKnob =
 	new CompoundParameter("GlobalSpeed", 1, 0, 2)
@@ -43,7 +43,8 @@ abstract public class Pattern extends LXPattern {
 
     List<Fragment> frags = new ArrayList<>();
 
-    public void addFragment(Fragment f) {
+    public void addFragment(FragmentFactory ff) {
+	Fragment f = ff.create(lx, width * superMult, height * superMult);
 	frags.add(f);
 	f.registerParameters((LXParameter cp)->{
 		addParameter(cp);
@@ -75,9 +76,7 @@ abstract public class Pattern extends LXPattern {
 	// Hmm
     }
 
-    PGraphics createGraphics(int width, int height) {
-	width *= superSampling;
-	height *= superSampling;
+    static PGraphics createGraphics(PApplet app, int width, int height) {
 	if (gtype == "") {
 	    return app.createGraphics(width, height);
 	}
@@ -90,7 +89,7 @@ abstract public class Pattern extends LXPattern {
 	if (!init) {
 	    init = true;
 
-	    this.graph = createGraphics(width, height);
+	    this.graph = createGraphics(app, width, height);
 
 	    for (Fragment f : frags) {
 		f.create(this);
@@ -107,8 +106,9 @@ abstract public class Pattern extends LXPattern {
 
 	graph.beginDraw();
 	graph.background(0);
-	graph.scale(superSampling, superSampling);
-	graph.copy(frags.get(frags.size()-1).image, 0, 0, width * superSampling, height * superSampling, 0, 0, width, height);
+	graph.copy(frags.get(frags.size()-1).image,
+		   0, 0, width * superMult, height * superMult,
+		   0, 0, width, height);
 	graph.endDraw();
 	graph.loadPixels();
 
