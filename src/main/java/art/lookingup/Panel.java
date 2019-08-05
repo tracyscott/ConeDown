@@ -7,9 +7,7 @@ import org.kabeja.parser.ParseException;
 import org.kabeja.parser.Parser;
 import org.kabeja.parser.ParserBuilder;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Panel {
@@ -35,6 +33,7 @@ public class Panel {
     F,
     G,
     H,
+    I,
   }
 
   final static public String[] panelFilenames = {
@@ -48,7 +47,8 @@ public class Panel {
       "E",
       "F",
       "G",
-      "G",
+      "H",
+      "I",
   };
 
   final static public String[] panelTypeNames = {
@@ -63,6 +63,7 @@ public class Panel {
       "F",
       "G",
       "H",
+      "I",
   };
 
   final static public int[] numPanelsAround =
@@ -73,6 +74,7 @@ public class Panel {
       16,
       8,
       8,
+      16,
       16,
       16,
       16,
@@ -92,6 +94,7 @@ public class Panel {
       -45f,
       -10f,
       10f,
+      30f,
   };
 
   public PanelRegion panelRegion;
@@ -137,7 +140,13 @@ public class Panel {
     if (panelType == PanelType.A2 || panelType == PanelType.B2 || panelType == PanelType.E2)
       mirror = true;
 
-    if (panelType == panelType.H || panelType == panelType.G || panelType == PanelType.F) {
+    if (panelType == PanelType.I && (panelNum > 8))
+      mirror = true;
+
+    if (panelType == PanelType.H && panelNum == 0 || (panelNum >= 9 && panelNum <= 10))
+      mirror = true;
+
+    if (panelType == panelType.H || panelType == panelType.G || panelType == PanelType.F || panelType == PanelType.I) {
       scoop = true;
       panelRegion = PanelRegion.SCOOP;
     } else {
@@ -145,12 +154,51 @@ public class Panel {
       panelRegion = PanelRegion.CONE;
     }
 
+    // We no longer flip a G panel to get an H panel.  We have explicit H panels.
     if (panelType == PanelType.H) {
-      flip = true;
+      // flip = true;
     }
-    String filename = panelFilenames[panelType.ordinal()];
+    String filenameBase = panelFilenames[panelType.ordinal()];
 
-    points = loadDXFPanel(filename + "_LED.dxf", mirror, flip);
+    // TODO(tracy): H&I need to support milli, micro, and nano + door.
+    // Panel numbers from build team (1-based)
+    // H1 = door H6 = milli, H7 = micro, H8= nano.
+    // And then mirrored versions of H9=nano, H10 = micro, H11 = milli, normal panels, and then
+    // H16 = door.  H1 Door needs mirror and H16 door is normal.
+    // Mirrored H Door needs special treatment for bottom left corner.  It will have to be a
+    // virtual corner.  We will need to compute the horizontal midpoint based on the top of
+    // the panel.  We then compute the distance betweeen the horizontal midpoint and the
+    // bottom left of the corner (pre-mirror).  The pre-mirror synthesized bottom right is
+    // the midpoint + distance-to-bottom-left.  Also, H door panel will have 6 distinct points
+    // in the boundary/cut lines.  Bottom left is minimum Y and then minimum X.
+    // I1 = door, I2 = normal, I3 = milli, I4 = micro, I5 = nano. Back 4 have no I panels.
+    // then back to mirrored versions of nano, then micro, then milli, then normal, then door.
+    // I1 door is correct orientation.  I16 door must be mirrored.
+
+    if (panelType == PanelType.H) {
+      if (panelNum == 0 || panelNum == 15)
+        filenameBase = filenameBase + "_door";
+      if (panelNum == 5 || panelNum == 10)
+        filenameBase = filenameBase + "_milli";
+      if (panelNum == 6 || panelNum == 9)
+        filenameBase = filenameBase + "_micro";
+      if (panelNum == 7 || panelNum == 8)
+        filenameBase = filenameBase + "_nano";
+    }
+
+    if (panelType == PanelType.I) {
+      // Wait to mess with door.
+      if (panelNum == 0 || panelNum == 15)
+        filenameBase = filenameBase + "_door";
+      if (panelNum == 2 || panelNum == 13)
+        filenameBase = filenameBase + "_milli";
+      if (panelNum == 3 || panelNum == 12)
+        filenameBase = filenameBase + "_micro";
+      if (panelNum == 4 || panelNum == 11)
+        filenameBase = filenameBase + "_nano";
+    }
+    String filename = filenameBase + "_LED.dxf";
+    points = loadDXFPanel(filename, mirror, flip);
     //points = loadPanelSVG("panel_"+ filename + ".svg", mirror);
 
     // Points are now in panel local coordinate space.
@@ -185,7 +233,9 @@ public class Panel {
     // logger.info("yCoordOffset =" + yCoordOffset + " pointsHigh=" + pointsHigh);
     for (CXPoint p : points) {
       float angle =  90f + 45f/2f + (angleIncr * faceNum());
-      if (panelType == PanelType.G || panelType == PanelType.H || panelType == PanelType.F) {
+      if (panelType == PanelType.I) {
+        angle = 90f + (360f / numFacesAround()) / 2f + (angleIncr * faceNum());
+      } else if (scoop) {
         // 90f + (360 / numFaces) / 2f  was 45/4f
         angle = 90f + (360f / numFacesAround()) / 2f + (angleIncr * faceNum());
       }
@@ -197,6 +247,20 @@ public class Panel {
       p.x += panelXStart;
       p.z += panelZStart;
     }
+  }
+
+  public void increaseYPos(float y) {
+    for (CXPoint p : points) {
+      p.y += y;
+    }
+  }
+
+  public void logBoundary() {
+    logger.info("panel type & #: " + panelTypeNames[panelType.ordinal()] + " " + panelNum);
+    logger.info("bottom left : " + bPoints[0].x + "," + bPoints[0].y);
+    logger.info("bottom right: " + bPoints[1].x + "," + bPoints[1].y);
+    logger.info("top right   : " + bPoints[2].x + "," + bPoints[2].y);
+    logger.info("top left    : " + bPoints[3].x + "," + bPoints[3].y);
   }
 
   /**
@@ -450,6 +514,92 @@ public class Panel {
     }
     float x;
     float y;
+
+    /**
+     * Convert point coordinates to ints and then form a coordinate string int(x),int(y) in order
+     * to de-duplicate points.
+     * @param pointMap
+     * @param point
+     */
+    static public void dedupPoint(Map<String, BPoint> pointMap, BPoint point) {
+      int xInt = (int) point.x;
+      int yInt = (int) point.y;
+      String key = "" + xInt + "," + yInt;
+      if (!pointMap.containsKey(key))
+        pointMap.put(key, point);
+    }
+
+    /**
+     * Given a set of points, convert their vertex-centroid, aka arithmetic mean.
+     * This can be used for 4 sided convex polygons to determine the corners.
+     * @param pointsMap
+     * @return
+     */
+    static public BPoint vertexCentroid(Map<String, BPoint> pointsMap) {
+      float x = 0f;
+      float y = 0f;
+
+      for (BPoint bp : pointsMap.values()) {
+        x += bp.x;
+        y += bp.y;
+      }
+      x = x / pointsMap.values().size();
+      y = y / pointsMap.values().size();
+
+      return new BPoint(x, y);
+    }
+
+    static public BPoint findTopLeft(Map<String, BPoint> pointsMap, BPoint centroidPt) {
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x < centroidPt.x && bp.y > centroidPt.y)
+          return bp;
+      }
+      return null;
+    }
+
+    static public BPoint findTopRight(Map<String, BPoint> pointsMap, BPoint centroidPt) {
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x > centroidPt.x && bp.y > centroidPt.y)
+          return bp;
+      }
+      return null;
+    }
+
+    static public BPoint findBottomRight(Map<String, BPoint> pointsMap, BPoint centroidPt) {
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x > centroidPt.x && bp.y < centroidPt.y) {
+          return bp;
+        }
+      }
+      return null;
+    }
+
+    static public BPoint findBottomRightI(Map<String, BPoint> pointsMap, BPoint centroidPt) {
+      float maxYRight = Float.MIN_VALUE;
+      // Centroid-based approach only works with sort of rectangles.  For I_nano, the bottom right
+      // is actually above the centroid.y so adding a hack to look for max Y to the right of the
+      // centroid.x and then use that as top right so bottom right is not that one.
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x > centroidPt.x) {
+          if (bp.y > maxYRight)
+            maxYRight = bp.y;
+        }
+      }
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x > centroidPt.x && bp.y < (maxYRight - 0.1f))  // add epsilon for float compare
+          return bp;
+      }
+      return null;
+    }
+
+    static public BPoint findBottomLeft(Map<String, BPoint> pointsMap, BPoint centroidPt) {
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x < centroidPt.x && bp.y < centroidPt.y) {
+          return bp;
+        }
+      }
+      return null;
+    }
   }
 
   /**
@@ -468,6 +618,7 @@ public class Panel {
     List<CXPoint> points = new ArrayList<CXPoint>();
     Parser parser = ParserBuilder.createDefaultParser();
 
+    logger.info("Loading DXF: " + filename);
     try {
       parser.parse(filename, DXFParser.DEFAULT_ENCODING);
       DXFDocument doc = parser.getDocument();
@@ -481,6 +632,7 @@ public class Panel {
           points.add(new CXPoint(this, centerPt.getX(), centerPt.getY(), 0f, 0, 0, 0f, 0f));
         }
       }
+      Map<String, BPoint> pointMap = new HashMap<String, BPoint>();
       List<DXFLine> lines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_LINE);
       int i = 0;
       for (DXFLine l : lines) {
@@ -538,8 +690,9 @@ public class Panel {
           BPoint ePoint = new BPoint(endPoint);
           //logger.info("line: " + (int) sPoint.x + "," + (int) sPoint.y + " to " +
           //    (int) ePoint.x + "," + (int) ePoint.y);
-          sPoint.rot2D(-90f);
-          ePoint.rot2D(-90f);
+          // F is no longer rotated, probably need to recompute boundary points.
+          //sPoint.rot2D(-90f);
+          //ePoint.rot2D(-90f);
           //logger.info("rot line: " + (int) sPoint.x + "," + (int) sPoint.y + " to " +
           //    (int) ePoint.x + "," + (int) ePoint.y);
           // -19,-20 to 19,-20  top left to top right
@@ -554,7 +707,7 @@ public class Panel {
             bPoints[0] = new BPoint(ePoint.x, ePoint.y);
           }
         }
-        if (panelType == PanelType.G || panelType == PanelType.H) {
+        if (panelType == PanelType.G) {
           //logger.info("line: " + (int) startPoint.getX() + "," + (int) startPoint.getY() + " to " +
           //    (int) endPoint.getX() + "," + (int) endPoint.getY());
           // -20,20 to 20,20 top left to top right
@@ -569,7 +722,33 @@ public class Panel {
             bPoints[0] = new BPoint(endPoint);
           }
         }
+        if (panelType == PanelType.H) {
+          BPoint.dedupPoint(pointMap, new BPoint(startPoint));
+          BPoint.dedupPoint(pointMap, new BPoint(endPoint));
+        }
+
+        if (panelType == PanelType.I) {
+          BPoint.dedupPoint(pointMap, new BPoint(startPoint));
+          BPoint.dedupPoint(pointMap, new BPoint(endPoint));
+        }
         i++;
+      }
+
+      if (panelType == PanelType.H || panelType == PanelType.I) {
+        if ("I_nano_LED.dxf".equals(filename)) {
+          System.out.println("break");
+        }
+        BPoint centroid = BPoint.vertexCentroid(pointMap);
+        if (panelType == PanelType.H) {
+          logger.info("centroid: " + centroid.x + "," + centroid.y);
+        }
+        bPoints[0] = BPoint.findBottomLeft(pointMap, centroid);
+        if (panelType == PanelType.I)
+          bPoints[1] = BPoint.findBottomRightI(pointMap, centroid);
+        else
+          bPoints[1] = BPoint.findBottomRight(pointMap, centroid);
+        bPoints[2] = BPoint.findTopRight(pointMap, centroid);
+        bPoints[3] = BPoint.findTopLeft(pointMap, centroid);
       }
       BPoint bottomLeft = bPoints[0];
       BPoint bottomRight  = bPoints[1];
@@ -577,11 +756,40 @@ public class Panel {
       BPoint topLeft = bPoints[3];
 
       // We need to rotate the F panel by -90 degrees.
+      /*  We no longer need to rotate the F panel.
       if (panelType == PanelType.F) {
         // logger.info("Rotating F Panel points");
         for (CXPoint p : points) {
           p.rot2D(-90f);
         }
+      }
+      */
+      if (panelType == PanelType.H && (panelNum == 0 || panelNum == 15)) {
+        bottomRight.y = bottomLeft.y;
+        bottomRight.x = topRight.x - 2f;
+        if (panelNum == 15) {
+          bottomLeft.x -= 20f;
+        }
+      }
+      if (panelType == PanelType.H) {
+        if (panelNum == 5)
+          bottomLeft.x -= 20f;
+        if (panelNum == 6)
+          bottomLeft.x -= 1f;
+        if (panelNum == 9) {
+          bottomRight.x += 15f;
+          bottomRight.y = bottomLeft.y;
+        }
+        if (panelNum == 10) {
+          bottomRight.x += 10f;
+          bottomRight.y = bottomLeft.y;
+        }
+      }
+      if (panelType == PanelType.I && (panelNum == 0)) {
+        bottomLeft.x -= 20f;
+      }
+      if (panelType == PanelType.I && panelNum > 8) {
+        bottomRight.y = bottomLeft.y;
       }
 
       // Handle mirror situation
@@ -649,9 +857,18 @@ public class Panel {
         p.scale(CNC_SCALE);
       }
 
-      bottomWidth = bottomRight.x - bottomLeft.x;
-      topWidth = topRight.x - topLeft.x;
-      height = topRight.y - bottomRight.y;
+      /*
+      if (panelType == PanelType.H || panelType == PanelType.G) {
+        for (BPoint bp : pointMap.values()) {
+          logger.info("bpoint: " + bp.x + "," + bp.y);
+        }
+        logBoundary();
+      }
+      */
+
+      bottomWidth = bPoints[1].x - bPoints[0].x;
+      topWidth = bPoints[2].x - bPoints[3].x;
+      height = bPoints[2].y - bPoints[1].y;
     } catch (ParseException pex) {
       logger.info("Parse exception: " + pex.getMessage());
     }

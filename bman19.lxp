@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1564697635740,
+  "timestamp": 1565037968826,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -65290,
+    "modulationColor": -61696,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -27,12 +27,12 @@
       "crossfader": 0.5,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 10,
+      "focusedChannel": 4,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
       "channelMultithreaded": false,
-      "networkMultithreaded": false,
+      "networkMultithreaded": true,
       "framesPerSecond": 60.0,
       "mixerViewCondensed": false
     },
@@ -486,18 +486,18 @@
           "input": {
             "id": 23,
             "class": "heronarts.lx.audio.LXAudioInput",
-            "modulationColor": -12288,
+            "modulationColor": -16751617,
             "internal": {},
             "parameters": {
               "label": "Input",
-              "device": 1
+              "device": 0
             },
             "children": {}
           },
           "output": {
             "id": 24,
             "class": "heronarts.lx.audio.LXAudioOutput",
-            "modulationColor": -65488,
+            "modulationColor": -16318720,
             "internal": {},
             "parameters": {
               "label": "Output",
@@ -511,17 +511,17 @@
           "meter": {
             "id": 25,
             "class": "heronarts.lx.audio.GraphicMeter",
-            "modulationColor": -16750593,
+            "modulationColor": -27136,
             "internal": {},
             "parameters": {
               "label": "Meter",
-              "running": true,
+              "running": false,
               "trigger": false,
-              "gain": 41.95999890565872,
-              "range": 25.50000050291419,
-              "attack": 0.0,
-              "release": 0.0,
-              "slope": 2.549999875947833,
+              "gain": 0.0,
+              "range": 48.0,
+              "attack": 10.0,
+              "release": 100.0,
+              "slope": 4.5,
               "Band-1": 0.0,
               "Band-2": 0.0,
               "Band-3": 0.0,
@@ -546,7 +546,7 @@
       "osc": {
         "id": 26,
         "class": "heronarts.lx.osc.LXOscEngine",
-        "modulationColor": -16747009,
+        "modulationColor": -12648193,
         "internal": {},
         "parameters": {
           "label": "OSC",
@@ -560,9 +560,9 @@
         "children": {}
       },
       "oscsensor": {
-        "id": 1285,
+        "id": 42,
         "class": "com.giantrainbow.OSCSensor",
-        "modulationColor": -16738049,
+        "modulationColor": -25088,
         "internal": {},
         "parameters": {
           "label": "oscsensor",
@@ -583,9 +583,9 @@
           "label": "MULTI",
           "arm": false,
           "selected": false,
-          "enabled": true,
+          "enabled": false,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.127,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -798,7 +798,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.0,
+          "fader": 0.057,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -813,7 +813,7 @@
         "children": {},
         "effects": [],
         "clips": [],
-        "patternIndex": 2,
+        "patternIndex": 1,
         "patterns": [
           {
             "id": 1801,
@@ -1043,18 +1043,18 @@
         "parameters": {
           "label": "STD",
           "arm": false,
-          "selected": false,
-          "enabled": false,
+          "selected": true,
+          "enabled": true,
           "cue": false,
-          "fader": 0.0,
+          "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 4,
           "midiMonitor": false,
           "midiChannel": 16,
-          "autoCycleEnabled": true,
+          "autoCycleEnabled": false,
           "autoCycleMode": 0,
           "autoCycleTimeSecs": 30.0,
-          "transitionEnabled": true,
+          "transitionEnabled": false,
           "transitionTimeSecs": 2.0,
           "transitionBlendMode": 0
         },
@@ -1091,7 +1091,7 @@
           }
         ],
         "clips": [],
-        "patternIndex": 14,
+        "patternIndex": 8,
         "patterns": [
           {
             "id": 247,
@@ -1250,10 +1250,10 @@
             "parameters": {
               "label": "IceCream",
               "Fps": 40.0,
-              "Tgt": 5,
-              "Flavor": 0,
-              "NumChips": 10,
-              "ChipSz": 2
+              "Tgt": 0,
+              "Flavor": 3,
+              "NumChips": 37,
+              "ChipSz": 3
             },
             "children": {
               "modulation": {
@@ -1390,7 +1390,7 @@
             },
             "parameters": {
               "label": "CDTest",
-              "vert": true
+              "vert": false
             },
             "children": {
               "modulation": {
@@ -2525,7 +2525,7 @@
         "parameters": {
           "label": "DANCE",
           "arm": false,
-          "selected": true,
+          "selected": false,
           "enabled": true,
           "cue": false,
           "fader": 1.0,
@@ -2699,22 +2699,22 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 16.236704430167915,
-          "theta": 47.61710609027582,
-          "phi": 0.35176984055428057,
-          "x": -1.6021776055567898,
-          "y": 2.2839230964891613,
-          "z": -4.530208613085051
+          "radius": 11.09508854557839,
+          "theta": 22.35402232268813,
+          "phi": 0.7300884550918049,
+          "x": -2.4178380966186523,
+          "y": 4.772895812988281,
+          "z": 0.0
         },
         "cue": [
           {
             "active": false,
-            "radius": 16.236704430167915,
-            "theta": 47.61710609027582,
-            "phi": 0.35176984055428057,
-            "x": -1.6021776055567898,
-            "y": 2.2839230964891613,
-            "z": -4.530208613085051
+            "radius": 11.09508854557839,
+            "theta": 22.35402232268813,
+            "phi": 0.7300884550918049,
+            "x": -2.4178380966186523,
+            "y": 4.772895812988281,
+            "z": 0.0
           },
           {
             "active": false,
@@ -2764,7 +2764,7 @@
         ],
         "focus": 0,
         "pointCloud": {
-          "pointSize": 4.600000120699406
+          "pointSize": 3.0
         }
       }
     }
