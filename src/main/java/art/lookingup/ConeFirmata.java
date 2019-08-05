@@ -51,7 +51,7 @@ public class ConeFirmata {
       logger.info("Device num pins: " + device.getPinsCount());
 
       for (int i = startPin; i < (startPin + numPins - 1) && i < device.getPinsCount(); i++) {
-        Pin pin = device.getPin(startPin);
+        Pin pin = device.getPin(i);
         pin.setMode(Pin.Mode.INPUT);
       }
 
