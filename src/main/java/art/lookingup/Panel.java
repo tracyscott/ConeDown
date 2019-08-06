@@ -199,10 +199,37 @@ public class Panel {
     }
     String filename = filenameBase + "_LED.dxf";
     points = loadDXFPanel(filename, mirror, flip);
-    //points = loadPanelSVG("panel_"+ filename + ".svg", mirror);
 
-    // Points are now in panel local coordinate space.
-    textureMapPoints();
+    if (panelType == PanelType.H) {
+      if (panelNum == 15) {
+        textureMapPointsLeftRight();
+      } else if (panelNum == 0) {
+        textureMapPointsRightLeft();
+      } else if (panelNum == 6 || panelNum == 7 || panelNum == 8 || panelNum == 10) {
+        textureMapPointsTopBottom();
+      } else if (panelNum == 9) {
+        textureMapPoints(0, 2);
+      } else {
+        textureMapPoints();
+      }
+    } else if (panelType == PanelType.I) {
+      if (panelNum == 0) {
+        textureMapPoints((getExpectedPointsWide() - 1) - 3, 0);
+      } else if (panelNum == 2 || panelNum == 13) {
+        textureMapPoints(0, 1);
+      } else if (panelNum == 3 || panelNum == 12) {
+        textureMapPoints(0, 2);
+      } else if (panelNum == 11) {
+        textureMapPointsTopLeftRight(0);
+      } else if (panelNum == 4) {
+        textureMapPointsTopRightLeft(getExpectedPointsWide() - 1);
+      } else {
+        textureMapPoints();
+      }
+    } else
+      textureMapPoints();
+
+    Collections.sort(points);
 
     for (CXPoint p : points) {
       // Convert to meters.
@@ -264,9 +291,10 @@ public class Panel {
   }
 
   /**
-   * Generate texture coordinates for our points.
+   * Picks a point and navigates to the bottom left corner.
+   * @return
    */
-  public void textureMapPoints() {
+  public CXPoint findBottomLeft() {
     boolean foundOrigin = false;
     boolean movingLeft = true;
     CXPoint nextPoint = null;
@@ -284,13 +312,418 @@ public class Panel {
         }
       }
     }
-    // Origin is prevPoint.  Starting at prevPoint, move around assigning xCoord, yCoord.
-    CXPoint origin = prevPoint;
+    return prevPoint;
+  }
+
+  /**
+   * Picks a point and navigates to the bottom left corner.
+   * @return
+   */
+  public CXPoint findTopLeft() {
+    boolean foundOrigin = false;
+    boolean movingUp = true;
+    CXPoint nextPoint = null;
+    CXPoint prevPoint = points.get(0);
+    while (!foundOrigin) {
+      if (movingUp) nextPoint = prevPoint.findPointAbove(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null) {
+        prevPoint = nextPoint;
+      } else {
+        if (nextPoint == null && !movingUp) {
+          foundOrigin = true;
+        } else {
+          movingUp = false;
+        }
+      }
+    }
+    return prevPoint;
+  }
+
+  /**
+   * Picks a point and navigates to the bottom left corner.
+   * @return
+   */
+  public CXPoint findTopRight() {
+    boolean foundOrigin = false;
+    boolean movingUp = true;
+    CXPoint nextPoint = null;
+    CXPoint prevPoint = points.get(0);
+    while (!foundOrigin) {
+      if (movingUp) nextPoint = prevPoint.findPointAbove(points);
+      else nextPoint = prevPoint.findPointRight(points);
+      if (nextPoint != null) {
+        prevPoint = nextPoint;
+      } else {
+        if (nextPoint == null && !movingUp) {
+          foundOrigin = true;
+        } else {
+          movingUp = false;
+        }
+      }
+    }
+    return prevPoint;
+  }
+
+
+  /**
+   * For H0 doors, we neeed to find the bottom right point and work from there.
+   * @return
+   */
+  public CXPoint findBottomRight() {
+    boolean foundOrigin = false;
+    boolean movingLeft = true;
+    CXPoint nextPoint = null;
+    CXPoint prevPoint = points.get(0);
+    while (!foundOrigin) {
+      if (movingLeft) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointBelow(points);
+      if (nextPoint != null) {
+        prevPoint = nextPoint;
+      } else {
+        if (nextPoint == null && !movingLeft) {
+          foundOrigin = true;
+        } else {
+          movingLeft = false;
+        }
+      }
+    }
+    return prevPoint;
+  }
+
+  public boolean isDoor() {
+    if (panelType == PanelType.H || panelType == PanelType.I) {
+      if (panelNum == 0 || panelNum == 15)
+        return true;
+    }
+    return false;
+  }
+
+  /**
+   * H and I panels can be intercepted by the ground which reduces their
+   * computed pointsHigh.  For correct texture mapping we need to account
+   * for the missing points.
+   * @return
+   */
+  public int getExpectedPointsHigh() {
+    if (panelType == PanelType.H) {
+      return 7;
+    }
+    if (panelType == PanelType.I) {
+      return 6;
+    }
+    return pointsHigh;
+  }
+
+  /**
+   * H and I panels have door panels that are missing points where the doors
+   * are located.  We need to account for the missing points when generating
+   * our texture coordinates.
+   * @return
+   */
+  public int getExpectedPointsWide() {
+    if (panelType == PanelType.H) {
+      return 7;
+    }
+    if (panelType == PanelType.I) {
+      return 6;
+    }
+    return pointsWide;
+  }
+
+  /**
+   * Texture mapping process that starts at bottom right, moves left, and then moves up,
+   * etc.
+   * NOTE(tracy): Requires the hard-code height to be specified in getExpectedPointsWide().
+   */
+  public void textureMapPointsRightLeft() {
+    CXPoint origin = findBottomRight();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    int xCoord = getExpectedPointsWide() - 1;
+    int yCoord = 0;
+    origin.xCoord = xCoord;
+    origin.yCoord = yCoord;
+    boolean textureCoordsDone = false;
+    boolean movingRight = false;
+    int maxXCoord = 0;
+    int maxYCoord = 0;
+    while (pointsVisited < points.size() && !textureCoordsDone) {
+      if (movingRight) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null && movingRight) {
+        xCoord += 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingRight) {
+        xCoord -= 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else {
+        movingRight = !movingRight;
+        nextPoint = prevPoint.findPointAbove(points);
+        if (nextPoint == null) {
+          // we are done
+          textureCoordsDone = true;
+        } else {
+          yCoord += 1;
+          nextPoint.yCoord = yCoord;
+          nextPoint.xCoord = xCoord;
+          prevPoint = nextPoint;
+        }
+      }
+      if (xCoord > maxXCoord)
+        maxXCoord = xCoord;
+      if (yCoord > maxYCoord)
+        maxYCoord = yCoord;
+    }
+
+    pointsWide = maxXCoord + 1;
+    pointsHigh = maxYCoord + 1;
+  }
+
+  /**
+   * Texture mapping process that starts in the top left corner and moves to the right and then
+   * down and then back left, etc.
+   * NOTE(tracy): Requires the hard-code height to be specified in getExpectedPointsHigh().
+   * @param xStart For partial panels, allow the starting x texture coord to be specified.
+   */
+  public void textureMapPointsTopLeftRight(int xStart) {
+    CXPoint origin = findTopLeft();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    int xCoord = xStart;
+    int yCoord = getExpectedPointsHigh() - 1;
+    origin.xCoord = xCoord;
+    origin.yCoord = yCoord;
+    boolean textureCoordsDone = false;
+    boolean movingRight = true;
+    int maxXCoord = 0;
+    int maxYCoord = 0;
+    while (pointsVisited < points.size() && !textureCoordsDone) {
+      if (movingRight) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null && movingRight) {
+        xCoord += 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingRight) {
+        xCoord -= 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else {
+        movingRight = !movingRight;
+        nextPoint = prevPoint.findPointBelow(points);
+        if (nextPoint == null) {
+          // we are done
+          textureCoordsDone = true;
+        } else {
+          yCoord -= 1;
+          nextPoint.yCoord = yCoord;
+          nextPoint.xCoord = xCoord;
+          prevPoint = nextPoint;
+        }
+      }
+      if (xCoord > maxXCoord)
+        maxXCoord = xCoord;
+      if (yCoord > maxYCoord)
+        maxYCoord = yCoord;
+    }
+
+    pointsWide = maxXCoord + 1;
+    pointsHigh = maxYCoord + 1;
+  }
+
+  /**
+   * Texture mapping process that starts at the top right and starts by moving left
+   * and then down and then back right, etc.
+   * NOTE(tracy): Requires the hard-code height to be specified in getExpectedPointsHigh().
+   * @param xStart For partial panels, allow the starting X texture coord to be specified.
+   */
+  public void textureMapPointsTopRightLeft(int xStart) {
+    CXPoint origin = findTopRight();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    int xCoord = xStart;
+    int yCoord = getExpectedPointsHigh() - 1;
+    origin.xCoord = xStart;
+    origin.yCoord = yCoord;
+    boolean textureCoordsDone = false;
+    boolean movingRight = false;
+    int maxXCoord = 0;
+    int maxYCoord = 0;
+    while (pointsVisited < points.size() && !textureCoordsDone) {
+      if (movingRight) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null && movingRight) {
+        xCoord += 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingRight) {
+        xCoord -= 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else {
+        movingRight = !movingRight;
+        nextPoint = prevPoint.findPointBelow(points);
+        if (nextPoint == null) {
+          // we are done
+          textureCoordsDone = true;
+        } else {
+          yCoord -= 1;
+          nextPoint.yCoord = yCoord;
+          nextPoint.xCoord = xCoord;
+          prevPoint = nextPoint;
+        }
+      }
+      if (xCoord > maxXCoord)
+        maxXCoord = xCoord;
+      if (yCoord > maxYCoord)
+        maxYCoord = yCoord;
+    }
+
+    pointsWide = maxXCoord + 1;
+    pointsHigh = maxYCoord + 1;
+  }
+
+  /**
+   * Texture mapping process that start a bottom left and start by moving horizontally to
+   * the right.  And then up and moving back to the left, etc.
+   */
+  public void textureMapPointsLeftRight() {
+    CXPoint origin = findBottomLeft();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
     int pointsVisited = 0;
     int xCoord = 0;
     int yCoord = 0;
-    origin.xCoord = 0;
-    origin.yCoord = 0;
+    origin.xCoord = xCoord;
+    origin.yCoord = yCoord;
+    boolean textureCoordsDone = false;
+    boolean movingRight = true;
+    int maxXCoord = 0;
+    int maxYCoord = 0;
+    while (pointsVisited < points.size() && !textureCoordsDone) {
+      if (movingRight) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null && movingRight) {
+        xCoord += 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingRight) {
+        xCoord -= 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else {
+        movingRight = !movingRight;
+        nextPoint = prevPoint.findPointAbove(points);
+        if (nextPoint == null) {
+          // we are done
+          textureCoordsDone = true;
+        } else {
+          yCoord += 1;
+          nextPoint.yCoord = yCoord;
+          nextPoint.xCoord = xCoord;
+          prevPoint = nextPoint;
+        }
+      }
+      if (xCoord > maxXCoord)
+        maxXCoord = xCoord;
+      if (yCoord > maxYCoord)
+        maxYCoord = yCoord;
+    }
+
+    pointsWide = maxXCoord + 1;
+    pointsHigh = maxYCoord + 1;
+  }
+
+  /**
+   * Texture mapping process that starts at top left and moves down and then over to the
+   * right and then back up, etc.
+   * NOTE(tracy): Requires the hard-code height to be specified in getExpectedPointsHigh().
+   */
+  public void textureMapPointsTopBottom() {
+    CXPoint origin = findTopLeft();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    int xCoord = 0;
+    int yCoord = getExpectedPointsHigh() - 1;
+    origin.xCoord = xCoord;
+    origin.yCoord = yCoord;
+    boolean textureCoordsDone = false;
+    boolean movingUp = false;
+    int maxXCoord = 0;
+    int maxYCoord = 0;
+    while (pointsVisited < points.size() && !textureCoordsDone) {
+      if (movingUp) nextPoint = prevPoint.findPointAbove(points);
+      else nextPoint = prevPoint.findPointBelow(points);
+      if (nextPoint != null && movingUp) {
+        yCoord += 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingUp) {
+        yCoord -= 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else {
+        movingUp = !movingUp;
+        nextPoint = prevPoint.findPointRight(points);
+        if (nextPoint == null) {
+          // we are done
+          textureCoordsDone = true;
+        } else {
+          xCoord += 1;
+          nextPoint.yCoord = yCoord;
+          nextPoint.xCoord = xCoord;
+          prevPoint = nextPoint;
+        }
+      }
+      if (xCoord > maxXCoord)
+        maxXCoord = xCoord;
+      if (yCoord > maxYCoord)
+        maxYCoord = yCoord;
+    }
+
+    pointsWide = maxXCoord + 1;
+    pointsHigh = maxYCoord + 1;
+  }
+
+  /**
+   * Generate texture coordinates for our points.
+   */
+  public void textureMapPoints() {
+    textureMapPoints(0, 0);
+  }
+
+  /**
+   * Standard texture mapping process is to start at bottom left and then move up, over to right,
+   * and then back down, etc.
+   * @param xStartCoord Force the X start coordinate for partial panels.
+   * @param yStartCoord Force the Y start coordinate for partial panels.
+   */
+  public void textureMapPoints(int xStartCoord, int yStartCoord) {
+    CXPoint origin = findBottomLeft();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    int xCoord = xStartCoord;
+    int yCoord = yStartCoord;
+    origin.xCoord = xCoord;
+    origin.yCoord = yCoord;
     boolean textureCoordsDone = false;
     boolean movingUp = true;
     int maxXCoord = 0;
@@ -329,17 +762,6 @@ public class Panel {
 
     pointsWide = maxXCoord + 1;
     pointsHigh = maxYCoord + 1;
-    // logger.info("panel dimensions: " + pointsWide + "x" + pointsHigh);
-
-    Collections.sort(points);
-
-
-    /*
-    for (CXPoint p : points) {
-      logger.info("point " + p.x + "," + p.y + " texX,texY: " + p.xCoord + "," + p.yCoord);
-    }
-    */
-
   }
 
   /**

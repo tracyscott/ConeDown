@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1565037968826,
+  "timestamp": 1565107243393,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -61696,
+    "modulationColor": -16711855,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -486,7 +486,7 @@
           "input": {
             "id": 23,
             "class": "heronarts.lx.audio.LXAudioInput",
-            "modulationColor": -16751617,
+            "modulationColor": -16711819,
             "internal": {},
             "parameters": {
               "label": "Input",
@@ -497,7 +497,7 @@
           "output": {
             "id": 24,
             "class": "heronarts.lx.audio.LXAudioOutput",
-            "modulationColor": -16318720,
+            "modulationColor": -45568,
             "internal": {},
             "parameters": {
               "label": "Output",
@@ -511,7 +511,7 @@
           "meter": {
             "id": 25,
             "class": "heronarts.lx.audio.GraphicMeter",
-            "modulationColor": -27136,
+            "modulationColor": -7012097,
             "internal": {},
             "parameters": {
               "label": "Meter",
@@ -546,7 +546,7 @@
       "osc": {
         "id": 26,
         "class": "heronarts.lx.osc.LXOscEngine",
-        "modulationColor": -12648193,
+        "modulationColor": -16769793,
         "internal": {},
         "parameters": {
           "label": "OSC",
@@ -562,7 +562,7 @@
       "oscsensor": {
         "id": 42,
         "class": "com.giantrainbow.OSCSensor",
-        "modulationColor": -25088,
+        "modulationColor": -13106945,
         "internal": {},
         "parameters": {
           "label": "oscsensor",
@@ -585,7 +585,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.127,
+          "fader": 0.012,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -798,7 +798,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.057,
+          "fader": 0.0,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -813,7 +813,7 @@
         "children": {},
         "effects": [],
         "clips": [],
-        "patternIndex": 1,
+        "patternIndex": 5,
         "patterns": [
           {
             "id": 1801,
@@ -1390,7 +1390,7 @@
             },
             "parameters": {
               "label": "CDTest",
-              "vert": false
+              "vert": true
             },
             "children": {
               "modulation": {
@@ -2699,9 +2699,9 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 11.09508854557839,
-          "theta": 22.35402232268813,
-          "phi": 0.7300884550918049,
+          "radius": 9.50095161736666,
+          "theta": 15.48427376898916,
+          "phi": -0.2676991379465895,
           "x": -2.4178380966186523,
           "y": 4.772895812988281,
           "z": 0.0
@@ -2709,9 +2709,9 @@
         "cue": [
           {
             "active": false,
-            "radius": 11.09508854557839,
-            "theta": 22.35402232268813,
-            "phi": 0.7300884550918049,
+            "radius": 9.50095161736666,
+            "theta": 15.48427376898916,
+            "phi": -0.2676991379465895,
             "x": -2.4178380966186523,
             "y": 4.772895812988281,
             "z": 0.0
@@ -2764,7 +2764,7 @@
         ],
         "focus": 0,
         "pointCloud": {
-          "pointSize": 3.0
+          "pointSize": 4.799999959766865
         }
       }
     }
