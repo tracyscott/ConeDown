@@ -34,7 +34,7 @@ public class Balls extends PGPixelPerfect {
     addParameter(countKnob);
     removeParameter(fpsKnob);
 
-    this.projection = new Projection(lx.getModel());
+    this.projection = new Projection(lx.getModel(), 1);
     this.balls = new Ball[maxCount];
   }
 

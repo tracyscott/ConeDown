@@ -4,7 +4,7 @@ import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.FragmentFactory;
 import art.lookingup.patterns.play.Parameter;
 import art.lookingup.colors.Gradient;
-import art.lookingup.Projection;
+//import art.lookingup.Projection;
 
 import heronarts.lx.LX;
 
@@ -19,7 +19,7 @@ public class Spiral extends Fragment {
     final Parameter pitch;
     final Parameter fill;
 
-    final Projection projection;
+    // final Projection projection;
 
     static final int numSections = 24;
 
@@ -40,7 +40,7 @@ public class Spiral extends Fragment {
 	this.pitch = newParameter("pitch", 640, 8, 1000);
 	this.fill = newParameter("fill", 0.1f, 0, 1);
 	this.gradients = new Gradient[maxCount+1];
-	this.projection = new Projection(lx.getModel());
+	//this.projection = new Projection(lx.getModel());
 
 	this.notifyChange();
     }

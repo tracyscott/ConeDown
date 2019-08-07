@@ -33,7 +33,7 @@ public class Balls extends Fragment {
 	this.sizeParam = newParameter("size", 10, 0, maxSize);
 	this.countParam = newParameter("count", 1, 1, maxCount);
 
-	this.projection = new Projection(lx.getModel());
+	this.projection = new Projection(lx.getModel(), 1);
 	this.balls = new Ball[maxCount];
     }
 
