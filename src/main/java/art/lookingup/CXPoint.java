@@ -16,6 +16,8 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
   public float radius;
   public float panelLocalX;
   public float panelLocalY;
+  public float panelLocalXUnscaled;
+  public float panelLocalYUnscaled;
 
   public static final float EPSILON = 4f;
 
@@ -31,6 +33,11 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
   public void storePanelLocalXY() {
     this.panelLocalX = x;
     this.panelLocalY = y;
+  }
+
+  public void storePanelLocalXYUnscaled() {
+    this.panelLocalXUnscaled = x;
+    this.panelLocalYUnscaled = y;
   }
 
   /* Note this assumes a flat 2D plane of points in XY plane */
@@ -89,11 +96,7 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
   }
 
   // was 0.2f * inchesPerMeter
-  static public float rowColDistThresh = 2.0f;
-
-  public float distanceSquaredXY(CXPoint p) {
-    return (x-p.x)*(x-p.x) + (y-p.y)*(y-p.y);
-  }
+  static public float rowColDistThresh = 2.0f / ConeDownModel.inchesPerMeter;
 
   public float distanceSquared(CXPoint p) { return (x-p.x)*(x-p.x) + (y-p.y)*(y-p.y); }
 

@@ -182,7 +182,6 @@ public class ConeDownModel extends LXModel {
     for (int panelNum = 0; panelNum <scoopSides; panelNum++) {
       if (panelNum <= 4 || panelNum >= 11) {
         Panel panel = new Panel(Panel.PanelType.I, yOffset, panelNum, yCoordOffset, panel8Radius - 27.0f / inchesPerMeter);
-        panel.panelType = Panel.PanelType.I;
         scoopPanels.add(panel);
         scoopLayer.add(panel);
 
@@ -221,7 +220,6 @@ public class ConeDownModel extends LXModel {
       maxPanelHeight = 0f;
       for (int panelNum = 0; panelNum < scoopSides; panelNum++) {
         Panel panel = new Panel((rows==0)? Panel.PanelType.H: Panel.PanelType.G, yOffset, panelNum, yCoordOffset, radius);
-        //panel.panelType = Panel.PanelType.G;
         if (panel.panelType == Panel.PanelType.G && (panelNum == 9 || panelNum == 10))
           panel.logBoundary();
         if (panel.panelType == Panel.PanelType.G && (panelNum == 11)) {

@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1565107243393,
+  "timestamp": 1565152679968,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -16711855,
+    "modulationColor": -59904,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -27,7 +27,7 @@
       "crossfader": 0.5,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 4,
+      "focusedChannel": 3,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -585,7 +585,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.012,
+          "fader": 0.011,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -795,25 +795,25 @@
         "parameters": {
           "label": "GIF",
           "arm": false,
-          "selected": false,
-          "enabled": false,
+          "selected": true,
+          "enabled": true,
           "cue": false,
-          "fader": 0.0,
+          "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
           "midiChannel": 16,
-          "autoCycleEnabled": true,
+          "autoCycleEnabled": false,
           "autoCycleMode": 0,
           "autoCycleTimeSecs": 30.0,
-          "transitionEnabled": true,
+          "transitionEnabled": false,
           "transitionTimeSecs": 5.0,
           "transitionBlendMode": 0
         },
         "children": {},
         "effects": [],
         "clips": [],
-        "patternIndex": 5,
+        "patternIndex": 3,
         "patterns": [
           {
             "id": 1801,
@@ -827,7 +827,7 @@
             "parameters": {
               "label": "RainbowGIFPP",
               "Fps": 28.19999936968088,
-              "scaleAmt": 0.16420001868158576,
+              "scaleAmt": 0.4428000124543905,
               "scaleSrc": true,
               "fitSrc": false,
               "xOff": 16.0,
@@ -863,10 +863,10 @@
             "parameters": {
               "label": "RainbowGIFPP",
               "Fps": 22.59999971836805,
-              "scaleAmt": 0.16420001868158576,
+              "scaleAmt": 0.4428000124543905,
               "scaleSrc": true,
               "fitSrc": false,
-              "xOff": 23.999999463558197,
+              "xOff": 87.99999803304672,
               "yOff": 23.999999463558197,
               "gif": "hx_clr_001",
               "Tgt": 0
@@ -898,12 +898,12 @@
             },
             "parameters": {
               "label": "RainbowGIFPP",
-              "Fps": 24.60000079125166,
-              "scaleAmt": 0.7413000057823956,
+              "Fps": 8.400001153349876,
+              "scaleAmt": 0.36320001423358916,
               "scaleSrc": true,
               "fitSrc": false,
-              "xOff": 55.99999874830246,
-              "yOff": 87.99999803304672,
+              "xOff": 39.99999910593033,
+              "yOff": 0.0,
               "gif": "hexeosis_clr05",
               "Tgt": 0
             },
@@ -935,10 +935,10 @@
             "parameters": {
               "label": "RainbowGIFPP",
               "Fps": 23.199999704957005,
-              "scaleAmt": 0.18410001823678612,
+              "scaleAmt": 0.3831000137887895,
               "scaleSrc": true,
               "fitSrc": false,
-              "xOff": 31.999999284744263,
+              "xOff": 47.999998927116394,
               "yOff": 39.99999910593033,
               "gif": "hx_clr_003",
               "Tgt": 0
@@ -1007,7 +1007,7 @@
             "parameters": {
               "label": "RainbowGIFPP",
               "Fps": 15.999999865889547,
-              "scaleAmt": 0.34330001467838883,
+              "scaleAmt": 0.5871000241674483,
               "scaleSrc": true,
               "fitSrc": false,
               "xOff": 32.0,
@@ -1043,8 +1043,8 @@
         "parameters": {
           "label": "STD",
           "arm": false,
-          "selected": true,
-          "enabled": true,
+          "selected": false,
+          "enabled": false,
           "cue": false,
           "fader": 1.0,
           "crossfadeGroup": 0,
@@ -1091,7 +1091,7 @@
           }
         ],
         "clips": [],
-        "patternIndex": 8,
+        "patternIndex": 10,
         "patterns": [
           {
             "id": 247,
@@ -1450,12 +1450,12 @@
             "parameters": {
               "label": "ShaderToy",
               "Fps": 20.000000670552254,
-              "Tgt": 0,
+              "Tgt": 2,
               "Audio": true,
               "K1": 0.809999980032444,
-              "K2": 0.1099999975413084,
-              "K3": 0.2899999935179949,
-              "K4": 0.23999999463558197,
+              "K2": 0.6499999854713678,
+              "K3": 0.549999987706542,
+              "K4": 0.12000001966953278,
               "frag": "electric",
               "tex": "fractal.png",
               "Texture": 5
@@ -2699,9 +2699,9 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 9.50095161736666,
-          "theta": 15.48427376898916,
-          "phi": -0.2676991379465895,
+          "radius": 17.892679412897103,
+          "theta": 36.1432278649848,
+          "phi": 0.3185839912133106,
           "x": -2.4178380966186523,
           "y": 4.772895812988281,
           "z": 0.0
@@ -2709,9 +2709,9 @@
         "cue": [
           {
             "active": false,
-            "radius": 9.50095161736666,
-            "theta": 15.48427376898916,
-            "phi": -0.2676991379465895,
+            "radius": 17.892679412897103,
+            "theta": 36.1432278649848,
+            "phi": 0.3185839912133106,
             "x": -2.4178380966186523,
             "y": 4.772895812988281,
             "z": 0.0

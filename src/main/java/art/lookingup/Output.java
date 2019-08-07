@@ -186,6 +186,8 @@ public class Output {
     logger.log(Level.INFO, "Using ArtNet: " + artNetIpAddress + ":" + artNetIpPort);
 
     int sixteenthNum = 0;
+    // NOTE(tracy): universesPerSixteenth needs to be set correctly.  Some outputs use less than 3 universes but
+    // we will just set 3 here and waste a few universes.
     int universesPerSixteenth = 3;
     Set wireFilesWritten = new HashSet();
     for (sixteenthNum = 0; sixteenthNum < 16; sixteenthNum++) {
@@ -201,6 +203,13 @@ public class Output {
         logger.info("panel layer: " + Panel.panelTypeNames[panel.panelType.ordinal()]);
         logger.info("dim: " + panel.pointsWide + "x" + panel.pointsHigh);
         logger.info("sixteenth: " + sixteenthNum);
+
+        // For the I panel layer, we don't have any panels between 5 and 10.
+        if (panel.panelType == Panel.PanelType.I && (sixteenthNum > 4 && sixteenthNum < 11)) {
+          logger.info("Skipping output for nonexistent I panel # " + sixteenthNum);
+          continue;
+        }
+
         // C and D panels each span an entire octant (2 sixteenths).  To minimize
         // leds per output we alternate C and D on different outputs.
         if (panel.panelType == Panel.PanelType.C && sixteenthNum % 2 == 0) {
@@ -209,28 +218,16 @@ public class Output {
           logger.info("Assign panel to D panel");
           panel = layer.get(sixteenthNum / 2);
         } else if (!(panel.panelType == Panel.PanelType.C || panel.panelType == Panel.PanelType.D)) {
-          panel = layer.get(sixteenthNum);
+          int iGapOffset = 0;
+          // Account for the missing I panels.
+          if (panel.panelType == Panel.PanelType.I && sixteenthNum > 10)
+            iGapOffset = 6;
+          panel = layer.get(sixteenthNum - iGapOffset);
         } else {
           continue; // Skip C or D if it is not their turn.
         }
         logger.info("panelType: " + Panel.panelTypeNames[panel.panelType.ordinal()]);
-        List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
-        // For each panel we wire from bottom left to bottom right and then move up one pixel
-        // and then wire backwards from right to left, etc.  We can use our texture coordinates
-        // to navigate the points on a panel.
-        boolean movingLeft = false;
-        for (int rowNum = 0; rowNum < panel.pointsHigh; rowNum++) {
-          for (int colNum = 0; colNum < panel.pointsWide; colNum++) {
-            int x = colNum;
-            if (movingLeft) {
-              x = (panel.pointsWide - 1) - colNum;
-            }
-            CXPoint p = panel.getCXPointAtTexCoord(x, rowNum);
-            // logger.info("point at: " + x + "," + rowNum);
-            pointsWireOrder.add(p);
-          }
-          movingLeft = !movingLeft;
-        }
+        List<CXPoint> pointsWireOrder = panel.pointsInWireOrder();
 
         // Write points and wiring file.  These can be used with Pixel Mapper sketch to visually inspect
         // the result of the mapping code.
@@ -250,8 +247,9 @@ public class Output {
       // NOTE(tracy): We have to create ArtNetDatagram with the actual numbers of our points or else it
       // will puke internally. i.e. we can't just use 170 but then pass it less than 170 points so we
       // need to figure out how large to make our channel array for the last universe.
-      int lastUniverseCount = allPointsWireOrder.size() - 170 * (universesPerSixteenth - 1);
-      int numUniverses = (int)Math.ceil((float)allPointsWireOrder.size()/170f);
+      int numUniversesThisWire = (int)Math.ceil((float)allPointsWireOrder.size()/170f);
+      int lastUniverseCount = allPointsWireOrder.size() - 170 * (numUniversesThisWire - 1);
+
 
       int[] thisUniverseIndices = new int[170];
       int curIndex = 0;
@@ -259,7 +257,7 @@ public class Output {
       for (CXPoint pt : allPointsWireOrder) {
         thisUniverseIndices[curIndex] = pt.index;
         curIndex++;
-        if (curIndex == 170 || (curUnivOffset == numUniverses - 1 && curIndex == lastUniverseCount)) {
+        if (curIndex == 170 || (curUnivOffset == numUniversesThisWire - 1 && curIndex == lastUniverseCount)) {
           logger.log(Level.INFO, "Adding datagram: universe=" + (univStartNum+curUnivOffset) + " points=" + curIndex);
           ArtNetDatagram datagram = new ArtNetDatagram(thisUniverseIndices, curIndex*3, univStartNum + curUnivOffset);
           try {
@@ -270,7 +268,7 @@ public class Output {
           datagrams.add(datagram);
           curUnivOffset++;
           curIndex = 0;
-          if (curUnivOffset == numUniverses - 1) {
+          if (curUnivOffset == numUniversesThisWire - 1) {
             thisUniverseIndices = new int[lastUniverseCount];
           } else {
             thisUniverseIndices = new int[170];
@@ -304,11 +302,6 @@ public class Output {
     try {
       PrintWriter lxpointsFile = new PrintWriter(filename);
       for (CXPoint p : points) {
-        if (p == null) logger.info("p was null");
-        else logger.info("p not null");
-        if (p.panel.panelType == Panel.PanelType.D) {
-          logger.info("D panel");
-        }
         lxpointsFile.println(p.panelLocalX + "," + p.panelLocalY);
       }
       lxpointsFile.close();

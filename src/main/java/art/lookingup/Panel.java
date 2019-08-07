@@ -119,6 +119,8 @@ public class Panel {
   public int pointsHigh;
 
   public List<CXPoint> points;
+  public List<CXPoint> pointsWireOrder;
+
   public List<Float[]> panelBoundaryPts = new ArrayList<Float[]>(4);
   public BPoint[] bPoints = new BPoint[4];
 
@@ -160,21 +162,6 @@ public class Panel {
     }
     String filenameBase = panelFilenames[panelType.ordinal()];
 
-    // TODO(tracy): H&I need to support milli, micro, and nano + door.
-    // Panel numbers from build team (1-based)
-    // H1 = door H6 = milli, H7 = micro, H8= nano.
-    // And then mirrored versions of H9=nano, H10 = micro, H11 = milli, normal panels, and then
-    // H16 = door.  H1 Door needs mirror and H16 door is normal.
-    // Mirrored H Door needs special treatment for bottom left corner.  It will have to be a
-    // virtual corner.  We will need to compute the horizontal midpoint based on the top of
-    // the panel.  We then compute the distance betweeen the horizontal midpoint and the
-    // bottom left of the corner (pre-mirror).  The pre-mirror synthesized bottom right is
-    // the midpoint + distance-to-bottom-left.  Also, H door panel will have 6 distinct points
-    // in the boundary/cut lines.  Bottom left is minimum Y and then minimum X.
-    // I1 = door, I2 = normal, I3 = milli, I4 = micro, I5 = nano. Back 4 have no I panels.
-    // then back to mirrored versions of nano, then micro, then milli, then normal, then door.
-    // I1 door is correct orientation.  I16 door must be mirrored.
-
     if (panelType == PanelType.H) {
       if (panelNum == 0 || panelNum == 15)
         filenameBase = filenameBase + "_door";
@@ -199,6 +186,15 @@ public class Panel {
     }
     String filename = filenameBase + "_LED.dxf";
     points = loadDXFPanel(filename, mirror, flip);
+
+    for (CXPoint p : points) {
+      // Keep so we have some values referenced in the units of the DXF file.
+      p.storePanelLocalXYUnscaled();
+      // Convert to meters.
+      p.x *= CNC_SCALE;  // 1/inchesPerMeter for these files in inches.
+      p.y *= CNC_SCALE;
+      p.storePanelLocalXY();  // Store the XY plane coords before we convert to world space.
+    }
 
     if (panelType == PanelType.H) {
       if (panelNum == 15) {
@@ -230,13 +226,6 @@ public class Panel {
       textureMapPoints();
 
     Collections.sort(points);
-
-    for (CXPoint p : points) {
-      // Convert to meters.
-      p.x *= CNC_SCALE;
-      p.y *= CNC_SCALE;
-      p.storePanelLocalXY();
-    }
 
     float angleIncr = 360f / numFullPanelsAround();
     float panelAngle = faceNum() * angleIncr;
@@ -1299,5 +1288,136 @@ public class Panel {
 
   public CXPoint getCXPointAtTexCoord(int x, int y) {
     return CXPoint.getCXPointAtTexCoord(points, x, y);
+  }
+
+  /**
+   * Return the points of this panel in wiring order for this panel.  There is a standard order that
+   * starts at the bottom left and moves right and then up and then back left, etc.  The ground intercepted
+   * panels and the door panels require custom wiring.  Rather than relying on texture coordinates for those
+   * panels, we can just re-navigate the points locally as we did with texture mapping but the start point
+   * will be some known texture coordinate and wiring directions might be different from specific strategy
+   * used for texture mapping a specific panel.
+   * @return
+   */
+  public List<CXPoint> pointsInWireOrder() {
+    if (panelType == PanelType.H && panelNum == 0) {
+      return wirePointsFromCoords(6, 0, false);
+    } else if (panelType == PanelType.H && panelNum == 15) {
+      return wirePointsFromCoords(0, 0, true);
+    } else if (panelType == PanelType.H && panelNum == 5) {
+      // Right milli
+      return wirePointsFromCoords(4, 0, false);
+    } else if (panelType == PanelType.H && panelNum == 6) {
+      // Right micro
+      return wirePointsFromCoords(3, 1, false);
+    } else if (panelType == PanelType.H && (panelNum == 7)) {
+      // Right nano.
+      return wirePointsFromCoords(0, 2, true);
+    } else if (panelType == PanelType.H && (panelNum == 8)) {
+      // Left nano
+      return wirePointsFromCoords(0, 2, true);
+    } else if (panelType == PanelType.H && (panelNum == 9)) {
+      // Left micro
+      return wirePointsFromCoords(3, 1, true);
+    } else if (panelType == PanelType.H && (panelNum == 10)) {
+      // Left milli
+      return wirePointsFromCoords(2, 0, true);
+    } else if (panelType == PanelType.I && (panelNum == 0)) {
+      // Right door
+      return wirePointsFromCoords(3, 0, true);
+    } else if (panelType == PanelType.I && (panelNum == 15)) {
+      // Left door
+      return wirePointsFromCoords(0, 0, true);
+    } else if (panelType == PanelType.I && (panelNum == 2)) {
+      // Right milli
+      return wirePointsFromCoords(0, 1, true);
+    } else if (panelType == PanelType.I && (panelNum == 3)) {
+      // Right micro
+      return wirePointsFromCoords(0, 2, true);
+    } else if (panelType == PanelType.I && (panelNum == 4)) {
+      // Right nano
+      return wirePointsFromCoords(2, 4, false);
+    } else if (panelType == PanelType.I && (panelNum == 11)) {
+      // Left nano
+      return wirePointsFromCoords(3, 4, true);
+    } else if (panelType == PanelType.I && (panelNum == 12)) {
+      // Left micro
+      return wirePointsFromCoords(0, 2, true);
+    } else if (panelType == PanelType.I && (panelNum == 13)) {
+      // Left milli
+      return wirePointsFromCoords(0, 1, true);
+    } else {
+      return pointsInWireOrderStandard();
+    }
+  }
+
+  /**
+   * Retrieve points in wiring order based on start texture coordinates and whether we start moving right or
+   * start moving left.
+   * @param startXCoord The x texture coordinate of the start point.
+   * @param startYCoord The y texture coordinate of the start point.
+   * @param movingRight If true, start by moving right, otherwise start by moving left.
+   * @return
+   */
+  public List<CXPoint> wirePointsFromCoords(int startXCoord, int startYCoord, boolean movingRight) {
+    List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
+
+    CXPoint origin = getCXPointAtTexCoord(startXCoord, startYCoord);
+    pointsWireOrder.add(origin);
+
+    logger.info("wire panel: " + panelTypeNames[panelType.ordinal()] + "" + panelNum +
+        " start " + startXCoord + "," + startYCoord + " right=" + movingRight);
+
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    boolean pointsDone = false;
+    while (pointsVisited < points.size() && !pointsDone) {
+      if (movingRight) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null && movingRight) {
+        pointsWireOrder.add(nextPoint);
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingRight) {
+        pointsWireOrder.add(nextPoint);
+        prevPoint = nextPoint;
+      } else {
+        movingRight = !movingRight;
+        nextPoint = prevPoint.findPointAbove(points);
+        if (nextPoint == null) {
+          // we are done
+          pointsDone = true;
+        } else {
+          pointsWireOrder.add(nextPoint);
+          prevPoint = nextPoint;
+        }
+      }
+    }
+    // Keep a reference in case we want patterns to reference this.
+    this.pointsWireOrder = pointsWireOrder;
+    return pointsWireOrder;
+  }
+
+  public List<CXPoint> pointsInWireOrderStandard() {
+    List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
+    // For each panel we wire from bottom left to bottom right and then move up one pixel
+    // and then wire backwards from right to left, etc.  We can use our texture coordinates
+    // to navigate the points on a panel.
+    boolean movingLeft = false;
+    for (int rowNum = 0; rowNum < pointsHigh; rowNum++) {
+      for (int colNum = 0; colNum < pointsWide; colNum++) {
+        int x = colNum;
+        if (movingLeft) {
+          x = (pointsWide - 1) - colNum;
+        }
+        CXPoint p = getCXPointAtTexCoord(x, rowNum);
+        // logger.info("point at: " + x + "," + rowNum);
+        pointsWireOrder.add(p);
+      }
+      movingLeft = !movingLeft;
+    }
+    // Keep a reference in case we want patterns to reference this.
+    this.pointsWireOrder = pointsWireOrder;
+    return pointsWireOrder;
   }
 }
