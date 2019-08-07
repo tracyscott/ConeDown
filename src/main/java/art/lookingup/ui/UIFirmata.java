@@ -22,7 +22,6 @@ public class UIFirmata extends UIConfig {
   public static final int numTiles = numTilesWide * numTilesHigh;
 
   public LX lx;
-  private boolean parameterChanged = false;
 
   public UIFirmata(final LXStudio.UI ui, LX lx) {
     super(ui, title, filename);
@@ -56,19 +55,14 @@ public class UIFirmata extends UIConfig {
     return params;
   }
 
-  @Override
-  public void onParameterChanged(LXParameter p) {
-    parameterChanged = true;
-  }
-
+  /**
+   * Re-saving the config will restart Firmata.  This can be used to manually restart it without a full
+   * Cone Down restart in the event that Firmata gets wedged.
+   */
   @Override
   public void onSave() {
-    // Only reconfigure if a parameter changed.
-    if (parameterChanged) {
-      // Recreate Firmata
-      ConeFirmata.reloadFirmata(getStringParameter(UIFirmata.FIRMATA_PORT).getString(), numTiles,
+    // Recreate Firmata
+    ConeFirmata.reloadFirmata(getStringParameter(UIFirmata.FIRMATA_PORT).getString(), numTiles,
           getDiscreteParameter(UIFirmata.START_PIN).getValuei(), getPinParameters());
-      parameterChanged = false;
-    }
   }
 }
