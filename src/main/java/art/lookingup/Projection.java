@@ -4,6 +4,7 @@ import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
 import com.github.davidmoten.rtree.Visualizer;
 import com.github.davidmoten.rtree.geometry.Geometries;
+import com.github.davidmoten.rtree.geometry.Geometry;
 import com.github.davidmoten.rtree.geometry.Point;
 
 import heronarts.lx.model.LXModel;
@@ -11,8 +12,10 @@ import heronarts.lx.model.LXPoint;
 
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Map;
 
 // Blah blah equirectangular coordinates
 
@@ -28,10 +31,10 @@ public class Projection {
 	int ssHigh = ConeDownModel.POINTS_HIGH * superSample;
 	int ssWide = ConeDownModel.POINTS_WIDE * superSample;
 
-	int minDX = ConeDownModel.POINTS_WIDE;
-	int maxDX = 0;
-	int minDY = ConeDownModel.POINTS_HIGH;
-	int maxDY = 0;
+	float minDX = ssWide;
+	float maxDX = 0;
+	float minDY = ssHigh;
+	float maxDY = 0;
 
 	this.positions = new int[ssHigh * ssWide + 1];
 	
@@ -43,25 +46,31 @@ public class Projection {
 							    coords[1] * superSample + ssOff));
 	    pixels[cxp.index] = new Pixel(cxp);
 
-	    // Compute the out-of-bounds regions.  TODO this depends a lot on...
-	    if (cxp.panel.panelRegion == Panel.DANCEFLOOR) {
-		// @@@ NOTE: this should compare vs. the 
-		//   xCoord = (float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p, POINTS_WIDE);
-		// value.
-		//
-		//   minDY = Math.min(minDY, cxp....
+	    // Compute the out-of-bounds regions.
+	    if (cxp.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
+		minDX = Math.min(minDX, (0 + coords[0]) * superSample);
+		maxDX = Math.max(maxDX, (1 + coords[0]) * superSample);
+		minDY = Math.min(minDY, (0 + coords[1]) * superSample);
+		maxDY = Math.max(maxDY, (1 + coords[1]) * superSample);
 	    }
 	}
+
+	int pCount = 0;
 
 	for (int j = 0; j < ssHigh; j++) {
 	    for (int i = 0; i < ssWide; i++) {
 		int idx = (j * ssHigh) + i;
 
+		if (j >= minDY && (i < minDX || i >= maxDX)) {
+		    continue;
+		}
+		
 		for (Entry<CXPoint, Point> point :
 			 this.tree.nearest(Geometries.point(i, j), 100, 1).toBlocking().toIterable()) {
 		    CXPoint cxp = point.value();
-		    // @@@ Exclude non-nearby
+		    Point geo = point.geometry();
 		    pixels[cxp.index].subs.add(idx);
+		    pCount++;
 		    break;
 		}
 	    }
@@ -74,17 +83,13 @@ public class Projection {
 	    sumSubs += pixels[cxp.index].subs.size();
 	}
 
-	System.err.println("SumSubs " + sumSubs);
-
 	int position = 0;
 
-	this.subpixels = new int[ssWide * ssHigh];
-	this.subweights = new float[ssWide * ssHigh];
+	this.subpixels = new int[pCount];
+	this.subweights = new float[pCount];
 
 	for (LXPoint lxp : model.points) {
 	    positions[lxp.index] = position;
-
-	    // System.err.println("NOTE " + lxp.index + " pos " + position + " " + pixels[lxp.index].subs + " msize " + model.size);
 
 	    for (int sub : pixels[lxp.index].subs) {
 		subpixels[position] = sub;
@@ -92,7 +97,7 @@ public class Projection {
 	    }
 	}
 	positions[model.size] = position;
-	
+
 	// for (LXPoint lxp : model.points) {
 	//     buildWeights(lxp);
 	// }
@@ -107,13 +112,9 @@ public class Projection {
     }
 
   static class Pixel {
-    // float x, y;
     ArrayList<Integer> subs = new ArrayList<Integer>();
 
-    Pixel(CXPoint lxp) {
-      // x = lxp.x;
-      // y = lxp.y;
-    }
+    Pixel(CXPoint lxp) {}
   }
 
 }
