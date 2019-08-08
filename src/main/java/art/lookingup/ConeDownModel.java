@@ -637,5 +637,5 @@ public class ConeDownModel extends LXModel {
   }
 
   public static int POINTS_WIDE = 112;
-  public static int POINTS_HIGH = 84;
+  public static int POINTS_HIGH = 87;
 }

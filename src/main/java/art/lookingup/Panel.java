@@ -1038,6 +1038,7 @@ public class Panel {
       // logger.info("circles length: " + arcs.size());
       for (DXFCircle c : arcs) {
         Point centerPt = c.getCenterPoint();
+        // LED positions have larger radius circles.
         // logger.info("circle: " + centerPt.getX() + "," + centerPt.getY() + " r=" + c.getRadius());
         if (c.getRadius() > 0.5f) {
           points.add(new CXPoint(this, centerPt.getX(), centerPt.getY(), 0f, 0, 0, 0f, 0f));
@@ -1101,11 +1102,6 @@ public class Panel {
           BPoint ePoint = new BPoint(endPoint);
           //logger.info("line: " + (int) sPoint.x + "," + (int) sPoint.y + " to " +
           //    (int) ePoint.x + "," + (int) ePoint.y);
-          // F is no longer rotated, probably need to recompute boundary points.
-          //sPoint.rot2D(-90f);
-          //ePoint.rot2D(-90f);
-          //logger.info("rot line: " + (int) sPoint.x + "," + (int) sPoint.y + " to " +
-          //    (int) ePoint.x + "," + (int) ePoint.y);
           // -19,-20 to 19,-20  top left to top right
           // -19,-20 to -20,-29 top left to bottom left
           // 20,-29 to -20,-29 bottom right to bottom left
@@ -1146,13 +1142,7 @@ public class Panel {
       }
 
       if (panelType == PanelType.H || panelType == PanelType.I) {
-        if ("I_nano_LED.dxf".equals(filename)) {
-          System.out.println("break");
-        }
         BPoint centroid = BPoint.vertexCentroid(pointMap);
-        if (panelType == PanelType.H) {
-          logger.info("centroid: " + centroid.x + "," + centroid.y);
-        }
         bPoints[0] = BPoint.findBottomLeft(pointMap, centroid);
         if (panelType == PanelType.I)
           bPoints[1] = BPoint.findBottomRightI(pointMap, centroid);
@@ -1166,15 +1156,6 @@ public class Panel {
       BPoint topRight = bPoints[2];
       BPoint topLeft = bPoints[3];
 
-      // We need to rotate the F panel by -90 degrees.
-      /*  We no longer need to rotate the F panel.
-      if (panelType == PanelType.F) {
-        // logger.info("Rotating F Panel points");
-        for (CXPoint p : points) {
-          p.rot2D(-90f);
-        }
-      }
-      */
       if (panelType == PanelType.H && (panelNum == 0 || panelNum == 15)) {
         bottomRight.y = bottomLeft.y;
         bottomRight.x = topRight.x - 2f;

@@ -62,7 +62,7 @@ public class UIFirmata extends UIConfig {
   @Override
   public void onSave() {
     // Recreate Firmata
-    ConeFirmata.reloadFirmata(getStringParameter(UIFirmata.FIRMATA_PORT).getString(), numTiles,
+    ConeFirmata.reloadFirmata(getStringParameter(UIFirmata.FIRMATA_PORT).getString(), numTiles * 4,
           getDiscreteParameter(UIFirmata.START_PIN).getValuei(), getPinParameters());
   }
 }
