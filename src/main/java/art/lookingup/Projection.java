@@ -7,8 +7,15 @@ import com.github.davidmoten.rtree.geometry.Geometries;
 import com.github.davidmoten.rtree.geometry.Geometry;
 import com.github.davidmoten.rtree.geometry.Point;
 
+import static art.lookingup.colors.Colors.blue;
+import static art.lookingup.colors.Colors.green;
+import static art.lookingup.colors.Colors.red;
+import static art.lookingup.colors.Colors.rgb;
+
 import heronarts.lx.model.LXModel;
 import heronarts.lx.model.LXPoint;
+
+import processing.core.PImage;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -57,9 +64,10 @@ public class Projection {
 
 	int pCount = 0;
 
-	for (int j = 0; j < ssHigh; j++) {
+	for (int jInv = 0; jInv < ssHigh; jInv++) {
+	    int j = ssHigh - 1 - jInv;
 	    for (int i = 0; i < ssWide; i++) {
-		int idx = (j * ssHigh) + i;
+		int idx = (j * ssWide) + i;
 
 		if (j >= minDY && (i < minDX || i >= maxDX)) {
 		    continue;
@@ -88,7 +96,15 @@ public class Projection {
 	this.subpixels = new int[pCount];
 	this.subweights = new float[pCount];
 
+	LXPoint[] points = new LXPoint[model.size];
+
+	// TODO odd that this matters.
 	for (LXPoint lxp : model.points) {
+	    points[lxp.index] = lxp;
+	}
+
+	for (LXPoint lxp : points) {
+
 	    positions[lxp.index] = position;
 
 	    for (int sub : pixels[lxp.index].subs) {
@@ -117,4 +133,19 @@ public class Projection {
     Pixel(CXPoint lxp) {}
   }
 
+  public int computePoint(int idx, PImage img) {
+    float r = 0, g = 0, b = 0;
+    int end = positions[idx + 1];
+    float w = 1f / (end - positions[idx]);
+
+    for (int off = positions[idx]; off < end; off++) {
+      int s = img.pixels[subpixels[off]];
+
+      // float w = subweights[off];
+      r += w * (float) red(s);
+      g += w * (float) green(s);
+      b += w * (float) blue(s);
+    }
+    return rgb((int) r, (int) g, (int) b);
+  }
 }

@@ -128,8 +128,6 @@ public class ConeDownModel extends LXModel {
   static public int numLayers = 8;
   static public List<List<Panel>> panelLayers = new ArrayList<List<Panel>>(numLayers);
 
-  public final Projection projection;
-
   public static ConeDownModel createModel() {
     List<LXPoint> allPoints = new ArrayList<LXPoint>();
     // Create panels, add points from each panel to allPoints.
@@ -512,8 +510,6 @@ public class ConeDownModel extends LXModel {
     rowConeIncrLength = computedConeHeight / (POINTS_HIGH - 1);
     colScoopIncrLength = computedScoopWidth / (POINTS_WIDE - 1);
     rowScoopIncrLength = computedScoopHeight / (POINTS_HIGH - 1);
-
-    this.projection = new Projection(this, 3);
 
     exportPLY(points);
   }

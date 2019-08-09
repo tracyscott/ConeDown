@@ -33,7 +33,7 @@ public class Balls extends Fragment {
 	this.sizeParam = newParameter("size", 10, 0, maxSize);
 	this.countParam = newParameter("count", 1, 1, maxCount);
 
-	this.projection = new Projection(lx.getModel(), 1);
+	// this.projection = new Projection(lx.getModel(), 1);
 	this.balls = new Ball[maxCount];
     }
 
@@ -121,7 +121,7 @@ public class Balls extends Fragment {
 
 	float d = b.dp * sizeParam.value();
 
-	area.scale(projection.xScale(0, y), 1);
+	// area.scale(projection.xScale(0, y), 1);
 
 	// TODO @@@ fix the seam, double draw near borders
 	area.ellipse(0, 0, d, d);
