@@ -13,29 +13,36 @@ import art.lookingup.Projection;
 import art.lookingup.colors.Colors;
 import art.lookingup.colors.Gradient;
 import art.lookingup.patterns.shapes.Parabola;
+import art.lookingup.patterns.play.Pattern;
 import art.lookingup.patterns.play.Fragment;
+import art.lookingup.patterns.play.FragmentFactory;
 import art.lookingup.patterns.play.Parameter;
 
 public class Balls extends Fragment {
-  final static float period = 0.1f;
-  final static int rateMult = 100;
+  final static float period = 0.1f * Pattern.superSample;
+  final static int rateMult = 100 * Pattern.superSample;
+  final static int maxSize = 100 * Pattern.superSample;
   final static int maxCount = 100;
-  final static int maxSize = 100;
 
   final Parameter sizeParam;
   final Parameter countParam;
 
-  public Projection projection;
-
     public Balls(LX lx, int width, int height) {
 	super(width, height);
 
-	this.sizeParam = newParameter("size", 10, 0, maxSize);
-	this.countParam = newParameter("count", 1, 1, maxCount);
+	this.sizeParam = newParameter("size", 10 * Pattern.superSample, 0, maxSize);
+	this.countParam = newParameter("count", 20, 1, maxCount);
 
-	this.projection = new Projection(lx.getModel());
 	this.balls = new Ball[maxCount];
     }
+
+    static public class Factory implements FragmentFactory {
+	public Factory() { }
+
+	public Fragment create(LX lx, int width, int height) {
+	    return new Balls(lx, width, height);
+	}
+    };
 
   public class Ball {
       float dp;
@@ -63,7 +70,7 @@ public class Balls extends Fragment {
       }
 
       float getX() {
-	  return xcurrent % ConeDownModel.POINTS_WIDE;
+	  return xcurrent % width;
       }
 
       float getY() {
@@ -91,10 +98,10 @@ public class Balls extends Fragment {
 	gradient = Gradient.compute(area, maxCount);
 	for (int i = 0; i < maxCount; i++) {
 	    this.balls[i] = new Ball((float) (0.3 + 0.7 * random.nextDouble()),
-				     (float) random.nextDouble() * ConeDownModel.POINTS_WIDE,
-				     4f * (float) (0.9 + 0.1 * random.nextDouble()) * ConeDownModel.POINTS_HIGH,
+				     (float) random.nextDouble() * width,
+				     4f * (float) (0.9 + 0.1 * random.nextDouble()) * height,
 				     (float) (0.1 + 0.9 * random.nextDouble()),
-				     (float) (0.1 + 0.9 * random.nextDouble()) * ConeDownModel.POINTS_WIDE,
+				     (float) (0.1 + 0.9 * random.nextDouble()) * width,
 				     gradient.index(random.nextInt(gradient.size())));
 	}
 

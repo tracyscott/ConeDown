@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
+import art.lookingup.Projection;
+
 import processing.core.PGraphics;
 import processing.core.PImage;
 
@@ -16,6 +18,7 @@ abstract public class Fragment {
     public final PImage image;
 
     public PGraphics area;
+    public Projection projection;
 
     public final List<Parameter> params = new ArrayList<>();
     public final Parameter rate;
@@ -35,7 +38,10 @@ abstract public class Fragment {
 	this.image = new PImage(this.width, this.height, ARGB);
 	
 	this.num = nextNum++;
-	this.rate = newParameter("rate", 0, -1, 1);
+	// Note, to change this from the default in a Fragment, use
+	//   this.rate.setValue(0.2f);
+
+	this.rate = newParameter("rate", 0.2f, -1, 1);
     }
 
     protected Parameter newParameter(String name, float init, float min, float max) {
@@ -65,6 +71,7 @@ abstract public class Fragment {
 
     public void create(Pattern p) {
 	this.area = p.createGraphics(p.app, width, height);
+	this.projection = p.standardProjection;
     }
 
     public void registerParameters(Parameter.Adder adder) {

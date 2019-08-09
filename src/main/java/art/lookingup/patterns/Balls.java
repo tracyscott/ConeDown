@@ -34,7 +34,7 @@ public class Balls extends PGPixelPerfect {
     addParameter(countKnob);
     removeParameter(fpsKnob);
 
-    this.projection = new Projection(lx.getModel());
+    // this.projection = new Projection(lx.getModel(), 1);
     this.balls = new Ball[maxCount];
   }
 
@@ -126,7 +126,7 @@ public class Balls extends PGPixelPerfect {
 
 	float d = b.dp * (float)sizeKnob.getValue();
 
-	pg.scale(projection.xScale(0, y), 1);
+	// pg.scale(projection.xScale(0, y), 1);
 
 	// TODO fix the seam, double draw near borders
 	pg.ellipse(0, 0, d, d);
