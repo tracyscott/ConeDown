@@ -98,13 +98,14 @@ public class Projection {
 
 	LXPoint[] points = new LXPoint[model.size];
 
-	// TODO odd that this matters.
+	// Note: The `subpixels` logic relies on points being sorted.
+	// It appears that LX has un-sorted the points, and we'll
+	// re-sort:
 	for (LXPoint lxp : model.points) {
 	    points[lxp.index] = lxp;
 	}
 
 	for (LXPoint lxp : points) {
-
 	    positions[lxp.index] = position;
 
 	    for (int sub : pixels[lxp.index].subs) {

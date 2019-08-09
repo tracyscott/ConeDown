@@ -24,7 +24,7 @@ abstract public class Pattern extends LXPattern {
     // "" for builtin, P2D or P3D for opengl
     public static final String gtype = "";
 
-    public static final int superMult = 4;
+    public static final int superSample = 3;
 
     public final PApplet app;
 
@@ -45,7 +45,7 @@ abstract public class Pattern extends LXPattern {
     List<Fragment> frags = new ArrayList<>();
 
     public void addFragment(FragmentFactory ff) {
-	Fragment f = ff.create(lx, width * superMult, height * superMult);
+	Fragment f = ff.create(lx, width * superSample, height * superSample);
 	frags.add(f);
 	f.registerParameters((LXParameter cp)->{
 		addParameter(cp);
@@ -57,7 +57,7 @@ abstract public class Pattern extends LXPattern {
 
 	synchronized (Pattern.class) {
 	    if (standardProjection == null) {
-		standardProjection = new Projection(lx.getModel(), superMult);
+		standardProjection = new Projection(lx.getModel(), superSample);
 	    }
 	}
 
