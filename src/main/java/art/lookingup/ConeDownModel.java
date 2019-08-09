@@ -7,6 +7,8 @@ import org.jengineering.sjmply.PLYElementList;
 import org.jengineering.sjmply.PLYFormat;
 import org.jengineering.sjmply.PLYType;
 
+import art.lookingup.Projection;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -606,10 +608,12 @@ public class ConeDownModel extends LXModel {
   }
 
   public static float xScale(CXPoint p, int renderPointsWide) {
-    float x = renderPointsWide / ((float)p.panel.pointsWide * ((p.panel.scoop)?scoopSides:coneSides));
-    if (p.panel.isHalfPanel()){
-      x = (float)renderPointsWide / ((float)(p.panel.pointsWide * p.panel.numPanelsAround()));
-    }
+      float x;
+      if (p.panel.isHalfPanel()){
+	  x = (float)renderPointsWide / ((float)(p.panel.pointsWide * p.panel.numPanelsAround()));
+      } else {
+	  x = (float)renderPointsWide / ((float)p.panel.pointsWide * ((p.panel.scoop)?scoopSides:coneSides));
+      }
 
     return x;
   }
@@ -633,6 +637,27 @@ public class ConeDownModel extends LXModel {
     coordinates[0] = xCoord;
 
     coordinates[1] = (renderPointsHigh-1) - yCoord;
+    return coordinates;
+  }
+
+  public static float[] pointToProjectionCoords(CXPoint p) {
+    float[] coordinates = {0, 0};
+    float yCoord = p.panel.yCoordOffset + p.yCoord;
+    float xCoord;
+
+    if (p.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
+      int danceFloorPointsWide = p.panel.pointsWide * ConeDownModel.dancePanelsWide;
+      int totalImgPointsWide = POINTS_WIDE;
+      float imgXOffset = (float)totalImgPointsWide/2 - (float)danceFloorPointsWide/2;
+      float xImgCoord = imgXOffset + p.panel.danceXPanel * p.panel.pointsWide + p.xCoord;
+      xCoord = xImgCoord;
+
+    } else {
+      xCoord = (float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p, POINTS_WIDE);
+    }
+
+    coordinates[0] = xCoord;
+    coordinates[1] = (POINTS_HIGH-1) - yCoord;
     return coordinates;
   }
 

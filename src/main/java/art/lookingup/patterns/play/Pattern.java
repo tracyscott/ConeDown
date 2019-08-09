@@ -4,6 +4,7 @@ import static processing.core.PConstants.P2D;
 
 import art.lookingup.CXPoint;
 import art.lookingup.ConeDownModel;
+import art.lookingup.Projection;
 import art.lookingup.patterns.RenderImageUtil;
 
 import heronarts.lx.parameter.CompoundParameter;
@@ -18,17 +19,14 @@ import heronarts.lx.model.LXPoint;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
-import processing.core.PImage;
 
 abstract public class Pattern extends LXPattern {
     // "" for builtin, P2D or P3D for opengl
     public static final String gtype = "";
 
-    public static final int superMult = 8;
+    public static final int superSample = 3;
 
     public final PApplet app;
-
-    public PGraphics graph;
 
     private final int width;
     private final int height;
@@ -37,14 +35,17 @@ abstract public class Pattern extends LXPattern {
 	new CompoundParameter("GlobalSpeed", 1, 0, 2)
         .setDescription("Varies global speed.");
 
+    public static Projection standardProjection;
+
     boolean init;
     float current;
     float elapsed;
 
+    // TODO eliminate this list; it's only one element
     List<Fragment> frags = new ArrayList<>();
 
     public void addFragment(FragmentFactory ff) {
-	Fragment f = ff.create(lx, width * superMult, height * superMult);
+	Fragment f = ff.create(lx, width * superSample, height * superSample);
 	frags.add(f);
 	f.registerParameters((LXParameter cp)->{
 		addParameter(cp);
@@ -53,6 +54,12 @@ abstract public class Pattern extends LXPattern {
 
     public Pattern(LX lx, PApplet app, int width, int height) {
 	super(lx);
+
+	synchronized (Pattern.class) {
+	    if (standardProjection == null) {
+		standardProjection = new Projection(lx.getModel(), superSample);
+	    }
+	}
 
 	this.app = app;
 	this.width = width;
@@ -89,8 +96,6 @@ abstract public class Pattern extends LXPattern {
 	if (!init) {
 	    init = true;
 
-	    this.graph = createGraphics(app, width, height);
-
 	    for (Fragment f : frags) {
 		f.create(this);
 	    }
@@ -104,20 +109,18 @@ abstract public class Pattern extends LXPattern {
 
 	preDraw(current - elapsed);
 
-	graph.beginDraw();
-	graph.background(0);
-	graph.copy(frags.get(frags.size()-1).image,
-		   0, 0, width * superMult, height * superMult,
-		   0, 0, width, height);
-	graph.endDraw();
-	graph.loadPixels();
+	frags.get(frags.size()-1).image.loadPixels();
 
-	// graph.get().save(String.format("/Users/jmacd/Desktop/dump/canvas-%s.png", counter++));
-
-	RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), graph, colors);
+	// frags.get(frags.size()-1).image.save(String.format("/Users/jmacd/Desktop/dump/canvas-%s.png", counter++));
+	
+	for (LXPoint p : lx.getModel().points) {
+	    colors[p.index] = standardProjection.computePoint(p.index, frags.get(frags.size()-1).image);
+	}
 
 	elapsed = current;
     }
+
+    // static int counter;
 
     public void setup() {
     }
