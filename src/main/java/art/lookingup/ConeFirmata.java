@@ -51,7 +51,7 @@ public class ConeFirmata {
       logger.info("Device num pins: " + device.getPinsCount());
 
       for (int i = startPin; i < (startPin + numPins - 1) && i < device.getPinsCount(); i++) {
-        Pin pin = device.getPin(startPin);
+        Pin pin = device.getPin(i);
         pin.setMode(Pin.Mode.INPUT);
       }
 
@@ -75,9 +75,16 @@ public class ConeFirmata {
           Pin pin = event.getPin();
           if (pin.getIndex() >= startPin && pin.getIndex() < (startPin + numPins)) {
             // System.out.println(String.format("Pin %d got a value of %d", pin.getIndex(), pin.getValue()));
-            int index = pin.getIndex() - startPin;
-            pinData[index] = pin.getValue();
-            pinParams.get(index).setValue(pinData[index]);
+            int sensorIndex = pin.getIndex() - startPin;
+            pinData[sensorIndex] = pin.getValue();
+            // Set dance floor tile parameter.   If any of the 4 sensors are active then set it to 1.
+            int pinBlock = sensorIndex/4;  // This will determine which block of 4 sensors to check.
+            // If any sensor is on, then leave it on.  If all sensors are off, turn it off.
+            if (pinData[pinBlock*4] > 0 || pinData[pinBlock*4+1] > 0 || pinData[pinBlock*4+2] > 0 || pinData[pinBlock*4+3] > 0) {
+              pinParams.get(pinBlock).setValue(1);
+            } else {
+              pinParams.get(pinBlock).setValue(0);
+            }
           }
         }
 

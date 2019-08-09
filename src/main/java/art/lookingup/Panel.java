@@ -7,9 +7,7 @@ import org.kabeja.parser.ParseException;
 import org.kabeja.parser.Parser;
 import org.kabeja.parser.ParserBuilder;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Panel {
@@ -35,6 +33,7 @@ public class Panel {
     F,
     G,
     H,
+    I,
   }
 
   final static public String[] panelFilenames = {
@@ -48,7 +47,8 @@ public class Panel {
       "E",
       "F",
       "G",
-      "G",
+      "H",
+      "I",
   };
 
   final static public String[] panelTypeNames = {
@@ -63,6 +63,7 @@ public class Panel {
       "F",
       "G",
       "H",
+      "I",
   };
 
   final static public int[] numPanelsAround =
@@ -73,6 +74,7 @@ public class Panel {
       16,
       8,
       8,
+      16,
       16,
       16,
       16,
@@ -92,6 +94,7 @@ public class Panel {
       -45f,
       -10f,
       10f,
+      30f,
   };
 
   public PanelRegion panelRegion;
@@ -116,6 +119,8 @@ public class Panel {
   public int pointsHigh;
 
   public List<CXPoint> points;
+  public List<CXPoint> pointsWireOrder;
+
   public List<Float[]> panelBoundaryPts = new ArrayList<Float[]>(4);
   public BPoint[] bPoints = new BPoint[4];
 
@@ -137,7 +142,13 @@ public class Panel {
     if (panelType == PanelType.A2 || panelType == PanelType.B2 || panelType == PanelType.E2)
       mirror = true;
 
-    if (panelType == panelType.H || panelType == panelType.G || panelType == PanelType.F) {
+    if (panelType == PanelType.I && (panelNum > 8))
+      mirror = true;
+
+    if (panelType == PanelType.H && panelNum == 0 || (panelNum >= 9 && panelNum <= 10))
+      mirror = true;
+
+    if (panelType == panelType.H || panelType == panelType.G || panelType == PanelType.F || panelType == PanelType.I) {
       scoop = true;
       panelRegion = PanelRegion.SCOOP;
     } else {
@@ -145,23 +156,76 @@ public class Panel {
       panelRegion = PanelRegion.CONE;
     }
 
+    // We no longer flip a G panel to get an H panel.  We have explicit H panels.
     if (panelType == PanelType.H) {
-      flip = true;
+      // flip = true;
     }
-    String filename = panelFilenames[panelType.ordinal()];
+    String filenameBase = panelFilenames[panelType.ordinal()];
 
-    points = loadDXFPanel(filename + "_LED.dxf", mirror, flip);
-    //points = loadPanelSVG("panel_"+ filename + ".svg", mirror);
+    if (panelType == PanelType.H) {
+      if (panelNum == 0 || panelNum == 15)
+        filenameBase = filenameBase + "_door";
+      if (panelNum == 5 || panelNum == 10)
+        filenameBase = filenameBase + "_milli";
+      if (panelNum == 6 || panelNum == 9)
+        filenameBase = filenameBase + "_micro";
+      if (panelNum == 7 || panelNum == 8)
+        filenameBase = filenameBase + "_nano";
+    }
 
-    // Points are now in panel local coordinate space.
-    textureMapPoints();
+    if (panelType == PanelType.I) {
+      // Wait to mess with door.
+      if (panelNum == 0 || panelNum == 15)
+        filenameBase = filenameBase + "_door";
+      if (panelNum == 2 || panelNum == 13)
+        filenameBase = filenameBase + "_milli";
+      if (panelNum == 3 || panelNum == 12)
+        filenameBase = filenameBase + "_micro";
+      if (panelNum == 4 || panelNum == 11)
+        filenameBase = filenameBase + "_nano";
+    }
+    String filename = filenameBase + "_LED.dxf";
+    points = loadDXFPanel(filename, mirror, flip);
 
     for (CXPoint p : points) {
+      // Keep so we have some values referenced in the units of the DXF file.
+      p.storePanelLocalXYUnscaled();
       // Convert to meters.
-      p.x *= CNC_SCALE;
+      p.x *= CNC_SCALE;  // 1/inchesPerMeter for these files in inches.
       p.y *= CNC_SCALE;
-      p.storePanelLocalXY();
+      p.storePanelLocalXY();  // Store the XY plane coords before we convert to world space.
     }
+
+    if (panelType == PanelType.H) {
+      if (panelNum == 15) {
+        textureMapPointsLeftRight();
+      } else if (panelNum == 0) {
+        textureMapPointsRightLeft();
+      } else if (panelNum == 6 || panelNum == 7 || panelNum == 8 || panelNum == 10) {
+        textureMapPointsTopBottom();
+      } else if (panelNum == 9) {
+        textureMapPoints(0, 2);
+      } else {
+        textureMapPoints();
+      }
+    } else if (panelType == PanelType.I) {
+      if (panelNum == 0) {
+        textureMapPoints((getExpectedPointsWide() - 1) - 3, 0);
+      } else if (panelNum == 2 || panelNum == 13) {
+        textureMapPoints(0, 1);
+      } else if (panelNum == 3 || panelNum == 12) {
+        textureMapPoints(0, 2);
+      } else if (panelNum == 11) {
+        textureMapPointsTopLeftRight(0);
+      } else if (panelNum == 4) {
+        textureMapPointsTopRightLeft(getExpectedPointsWide() - 1);
+      } else {
+        textureMapPoints();
+      }
+    } else
+      textureMapPoints();
+
+    Collections.sort(points);
 
     float angleIncr = 360f / numFullPanelsAround();
     float panelAngle = faceNum() * angleIncr;
@@ -185,7 +249,9 @@ public class Panel {
     // logger.info("yCoordOffset =" + yCoordOffset + " pointsHigh=" + pointsHigh);
     for (CXPoint p : points) {
       float angle =  90f + 45f/2f + (angleIncr * faceNum());
-      if (panelType == PanelType.G || panelType == PanelType.H || panelType == PanelType.F) {
+      if (panelType == PanelType.I) {
+        angle = 90f + (360f / numFacesAround()) / 2f + (angleIncr * faceNum());
+      } else if (scoop) {
         // 90f + (360 / numFaces) / 2f  was 45/4f
         angle = 90f + (360f / numFacesAround()) / 2f + (angleIncr * faceNum());
       }
@@ -199,10 +265,25 @@ public class Panel {
     }
   }
 
+  public void increaseYPos(float y) {
+    for (CXPoint p : points) {
+      p.y += y;
+    }
+  }
+
+  public void logBoundary() {
+    logger.info("panel type & #: " + panelTypeNames[panelType.ordinal()] + " " + panelNum);
+    logger.info("bottom left : " + bPoints[0].x + "," + bPoints[0].y);
+    logger.info("bottom right: " + bPoints[1].x + "," + bPoints[1].y);
+    logger.info("top right   : " + bPoints[2].x + "," + bPoints[2].y);
+    logger.info("top left    : " + bPoints[3].x + "," + bPoints[3].y);
+  }
+
   /**
-   * Generate texture coordinates for our points.
+   * Picks a point and navigates to the bottom left corner.
+   * @return
    */
-  public void textureMapPoints() {
+  public CXPoint findBottomLeft() {
     boolean foundOrigin = false;
     boolean movingLeft = true;
     CXPoint nextPoint = null;
@@ -220,13 +301,418 @@ public class Panel {
         }
       }
     }
-    // Origin is prevPoint.  Starting at prevPoint, move around assigning xCoord, yCoord.
-    CXPoint origin = prevPoint;
+    return prevPoint;
+  }
+
+  /**
+   * Picks a point and navigates to the bottom left corner.
+   * @return
+   */
+  public CXPoint findTopLeft() {
+    boolean foundOrigin = false;
+    boolean movingUp = true;
+    CXPoint nextPoint = null;
+    CXPoint prevPoint = points.get(0);
+    while (!foundOrigin) {
+      if (movingUp) nextPoint = prevPoint.findPointAbove(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null) {
+        prevPoint = nextPoint;
+      } else {
+        if (nextPoint == null && !movingUp) {
+          foundOrigin = true;
+        } else {
+          movingUp = false;
+        }
+      }
+    }
+    return prevPoint;
+  }
+
+  /**
+   * Picks a point and navigates to the bottom left corner.
+   * @return
+   */
+  public CXPoint findTopRight() {
+    boolean foundOrigin = false;
+    boolean movingUp = true;
+    CXPoint nextPoint = null;
+    CXPoint prevPoint = points.get(0);
+    while (!foundOrigin) {
+      if (movingUp) nextPoint = prevPoint.findPointAbove(points);
+      else nextPoint = prevPoint.findPointRight(points);
+      if (nextPoint != null) {
+        prevPoint = nextPoint;
+      } else {
+        if (nextPoint == null && !movingUp) {
+          foundOrigin = true;
+        } else {
+          movingUp = false;
+        }
+      }
+    }
+    return prevPoint;
+  }
+
+
+  /**
+   * For H0 doors, we neeed to find the bottom right point and work from there.
+   * @return
+   */
+  public CXPoint findBottomRight() {
+    boolean foundOrigin = false;
+    boolean movingLeft = true;
+    CXPoint nextPoint = null;
+    CXPoint prevPoint = points.get(0);
+    while (!foundOrigin) {
+      if (movingLeft) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointBelow(points);
+      if (nextPoint != null) {
+        prevPoint = nextPoint;
+      } else {
+        if (nextPoint == null && !movingLeft) {
+          foundOrigin = true;
+        } else {
+          movingLeft = false;
+        }
+      }
+    }
+    return prevPoint;
+  }
+
+  public boolean isDoor() {
+    if (panelType == PanelType.H || panelType == PanelType.I) {
+      if (panelNum == 0 || panelNum == 15)
+        return true;
+    }
+    return false;
+  }
+
+  /**
+   * H and I panels can be intercepted by the ground which reduces their
+   * computed pointsHigh.  For correct texture mapping we need to account
+   * for the missing points.
+   * @return
+   */
+  public int getExpectedPointsHigh() {
+    if (panelType == PanelType.H) {
+      return 7;
+    }
+    if (panelType == PanelType.I) {
+      return 6;
+    }
+    return pointsHigh;
+  }
+
+  /**
+   * H and I panels have door panels that are missing points where the doors
+   * are located.  We need to account for the missing points when generating
+   * our texture coordinates.
+   * @return
+   */
+  public int getExpectedPointsWide() {
+    if (panelType == PanelType.H) {
+      return 7;
+    }
+    if (panelType == PanelType.I) {
+      return 6;
+    }
+    return pointsWide;
+  }
+
+  /**
+   * Texture mapping process that starts at bottom right, moves left, and then moves up,
+   * etc.
+   * NOTE(tracy): Requires the hard-code height to be specified in getExpectedPointsWide().
+   */
+  public void textureMapPointsRightLeft() {
+    CXPoint origin = findBottomRight();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    int xCoord = getExpectedPointsWide() - 1;
+    int yCoord = 0;
+    origin.xCoord = xCoord;
+    origin.yCoord = yCoord;
+    boolean textureCoordsDone = false;
+    boolean movingRight = false;
+    int maxXCoord = 0;
+    int maxYCoord = 0;
+    while (pointsVisited < points.size() && !textureCoordsDone) {
+      if (movingRight) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null && movingRight) {
+        xCoord += 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingRight) {
+        xCoord -= 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else {
+        movingRight = !movingRight;
+        nextPoint = prevPoint.findPointAbove(points);
+        if (nextPoint == null) {
+          // we are done
+          textureCoordsDone = true;
+        } else {
+          yCoord += 1;
+          nextPoint.yCoord = yCoord;
+          nextPoint.xCoord = xCoord;
+          prevPoint = nextPoint;
+        }
+      }
+      if (xCoord > maxXCoord)
+        maxXCoord = xCoord;
+      if (yCoord > maxYCoord)
+        maxYCoord = yCoord;
+    }
+
+    pointsWide = maxXCoord + 1;
+    pointsHigh = maxYCoord + 1;
+  }
+
+  /**
+   * Texture mapping process that starts in the top left corner and moves to the right and then
+   * down and then back left, etc.
+   * NOTE(tracy): Requires the hard-code height to be specified in getExpectedPointsHigh().
+   * @param xStart For partial panels, allow the starting x texture coord to be specified.
+   */
+  public void textureMapPointsTopLeftRight(int xStart) {
+    CXPoint origin = findTopLeft();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    int xCoord = xStart;
+    int yCoord = getExpectedPointsHigh() - 1;
+    origin.xCoord = xCoord;
+    origin.yCoord = yCoord;
+    boolean textureCoordsDone = false;
+    boolean movingRight = true;
+    int maxXCoord = 0;
+    int maxYCoord = 0;
+    while (pointsVisited < points.size() && !textureCoordsDone) {
+      if (movingRight) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null && movingRight) {
+        xCoord += 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingRight) {
+        xCoord -= 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else {
+        movingRight = !movingRight;
+        nextPoint = prevPoint.findPointBelow(points);
+        if (nextPoint == null) {
+          // we are done
+          textureCoordsDone = true;
+        } else {
+          yCoord -= 1;
+          nextPoint.yCoord = yCoord;
+          nextPoint.xCoord = xCoord;
+          prevPoint = nextPoint;
+        }
+      }
+      if (xCoord > maxXCoord)
+        maxXCoord = xCoord;
+      if (yCoord > maxYCoord)
+        maxYCoord = yCoord;
+    }
+
+    pointsWide = maxXCoord + 1;
+    pointsHigh = maxYCoord + 1;
+  }
+
+  /**
+   * Texture mapping process that starts at the top right and starts by moving left
+   * and then down and then back right, etc.
+   * NOTE(tracy): Requires the hard-code height to be specified in getExpectedPointsHigh().
+   * @param xStart For partial panels, allow the starting X texture coord to be specified.
+   */
+  public void textureMapPointsTopRightLeft(int xStart) {
+    CXPoint origin = findTopRight();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    int xCoord = xStart;
+    int yCoord = getExpectedPointsHigh() - 1;
+    origin.xCoord = xStart;
+    origin.yCoord = yCoord;
+    boolean textureCoordsDone = false;
+    boolean movingRight = false;
+    int maxXCoord = 0;
+    int maxYCoord = 0;
+    while (pointsVisited < points.size() && !textureCoordsDone) {
+      if (movingRight) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null && movingRight) {
+        xCoord += 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingRight) {
+        xCoord -= 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else {
+        movingRight = !movingRight;
+        nextPoint = prevPoint.findPointBelow(points);
+        if (nextPoint == null) {
+          // we are done
+          textureCoordsDone = true;
+        } else {
+          yCoord -= 1;
+          nextPoint.yCoord = yCoord;
+          nextPoint.xCoord = xCoord;
+          prevPoint = nextPoint;
+        }
+      }
+      if (xCoord > maxXCoord)
+        maxXCoord = xCoord;
+      if (yCoord > maxYCoord)
+        maxYCoord = yCoord;
+    }
+
+    pointsWide = maxXCoord + 1;
+    pointsHigh = maxYCoord + 1;
+  }
+
+  /**
+   * Texture mapping process that start a bottom left and start by moving horizontally to
+   * the right.  And then up and moving back to the left, etc.
+   */
+  public void textureMapPointsLeftRight() {
+    CXPoint origin = findBottomLeft();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
     int pointsVisited = 0;
     int xCoord = 0;
     int yCoord = 0;
-    origin.xCoord = 0;
-    origin.yCoord = 0;
+    origin.xCoord = xCoord;
+    origin.yCoord = yCoord;
+    boolean textureCoordsDone = false;
+    boolean movingRight = true;
+    int maxXCoord = 0;
+    int maxYCoord = 0;
+    while (pointsVisited < points.size() && !textureCoordsDone) {
+      if (movingRight) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null && movingRight) {
+        xCoord += 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingRight) {
+        xCoord -= 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else {
+        movingRight = !movingRight;
+        nextPoint = prevPoint.findPointAbove(points);
+        if (nextPoint == null) {
+          // we are done
+          textureCoordsDone = true;
+        } else {
+          yCoord += 1;
+          nextPoint.yCoord = yCoord;
+          nextPoint.xCoord = xCoord;
+          prevPoint = nextPoint;
+        }
+      }
+      if (xCoord > maxXCoord)
+        maxXCoord = xCoord;
+      if (yCoord > maxYCoord)
+        maxYCoord = yCoord;
+    }
+
+    pointsWide = maxXCoord + 1;
+    pointsHigh = maxYCoord + 1;
+  }
+
+  /**
+   * Texture mapping process that starts at top left and moves down and then over to the
+   * right and then back up, etc.
+   * NOTE(tracy): Requires the hard-code height to be specified in getExpectedPointsHigh().
+   */
+  public void textureMapPointsTopBottom() {
+    CXPoint origin = findTopLeft();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    int xCoord = 0;
+    int yCoord = getExpectedPointsHigh() - 1;
+    origin.xCoord = xCoord;
+    origin.yCoord = yCoord;
+    boolean textureCoordsDone = false;
+    boolean movingUp = false;
+    int maxXCoord = 0;
+    int maxYCoord = 0;
+    while (pointsVisited < points.size() && !textureCoordsDone) {
+      if (movingUp) nextPoint = prevPoint.findPointAbove(points);
+      else nextPoint = prevPoint.findPointBelow(points);
+      if (nextPoint != null && movingUp) {
+        yCoord += 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingUp) {
+        yCoord -= 1;
+        nextPoint.yCoord = yCoord;
+        nextPoint.xCoord = xCoord;
+        prevPoint = nextPoint;
+      } else {
+        movingUp = !movingUp;
+        nextPoint = prevPoint.findPointRight(points);
+        if (nextPoint == null) {
+          // we are done
+          textureCoordsDone = true;
+        } else {
+          xCoord += 1;
+          nextPoint.yCoord = yCoord;
+          nextPoint.xCoord = xCoord;
+          prevPoint = nextPoint;
+        }
+      }
+      if (xCoord > maxXCoord)
+        maxXCoord = xCoord;
+      if (yCoord > maxYCoord)
+        maxYCoord = yCoord;
+    }
+
+    pointsWide = maxXCoord + 1;
+    pointsHigh = maxYCoord + 1;
+  }
+
+  /**
+   * Generate texture coordinates for our points.
+   */
+  public void textureMapPoints() {
+    textureMapPoints(0, 0);
+  }
+
+  /**
+   * Standard texture mapping process is to start at bottom left and then move up, over to right,
+   * and then back down, etc.
+   * @param xStartCoord Force the X start coordinate for partial panels.
+   * @param yStartCoord Force the Y start coordinate for partial panels.
+   */
+  public void textureMapPoints(int xStartCoord, int yStartCoord) {
+    CXPoint origin = findBottomLeft();
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    int xCoord = xStartCoord;
+    int yCoord = yStartCoord;
+    origin.xCoord = xCoord;
+    origin.yCoord = yCoord;
     boolean textureCoordsDone = false;
     boolean movingUp = true;
     int maxXCoord = 0;
@@ -265,17 +751,6 @@ public class Panel {
 
     pointsWide = maxXCoord + 1;
     pointsHigh = maxYCoord + 1;
-    // logger.info("panel dimensions: " + pointsWide + "x" + pointsHigh);
-
-    Collections.sort(points);
-
-
-    /*
-    for (CXPoint p : points) {
-      logger.info("point " + p.x + "," + p.y + " texX,texY: " + p.xCoord + "," + p.yCoord);
-    }
-    */
-
   }
 
   /**
@@ -450,6 +925,92 @@ public class Panel {
     }
     float x;
     float y;
+
+    /**
+     * Convert point coordinates to ints and then form a coordinate string int(x),int(y) in order
+     * to de-duplicate points.
+     * @param pointMap
+     * @param point
+     */
+    static public void dedupPoint(Map<String, BPoint> pointMap, BPoint point) {
+      int xInt = (int) point.x;
+      int yInt = (int) point.y;
+      String key = "" + xInt + "," + yInt;
+      if (!pointMap.containsKey(key))
+        pointMap.put(key, point);
+    }
+
+    /**
+     * Given a set of points, convert their vertex-centroid, aka arithmetic mean.
+     * This can be used for 4 sided convex polygons to determine the corners.
+     * @param pointsMap
+     * @return
+     */
+    static public BPoint vertexCentroid(Map<String, BPoint> pointsMap) {
+      float x = 0f;
+      float y = 0f;
+
+      for (BPoint bp : pointsMap.values()) {
+        x += bp.x;
+        y += bp.y;
+      }
+      x = x / pointsMap.values().size();
+      y = y / pointsMap.values().size();
+
+      return new BPoint(x, y);
+    }
+
+    static public BPoint findTopLeft(Map<String, BPoint> pointsMap, BPoint centroidPt) {
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x < centroidPt.x && bp.y > centroidPt.y)
+          return bp;
+      }
+      return null;
+    }
+
+    static public BPoint findTopRight(Map<String, BPoint> pointsMap, BPoint centroidPt) {
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x > centroidPt.x && bp.y > centroidPt.y)
+          return bp;
+      }
+      return null;
+    }
+
+    static public BPoint findBottomRight(Map<String, BPoint> pointsMap, BPoint centroidPt) {
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x > centroidPt.x && bp.y < centroidPt.y) {
+          return bp;
+        }
+      }
+      return null;
+    }
+
+    static public BPoint findBottomRightI(Map<String, BPoint> pointsMap, BPoint centroidPt) {
+      float maxYRight = Float.MIN_VALUE;
+      // Centroid-based approach only works with sort of rectangles.  For I_nano, the bottom right
+      // is actually above the centroid.y so adding a hack to look for max Y to the right of the
+      // centroid.x and then use that as top right so bottom right is not that one.
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x > centroidPt.x) {
+          if (bp.y > maxYRight)
+            maxYRight = bp.y;
+        }
+      }
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x > centroidPt.x && bp.y < (maxYRight - 0.1f))  // add epsilon for float compare
+          return bp;
+      }
+      return null;
+    }
+
+    static public BPoint findBottomLeft(Map<String, BPoint> pointsMap, BPoint centroidPt) {
+      for (BPoint bp : pointsMap.values()) {
+        if (bp.x < centroidPt.x && bp.y < centroidPt.y) {
+          return bp;
+        }
+      }
+      return null;
+    }
   }
 
   /**
@@ -468,6 +1029,7 @@ public class Panel {
     List<CXPoint> points = new ArrayList<CXPoint>();
     Parser parser = ParserBuilder.createDefaultParser();
 
+    logger.info("Loading DXF: " + filename);
     try {
       parser.parse(filename, DXFParser.DEFAULT_ENCODING);
       DXFDocument doc = parser.getDocument();
@@ -476,11 +1038,13 @@ public class Panel {
       // logger.info("circles length: " + arcs.size());
       for (DXFCircle c : arcs) {
         Point centerPt = c.getCenterPoint();
+        // LED positions have larger radius circles.
         // logger.info("circle: " + centerPt.getX() + "," + centerPt.getY() + " r=" + c.getRadius());
         if (c.getRadius() > 0.5f) {
           points.add(new CXPoint(this, centerPt.getX(), centerPt.getY(), 0f, 0, 0, 0f, 0f));
         }
       }
+      Map<String, BPoint> pointMap = new HashMap<String, BPoint>();
       List<DXFLine> lines = layer.getDXFEntities(DXFConstants.ENTITY_TYPE_LINE);
       int i = 0;
       for (DXFLine l : lines) {
@@ -538,10 +1102,6 @@ public class Panel {
           BPoint ePoint = new BPoint(endPoint);
           //logger.info("line: " + (int) sPoint.x + "," + (int) sPoint.y + " to " +
           //    (int) ePoint.x + "," + (int) ePoint.y);
-          sPoint.rot2D(-90f);
-          ePoint.rot2D(-90f);
-          //logger.info("rot line: " + (int) sPoint.x + "," + (int) sPoint.y + " to " +
-          //    (int) ePoint.x + "," + (int) ePoint.y);
           // -19,-20 to 19,-20  top left to top right
           // -19,-20 to -20,-29 top left to bottom left
           // 20,-29 to -20,-29 bottom right to bottom left
@@ -554,7 +1114,7 @@ public class Panel {
             bPoints[0] = new BPoint(ePoint.x, ePoint.y);
           }
         }
-        if (panelType == PanelType.G || panelType == PanelType.H) {
+        if (panelType == PanelType.G) {
           //logger.info("line: " + (int) startPoint.getX() + "," + (int) startPoint.getY() + " to " +
           //    (int) endPoint.getX() + "," + (int) endPoint.getY());
           // -20,20 to 20,20 top left to top right
@@ -569,19 +1129,59 @@ public class Panel {
             bPoints[0] = new BPoint(endPoint);
           }
         }
+        if (panelType == PanelType.H) {
+          BPoint.dedupPoint(pointMap, new BPoint(startPoint));
+          BPoint.dedupPoint(pointMap, new BPoint(endPoint));
+        }
+
+        if (panelType == PanelType.I) {
+          BPoint.dedupPoint(pointMap, new BPoint(startPoint));
+          BPoint.dedupPoint(pointMap, new BPoint(endPoint));
+        }
         i++;
+      }
+
+      if (panelType == PanelType.H || panelType == PanelType.I) {
+        BPoint centroid = BPoint.vertexCentroid(pointMap);
+        bPoints[0] = BPoint.findBottomLeft(pointMap, centroid);
+        if (panelType == PanelType.I)
+          bPoints[1] = BPoint.findBottomRightI(pointMap, centroid);
+        else
+          bPoints[1] = BPoint.findBottomRight(pointMap, centroid);
+        bPoints[2] = BPoint.findTopRight(pointMap, centroid);
+        bPoints[3] = BPoint.findTopLeft(pointMap, centroid);
       }
       BPoint bottomLeft = bPoints[0];
       BPoint bottomRight  = bPoints[1];
       BPoint topRight = bPoints[2];
       BPoint topLeft = bPoints[3];
 
-      // We need to rotate the F panel by -90 degrees.
-      if (panelType == PanelType.F) {
-        // logger.info("Rotating F Panel points");
-        for (CXPoint p : points) {
-          p.rot2D(-90f);
+      if (panelType == PanelType.H && (panelNum == 0 || panelNum == 15)) {
+        bottomRight.y = bottomLeft.y;
+        bottomRight.x = topRight.x - 2f;
+        if (panelNum == 15) {
+          bottomLeft.x -= 20f;
         }
+      }
+      if (panelType == PanelType.H) {
+        if (panelNum == 5)
+          bottomLeft.x -= 20f;
+        if (panelNum == 6)
+          bottomLeft.x -= 1f;
+        if (panelNum == 9) {
+          bottomRight.x += 15f;
+          bottomRight.y = bottomLeft.y;
+        }
+        if (panelNum == 10) {
+          bottomRight.x += 10f;
+          bottomRight.y = bottomLeft.y;
+        }
+      }
+      if (panelType == PanelType.I && (panelNum == 0)) {
+        bottomLeft.x -= 20f;
+      }
+      if (panelType == PanelType.I && panelNum > 8) {
+        bottomRight.y = bottomLeft.y;
       }
 
       // Handle mirror situation
@@ -649,9 +1249,18 @@ public class Panel {
         p.scale(CNC_SCALE);
       }
 
-      bottomWidth = bottomRight.x - bottomLeft.x;
-      topWidth = topRight.x - topLeft.x;
-      height = topRight.y - bottomRight.y;
+      /*
+      if (panelType == PanelType.H || panelType == PanelType.G) {
+        for (BPoint bp : pointMap.values()) {
+          logger.info("bpoint: " + bp.x + "," + bp.y);
+        }
+        logBoundary();
+      }
+      */
+
+      bottomWidth = bPoints[1].x - bPoints[0].x;
+      topWidth = bPoints[2].x - bPoints[3].x;
+      height = bPoints[2].y - bPoints[1].y;
     } catch (ParseException pex) {
       logger.info("Parse exception: " + pex.getMessage());
     }
@@ -660,5 +1269,136 @@ public class Panel {
 
   public CXPoint getCXPointAtTexCoord(int x, int y) {
     return CXPoint.getCXPointAtTexCoord(points, x, y);
+  }
+
+  /**
+   * Return the points of this panel in wiring order for this panel.  There is a standard order that
+   * starts at the bottom left and moves right and then up and then back left, etc.  The ground intercepted
+   * panels and the door panels require custom wiring.  Rather than relying on texture coordinates for those
+   * panels, we can just re-navigate the points locally as we did with texture mapping but the start point
+   * will be some known texture coordinate and wiring directions might be different from specific strategy
+   * used for texture mapping a specific panel.
+   * @return
+   */
+  public List<CXPoint> pointsInWireOrder() {
+    if (panelType == PanelType.H && panelNum == 0) {
+      return wirePointsFromCoords(6, 0, false);
+    } else if (panelType == PanelType.H && panelNum == 15) {
+      return wirePointsFromCoords(0, 0, true);
+    } else if (panelType == PanelType.H && panelNum == 5) {
+      // Right milli
+      return wirePointsFromCoords(4, 0, false);
+    } else if (panelType == PanelType.H && panelNum == 6) {
+      // Right micro
+      return wirePointsFromCoords(3, 1, false);
+    } else if (panelType == PanelType.H && (panelNum == 7)) {
+      // Right nano.
+      return wirePointsFromCoords(0, 2, true);
+    } else if (panelType == PanelType.H && (panelNum == 8)) {
+      // Left nano
+      return wirePointsFromCoords(0, 2, true);
+    } else if (panelType == PanelType.H && (panelNum == 9)) {
+      // Left micro
+      return wirePointsFromCoords(3, 1, true);
+    } else if (panelType == PanelType.H && (panelNum == 10)) {
+      // Left milli
+      return wirePointsFromCoords(2, 0, true);
+    } else if (panelType == PanelType.I && (panelNum == 0)) {
+      // Right door
+      return wirePointsFromCoords(3, 0, true);
+    } else if (panelType == PanelType.I && (panelNum == 15)) {
+      // Left door
+      return wirePointsFromCoords(0, 0, true);
+    } else if (panelType == PanelType.I && (panelNum == 2)) {
+      // Right milli
+      return wirePointsFromCoords(0, 1, true);
+    } else if (panelType == PanelType.I && (panelNum == 3)) {
+      // Right micro
+      return wirePointsFromCoords(0, 2, true);
+    } else if (panelType == PanelType.I && (panelNum == 4)) {
+      // Right nano
+      return wirePointsFromCoords(2, 4, false);
+    } else if (panelType == PanelType.I && (panelNum == 11)) {
+      // Left nano
+      return wirePointsFromCoords(3, 4, true);
+    } else if (panelType == PanelType.I && (panelNum == 12)) {
+      // Left micro
+      return wirePointsFromCoords(0, 2, true);
+    } else if (panelType == PanelType.I && (panelNum == 13)) {
+      // Left milli
+      return wirePointsFromCoords(0, 1, true);
+    } else {
+      return pointsInWireOrderStandard();
+    }
+  }
+
+  /**
+   * Retrieve points in wiring order based on start texture coordinates and whether we start moving right or
+   * start moving left.
+   * @param startXCoord The x texture coordinate of the start point.
+   * @param startYCoord The y texture coordinate of the start point.
+   * @param movingRight If true, start by moving right, otherwise start by moving left.
+   * @return
+   */
+  public List<CXPoint> wirePointsFromCoords(int startXCoord, int startYCoord, boolean movingRight) {
+    List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
+
+    CXPoint origin = getCXPointAtTexCoord(startXCoord, startYCoord);
+    pointsWireOrder.add(origin);
+
+    logger.info("wire panel: " + panelTypeNames[panelType.ordinal()] + "" + panelNum +
+        " start " + startXCoord + "," + startYCoord + " right=" + movingRight);
+
+    CXPoint prevPoint = origin;
+    CXPoint nextPoint = null;
+    int pointsVisited = 0;
+    boolean pointsDone = false;
+    while (pointsVisited < points.size() && !pointsDone) {
+      if (movingRight) nextPoint = prevPoint.findPointRight(points);
+      else nextPoint = prevPoint.findPointLeft(points);
+      if (nextPoint != null && movingRight) {
+        pointsWireOrder.add(nextPoint);
+        prevPoint = nextPoint;
+      } else if (nextPoint != null && !movingRight) {
+        pointsWireOrder.add(nextPoint);
+        prevPoint = nextPoint;
+      } else {
+        movingRight = !movingRight;
+        nextPoint = prevPoint.findPointAbove(points);
+        if (nextPoint == null) {
+          // we are done
+          pointsDone = true;
+        } else {
+          pointsWireOrder.add(nextPoint);
+          prevPoint = nextPoint;
+        }
+      }
+    }
+    // Keep a reference in case we want patterns to reference this.
+    this.pointsWireOrder = pointsWireOrder;
+    return pointsWireOrder;
+  }
+
+  public List<CXPoint> pointsInWireOrderStandard() {
+    List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
+    // For each panel we wire from bottom left to bottom right and then move up one pixel
+    // and then wire backwards from right to left, etc.  We can use our texture coordinates
+    // to navigate the points on a panel.
+    boolean movingLeft = false;
+    for (int rowNum = 0; rowNum < pointsHigh; rowNum++) {
+      for (int colNum = 0; colNum < pointsWide; colNum++) {
+        int x = colNum;
+        if (movingLeft) {
+          x = (pointsWide - 1) - colNum;
+        }
+        CXPoint p = getCXPointAtTexCoord(x, rowNum);
+        // logger.info("point at: " + x + "," + rowNum);
+        pointsWireOrder.add(p);
+      }
+      movingLeft = !movingLeft;
+    }
+    // Keep a reference in case we want patterns to reference this.
+    this.pointsWireOrder = pointsWireOrder;
+    return pointsWireOrder;
   }
 }
