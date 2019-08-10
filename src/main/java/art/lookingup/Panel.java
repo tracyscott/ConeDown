@@ -100,6 +100,7 @@ public class Panel {
   public PanelRegion panelRegion;
   public PanelType panelType;
   public int panelLayoutNum;
+  public String dxfFilename;
   public float topWidth;
   public float bottomWidth;
   public float height;
@@ -185,7 +186,8 @@ public class Panel {
         filenameBase = filenameBase + "_nano";
     }
     String filename = filenameBase + "_LED.dxf";
-    points = loadDXFPanel(filename, mirror, flip);
+    dxfFilename = filename;
+    points = loadDXFPanel(dxfFilename, mirror, flip);
 
     for (CXPoint p : points) {
       // Keep so we have some values referenced in the units of the DXF file.
@@ -210,7 +212,7 @@ public class Panel {
       }
     } else if (panelType == PanelType.I) {
       if (panelNum == 0) {
-        textureMapPoints((getExpectedPointsWide() - 1) - 3, 0);
+        textureMapPoints(getExpectedPointsWide() - 3, 0);
       } else if (panelNum == 2 || panelNum == 13) {
         textureMapPoints(0, 1);
       } else if (panelNum == 3 || panelNum == 12) {

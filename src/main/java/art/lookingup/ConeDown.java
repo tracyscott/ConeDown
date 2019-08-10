@@ -205,8 +205,8 @@ public class ConeDown extends PApplet {
     pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     lx.engine.midi.addListener(uiMidiControl);
     if (enableOutput) {
-      //Output.configurePixliteOutput(lx);
-      Output.configureUnityArtNet(lx);
+      Output.configurePixliteOutput(lx);
+      //Output.configureUnityArtNet(lx);
     }
     if (disableOutputOnStart)
       lx.engine.output.enabled.setValue(false);

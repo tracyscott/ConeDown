@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -180,6 +177,12 @@ public class Output {
    */
   public static void configurePixliteOutput(LX lx) {
     List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
+    List<Integer> countsPerOutput = new ArrayList<Integer>();
+    // For each output, track the number of points per panel type so we can log the details to help
+    // with output verification.
+    List<Map<String, Integer>> countsByPanelType = new ArrayList<Map<String, Integer>>();
+    List<Map<String, String>> allDXFByPanelType = new ArrayList<Map<String, String>>();
+
 
     String artNetIpAddress = ConeDown.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_IP).getString();
     int artNetIpPort = Integer.parseInt(ConeDown.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_PORT).getString());
@@ -191,6 +194,16 @@ public class Output {
     int universesPerSixteenth = 3;
     Set wireFilesWritten = new HashSet();
     for (sixteenthNum = 0; sixteenthNum < 16; sixteenthNum++) {
+      // Some utility datastructures for reporting the results of the output mapping later.  This is just
+      // mean to help verify the output mapping.
+      Map<String, Integer> pointCountByPanelType = new HashMap<String, Integer>();
+      countsByPanelType.add(pointCountByPanelType);
+      Map<String, String> dxfByPanelType = new HashMap<String, String>();
+      allDXFByPanelType.add(dxfByPanelType);
+      // This is a list of panel keys used for wiring.  We want them in wire order so that we can generate
+      // some HTML documentation for each sixteenth.
+      List<String> panelKeysInWireOrder = new ArrayList<String>();
+
       int univStartNum = sixteenthNum * universesPerSixteenth;
       // First we will collect all our points in wire order.  These points will span multiple
       // panels and multiple universes.  Once we have all the points for a given sixteenth wire
@@ -229,20 +242,32 @@ public class Output {
         logger.info("panelType: " + Panel.panelTypeNames[panel.panelType.ordinal()]);
         List<CXPoint> pointsWireOrder = panel.pointsInWireOrder();
 
+        pointCountByPanelType.put(Panel.panelTypeNames[panel.panelType.ordinal()], pointsWireOrder.size());
+        dxfByPanelType.put(Panel.panelTypeNames[panel.panelType.ordinal()], panel.dxfFilename);
+
         // Write points and wiring file.  These can be used with Pixel Mapper sketch to visually inspect
         // the result of the mapping code.
         // Only write once per panelType.
-        if (!wireFilesWritten.contains(panel.panelType)) {
-          String pointsFilename = "points_panel_" + Panel.panelTypeNames[panel.panelType.ordinal()] + ".csv";
-          String wiringFilename = "wiring_panel_" + Panel.panelTypeNames[panel.panelType.ordinal()] + ".txt";
+        String panelKey = Panel.panelTypeNames[panel.panelType.ordinal()] + "_" + panel.panelNum;
+        String dxfbase = panel.dxfFilename.replace(".dxf", "").replace("panel_", "").replace("_LED", "");
+        panelKey = dxfbase + "_" + panel.panelNum;
+        if (!wireFilesWritten.contains(panelKey)) {
+          String pointsFilename = "points_panel_" + dxfbase + "_" + panel.panelNum + ".csv";
+          String wiringFilename = "wiring_panel_" + dxfbase + "_" + panel.panelNum + ".txt";
           writePointsFile(pointsFilename, pointsWireOrder);
           writeWiringFile(wiringFilename, pointsWireOrder);
-          wireFilesWritten.add(panel.panelType);
+          wireFilesWritten.add(panelKey);
+          panelKeysInWireOrder.add(panelKey);
         }
 
         // pointsWireOrder contains our points in wiring order for this panel.
         allPointsWireOrder.addAll(pointsWireOrder);
       }
+
+      // Write out HTML documentation for wiring each sixteenth
+      writeSixteenthHtmlDoc(sixteenthNum, panelKeysInWireOrder);
+
+      countsPerOutput.add(allPointsWireOrder.size());
 
       // NOTE(tracy): We have to create ArtNetDatagram with the actual numbers of our points or else it
       // will puke internally. i.e. we can't just use 170 but then pass it less than 170 points so we
@@ -277,6 +302,21 @@ public class Output {
       }
     }
 
+    int i = 0;
+    for (Integer count : countsPerOutput) {
+      logger.info("output " + i + ": " + count + " points");
+      Map<String, Integer> pointCountByPanelType = countsByPanelType.get(i);
+      Map<String, String> dxfByPanelType = allDXFByPanelType.get(i);
+      ArrayList<String> sortedKeys =
+          new ArrayList<String>(pointCountByPanelType.keySet());
+      Collections.sort(sortedKeys);
+      for (String key : sortedKeys) {
+        logger.info("   key= " + key + " count= " + pointCountByPanelType.get(key) + " dxf= " +
+            dxfByPanelType.get(key));
+      }
+      i++;
+    }
+
     try {
       datagramOutput = new LXDatagramOutput(lx);
       for (ArtNetDatagram datagram : datagrams) {
@@ -296,6 +336,22 @@ public class Output {
       logger.log(Level.SEVERE, "Did not configure output, error during LXDatagramOutput init");
     }
     logger.info("layers: " + panelLayers.size());
+  }
+
+  static public void writeSixteenthHtmlDoc(int sixteenth, List<String> panelKeysWireOrder) {
+    String filename = "sixteenth_" + sixteenth + ".html";
+    try {
+      PrintWriter htmlFile = new PrintWriter(filename);
+      htmlFile.println("<html><head><title>16th " + sixteenth + "</title></head><body><h1>16th " + sixteenth + "<h1>");
+      for (int keyNum = panelKeysWireOrder.size() - 1; keyNum >= 0; --keyNum) {
+        String panelKey = panelKeysWireOrder.get(keyNum);
+        htmlFile.println("<img src=\"wiring/" + panelKey + ".png\"><br/>");
+      }
+      htmlFile.println("</body></html>");
+      htmlFile.close();
+    } catch (IOException ioex) {
+      logger.info("IOException writing " + filename + ": " + ioex.getMessage());
+    }
   }
 
   static public void writePointsFile(String filename, List<CXPoint> points) {
