@@ -113,6 +113,8 @@ public class ConeDownModel extends LXModel {
   public static List<LXPoint> conePoints = new ArrayList<LXPoint>();
   public static List<LXPoint> scoopPoints = new ArrayList<LXPoint>();
   public static List<LXPoint> dancePoints = new ArrayList<LXPoint>();
+  public static List<LXPoint> interiorPoints = new ArrayList<LXPoint>();
+
   public static List<Panel> scoopPanels = new ArrayList<Panel>();
   public static List<Panel> conePanels = new ArrayList<Panel>();
   public static List<Panel> dancePanels = new ArrayList<Panel>();
@@ -131,7 +133,7 @@ public class ConeDownModel extends LXModel {
   public static ConeDownModel createModel() {
     List<LXPoint> allPoints = new ArrayList<LXPoint>();
     // Create panels, add points from each panel to allPoints.
-    float yOffset = 0f;
+    float yOffset = -0.5f;
     int layerWidth = 0;
     int layerHeight = 0;
     int yCoordOffset = 0;
@@ -455,6 +457,17 @@ public class ConeDownModel extends LXModel {
 
     logger.info("Computed POINTS_WIDExPOINTS_HIGH: " + POINTS_WIDE + "x" + POINTS_HIGH);
 
+    // Interior lighting 8 high power leds + 8 other leds.
+    float interiorRadius = panel5Radius - 6.0f / inchesPerMeter;
+    int i = 0;
+    for (float angle = 0; angle < 360; angle += 360f/16f) {
+      CXPoint p = new CXPoint(null, interiorRadius * Math.cos(Math.toRadians(angle)), 2.0,
+          interiorRadius * Math.sin(Math.toRadians(angle)), i, 0, angle, interiorRadius);
+      interiorPoints.add(p);
+      i++;
+    }
+    allPoints.addAll(interiorPoints);
+
     float scoopYOffset = 0.0f; // 0.75f;
     for (LXPoint p : conePoints) {
       float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
@@ -470,6 +483,13 @@ public class ConeDownModel extends LXModel {
         logger.info("p below ground: " + p.y);
       }
     }
+
+    for (LXPoint p : interiorPoints) {
+      float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
+      p.x = (float)(p.x * Math.cos(Math.toRadians(-15)) + p.y * Math.sin(Math.toRadians(-15)));
+      p.y = (float)(-p.x * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
+    }
+
     logger.info("All Layer Dimensions:");
     for (String dim : layerDimensions) {
       logger.info(dim);
