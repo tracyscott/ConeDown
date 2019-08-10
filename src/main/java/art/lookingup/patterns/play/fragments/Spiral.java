@@ -1,5 +1,7 @@
 package art.lookingup.patterns.play.fragments;
 
+import static processing.core.PConstants.PI;
+
 import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.FragmentFactory;
 import art.lookingup.patterns.play.Parameter;
@@ -10,18 +12,23 @@ import heronarts.lx.LX;
 import processing.core.PGraphics;
 
 public class Spiral extends Fragment {
-    static final float period = 10f;
+    static final float period = .01f;
     
     static final int maxCount = 99;
 
     final Parameter triples;
-    final Parameter pitch;
+    final Parameter angle;
     final Parameter fill;
 
     static final int numSections = 24;
 
     Gradient gradients[];
     float strokeWidth;
+    float leastX;
+    float pitchY;
+    float stepX;
+    float lengthX;
+    float lengthY;
     
     static public class Factory implements FragmentFactory {
 	public Factory() { }
@@ -34,21 +41,30 @@ public class Spiral extends Fragment {
     protected Spiral(LX lx, int width, int height) {
 	super(width, height);
 	this.triples = newParameter("triples", 4, 1, 10);
-	this.pitch = newParameter("pitch", 640, 8, 1000);
-	this.fill = newParameter("fill", 0.1f, 0, 1);
+	this.angle = newParameter("angle", PI / 8, PI / 128, PI / 2);
+	this.fill = newParameter("fill", 1, 0, 1);
 	this.gradients = new Gradient[maxCount+1];
 
 	this.notifyChange();
     }
 
     public void notifyChange() {
-
 	int count = (int)triples.value() * 3;
-	float p = pitch.value() / count;
-	float p2 = p * p;
-	float w2 = width * width;
 
-	this.strokeWidth = fill.value() * (float) Math.sqrt(p2*w2/(p2+w2));
+	double theta = angle.value();
+	double tanTh = Math.tan(theta);
+	double pitch = width * tanTh;
+	double least = -height * Math.tan(Math.PI / 2 - theta);
+	double stepY = pitch / count;
+	double stepX = stepY / tanTh;
+	double thick = stepX * Math.sin(theta);
+
+	this.strokeWidth = (float)(fill.value() * thick);
+	this.leastX = (float)least;
+	this.pitchY = (float)pitch;
+	this.stepX = (float)stepX;
+	this.lengthX = 2 * -leastX;
+	this.lengthY = 2 * height;
     }
 
     @Override
@@ -65,39 +81,33 @@ public class Spiral extends Fragment {
     @Override
     public void drawFragment() {
 	int count = (int)triples.value() * 3;
-	float incr = pitch.value();
-	float spin = elapsed() / period;
+
+	// Spin is the offset of the 0th color index into the area
+	float spin = ((elapsed() / period) + width) % width;
 
 	area.strokeWeight(strokeWidth);
 
-	for (int idx = 0; idx < count; idx++) {
-	    // @@@ broken around here; the pattern *disappears*
-	    // (corksrews off screen) after a while.
-	    float base = -incr - spin * incr;
-	    float spirals = (float) count;
-	    float startY = base + ((float) idx / spirals) * incr;
-	    int c = gradients[count].index(idx);
-	    area.stroke(c);
+	int colorIdx = 0;
+	
+	for (float x = spin; x < width + stepX; x += stepX) {
+	    area.stroke(gradients[count].index(colorIdx++));
 
-	    for (float y = startY; y < height+incr; y += incr) {
-		for (float s = -1; s <= numSections; s++) {
-		    float br = s / numSections;
-		    float er = (s + 1) / numSections;
+	    area.line(x - lengthX, 0 - lengthY,
+		      x + lengthX, 0 + lengthY);
 
-		    float x0 = width * br;
-		    float x1 = width * er;
-		    float y0 = y + incr * br;
-		    float y1 = y + incr * er;
+	    colorIdx %= count;
+	}
 
-		    if (s == 0) {
-			area.line(x0+width, y0, x1+width, y1);
-		    } else if (s == numSections - 1) {
-			area.line(x0-width, y0, x1-width, y1);
-		    }
+	colorIdx = count - 1;
+	
+	for (float x = spin - stepX; x >= leastX - stepX; x -= stepX) {
+	    area.stroke(gradients[count].index(colorIdx--));
 
-		    area.line(x0, y0, x1, y1);
-		}
-	    }
+	    area.line(x - lengthX, 0 - lengthY,
+		      x + lengthX, 0 + lengthY);
+
+	    colorIdx += count;
+	    colorIdx %= count;
 	}
     }
 }
