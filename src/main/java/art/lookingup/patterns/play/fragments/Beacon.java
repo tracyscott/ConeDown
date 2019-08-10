@@ -10,7 +10,7 @@ import heronarts.lx.LX;
 import processing.core.PGraphics;
 
 public class Beacon extends Fragment {
-    static final float period = 0.1f;
+    static final float period = 0.1f / Pattern.superSample;
     
     final Fragment frag0;
     final Fragment frag1;
