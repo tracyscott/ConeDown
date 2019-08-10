@@ -13,6 +13,8 @@ import processing.core.PGraphics;
 
 public class Spiral extends Fragment {
     static final float period = .01f;
+
+    static final double epsilon = 0.05; // Very small angle special case
     
     static final int maxCount = 99;
 
@@ -23,6 +25,7 @@ public class Spiral extends Fragment {
     static final int numSections = 24;
 
     Gradient gradients[];
+    boolean right;
     float strokeWidth;
     float leastX;
     float pitchY;
@@ -41,7 +44,7 @@ public class Spiral extends Fragment {
     protected Spiral(LX lx, int width, int height) {
 	super(width, height);
 	this.triples = newParameter("triples", 4, 1, 10);
-	this.angle = newParameter("angle", PI / 8, PI / 128, PI / 2);
+	this.angle = newParameter("angle", PI / 8, -PI / 2, PI / 2);
 	this.fill = newParameter("fill", 1, 0, 1);
 	this.gradients = new Gradient[maxCount+1];
 
@@ -51,20 +54,27 @@ public class Spiral extends Fragment {
     public void notifyChange() {
 	int count = (int)triples.value() * 3;
 
-	double theta = angle.value();
+	boolean right = angle.value() > 0;
+	double theta = Math.abs(angle.value());
+
+	if (theta < epsilon) {
+	    theta = epsilon;
+	}
+
 	double tanTh = Math.tan(theta);
 	double pitch = width * tanTh;
-	double least = -height * Math.tan(Math.PI / 2 - theta);
+	double least = height * Math.tan(Math.PI / 2 - theta);
 	double stepY = pitch / count;
 	double stepX = stepY / tanTh;
 	double thick = stepX * Math.sin(theta);
 
-	this.strokeWidth = (float)(fill.value() * thick);
+	this.right = right;
 	this.leastX = (float)least;
 	this.pitchY = (float)pitch;
 	this.stepX = (float)stepX;
-	this.lengthX = 2 * -leastX;
+	this.lengthX = 2 * leastX;
 	this.lengthY = 2 * height;
+	this.strokeWidth = (float)(fill.value() * thick);
     }
 
     @Override
@@ -89,22 +99,22 @@ public class Spiral extends Fragment {
 
 	int colorIdx = 0;
 	
-	for (float x = spin; x < width + stepX; x += stepX) {
+	for (float x = spin; x < width + stepX + (right ? 0 : leastX); x += stepX) {
 	    area.stroke(gradients[count].index(colorIdx++));
 
-	    area.line(x - lengthX, 0 - lengthY,
-		      x + lengthX, 0 + lengthY);
+	    area.line(x - (right ? lengthX : -lengthX), 0 - lengthY,
+		      x + (right ? lengthX : -lengthX), 0 + lengthY);
 
 	    colorIdx %= count;
 	}
 
 	colorIdx = count - 1;
 	
-	for (float x = spin - stepX; x >= leastX - stepX; x -= stepX) {
+	for (float x = spin - stepX; x >= -stepX - (right ? leastX : 0); x -= stepX) {
 	    area.stroke(gradients[count].index(colorIdx--));
 
-	    area.line(x - lengthX, 0 - lengthY,
-		      x + lengthX, 0 + lengthY);
+	    area.line(x - (right ? lengthX : -lengthX), 0 - lengthY,
+		      x + (right ? lengthX : -lengthX), 0 + lengthY);
 
 	    colorIdx += count;
 	    colorIdx %= count;
