@@ -40,14 +40,11 @@ abstract public class Pattern extends LXPattern {
     boolean init;
     float current;
     float elapsed;
+    Fragment frag;
 
-    // TODO eliminate this list; it's only one element
-    List<Fragment> frags = new ArrayList<>();
-
-    public void addFragment(FragmentFactory ff) {
-	Fragment f = ff.create(lx, width * superSample, height * superSample);
-	frags.add(f);
-	f.registerParameters((LXParameter cp)->{
+    public void setFragment(FragmentFactory ff) {
+	this.frag = ff.create(lx, width * superSample, height * superSample);
+	this.frag.registerParameters((LXParameter cp)->{
 		addParameter(cp);
 	    });
     }
@@ -96,38 +93,34 @@ abstract public class Pattern extends LXPattern {
 	if (!init) {
 	    init = true;
 
-	    for (Fragment f : frags) {
-		f.create(this);
-	    }
+	    frag.create(this);
 
 	    setup();
 
-	    for (Fragment f : frags) {
-		f.setup();
-	    }
+	    frag.setup();
 	}
 
 	preDraw(current - elapsed);
 
-	frags.get(frags.size()-1).image.loadPixels();
+	frag.image.loadPixels();
 
-	// frags.get(frags.size()-1).image.save(String.format("/Users/jmacd/Desktop/dump/canvas-%s.png", counter++));
+	// if (counter++ % 100 == 0) {
+	//     frag.image.save(String.format("/Users/jmacd/Desktop/dump/canvas-%s.png", counter++));
+	// }
 	
 	for (LXPoint p : lx.getModel().points) {
-	    colors[p.index] = standardProjection.computePoint(p.index, frags.get(frags.size()-1).image);
+	    colors[p.index] = standardProjection.computePoint(p.index, frag.image);
 	}
 
 	elapsed = current;
     }
-
+    
     // static int counter;
 
     public void setup() {
     }
 
     void preDraw(float vdelta) {
-	for (Fragment f : frags) {
-	    f.render(vdelta);
-	}
+	frag.render(vdelta);
     }
 }
