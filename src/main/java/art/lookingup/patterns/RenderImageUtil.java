@@ -47,15 +47,13 @@ public class RenderImageUtil {
     return rainbow;
   }
 
-  public static void imageToPointsPixelPerfect(LXModel model, PImage image, int[] colors) {
-    imageToPointsPixelPerfect(model, image, colors, 0, 0);
+  public static void imageToPointsPixelPerfect(PImage image, int[] colors) {
+      sampleRenderTarget(0, image, colors, 0, 0);
   }
 
   /**
    * Render an image to the installation pixel-perfect.  This effectively treats the
-   * installation as a 112x58 image.
-   * TODO(tracy): We need to anti-alias in the X dimension because there are fewer LEDs
-   * per row near the top where the diameter is smaller.
+   * installation as a 112x87 image.
    * <p>
    * Since we constructed our LXModel from points parsed from the cnc .svg file, our
    * points are in column-normal form so we need to transpose x,y.  Also, There are
@@ -63,36 +61,8 @@ public class RenderImageUtil {
    * <p>
    * Note that point (0,0) is at the bottom left in {@code colors}.</p>
    */
-  public static void imageToPointsPixelPerfectOld(LXModel lxModel, PImage image, int[] colors, int xOffset, int yOffset) {
-    // (0, 0) is at the bottom left in the colors array
-
-    image.loadPixels();
-    for (int cindex = 0; cindex < colors.length; cindex++) {
-      CXPoint p = (CXPoint) lxModel.points[cindex];
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder(p, ConeDownModel.POINTS_WIDE,
-          ConeDownModel.POINTS_HIGH,0); //ConeDownModel.pointToImageCoordinates(p);
-      colors[cindex] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
-    }
-
-  }
-
-  public static void imageToPointsPixelPerfect(LXModel lxModel, PImage image, int[] colors, int xOffset, int yOffset) {
-    image.loadPixels();
-    for (LXPoint p : ConeDownModel.conePoints) {
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p, ConeDownModel.POINTS_WIDE,
-          ConeDownModel.POINTS_HIGH, 0);
-      colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
-    }
-    for (LXPoint p : ConeDownModel.scoopPoints) {
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p, ConeDownModel.POINTS_WIDE,
-          ConeDownModel.POINTS_HIGH, 0);
-      colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
-    }
-    for (LXPoint p : ConeDownModel.dancePoints) {
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p, ConeDownModel.POINTS_WIDE,
-          ConeDownModel.POINTS_HIGH, 0);
-      colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
-    }
+  public static void imageToPointsPixelPerfect(PImage image, int[] colors, int xOffset, int yOffset) {
+      sampleRenderTarget(0, image, colors, xOffset, yOffset);
   }
 
   /**
@@ -106,6 +76,8 @@ public class RenderImageUtil {
    * @param colors
    */
   public static void sampleRenderTarget(int renderTarget, PImage image, int[] colors, int xOffset, int yOffset) {
+    Projection projection = ConeDown.getProjection(ConeDown.MIN_SUPER_SAMPLING);
+
     // Dance floor is easy, since there is no texture coordinate offsets.
     image.loadPixels();
     int yTexCoordOffset = 0;
@@ -145,8 +117,9 @@ public class RenderImageUtil {
 
     for (LXPoint p : ConeDownModel.conePoints) {
       if (renderTarget == 0 || renderTarget == 3 || renderTarget == 4) {
-        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
-        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+	colors[p.index] = getRenderColor((CXPoint) p, image,
+					 pointsWide, pointsHigh, yTexCoordOffset,
+					 xOffset, yOffset);	  
       } else {
         colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
@@ -154,8 +127,9 @@ public class RenderImageUtil {
 
     for (LXPoint p : ConeDownModel.scoopPoints) {
       if (renderTarget == 0 || renderTarget == 2 || renderTarget == 5 || renderTarget == 4) {
-        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
-        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+	colors[p.index] = getRenderColor((CXPoint) p, image,
+					 pointsWide, pointsHigh, yTexCoordOffset,
+					 xOffset, yOffset);
       } else {
         colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
@@ -163,11 +137,36 @@ public class RenderImageUtil {
 
     for (LXPoint p : ConeDownModel.dancePoints) {
       if (renderTarget == 0 || renderTarget == 1 || renderTarget == 5) {
-        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
-        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+	colors[p.index] = getRenderColor((CXPoint) p, image,
+					 pointsWide, pointsHigh, yTexCoordOffset,
+					 xOffset, yOffset);
       } else {
         colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
     }
   }
+
+    int getRenderColor(CXPoint cxp,
+		       PImage image,
+		       int pointsWide,
+		       int pointsHigh,
+		       int yTexCoordOffset,
+		       int xOffset,
+		       int yOffset) {
+        //float[] imgCoords = ConeDownModel.pointToProjectionCoords((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
+
+	int x = imgCoords[0];
+	
+	colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+
+
+
+    }
 }
+        // int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
+        // colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+
+        // int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
+        // colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+        // int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
+        // colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);

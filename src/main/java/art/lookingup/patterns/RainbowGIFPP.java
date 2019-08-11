@@ -72,9 +72,5 @@ public class RainbowGIFPP extends RainbowGIFBase {
     if (yOffset >= images[(int)currentFrame].height - 46)
       yOffset = images[(int)currentFrame].height - 47;
     RenderImageUtil.sampleRenderTarget(renderTarget.getValuei(), images[(int)currentFrame], colors, xOffset ,yOffset);
-    /*
-    RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), images[(int)currentFrame], colors,
-        xOffset, yOffset);
-        */
   }
 }

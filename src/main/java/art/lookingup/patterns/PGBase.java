@@ -157,8 +157,7 @@ abstract class PGBase extends RPattern {
     imageToPoints();
   }
 
-  // Responsible for calling RenderImageUtil.imageToPointsSemiCircle to
-  // RenderImageUtil.imageToPointsPixelPerfect.
+  // Responsible for projecting points into `colors`.
   protected abstract void imageToPoints();
 
   /**

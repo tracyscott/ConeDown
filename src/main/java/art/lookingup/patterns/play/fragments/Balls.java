@@ -19,9 +19,9 @@ import art.lookingup.patterns.play.FragmentFactory;
 import art.lookingup.patterns.play.Parameter;
 
 public class Balls extends Fragment {
-  final static float period = 0.1f * Pattern.superSample;
-  final static int rateMult = 100 * Pattern.superSample;
-  final static int maxSize = 100 * Pattern.superSample;
+  final static float period = 0.1f * Pattern.superSampling;
+  final static int rateMult = 100 * Pattern.superSampling;
+  final static int maxSize = 100 * Pattern.superSampling;
   final static int maxCount = 100;
 
   final Parameter sizeParam;
@@ -30,7 +30,7 @@ public class Balls extends Fragment {
     public Balls(LX lx, int width, int height) {
 	super(width, height);
 
-	this.sizeParam = newParameter("size", 10 * Pattern.superSample, 0, maxSize);
+	this.sizeParam = newParameter("size", 10 * Pattern.superSampling, 0, maxSize);
 	this.countParam = newParameter("count", 20, 1, maxCount);
 
 	this.balls = new Ball[maxCount];

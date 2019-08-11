@@ -530,7 +530,6 @@ public class ConeDownModel extends LXModel {
     exportPLY(points);
   }
 
-
   static public void exportPanelPoints(Panel panel) {
     String fname = (panel.panelType == Panel.PanelType.A1)?"A1":"A2";
     try {
@@ -592,20 +591,20 @@ public class ConeDownModel extends LXModel {
     }
   }
 
-  // Project the point into the image.  This currently just projects onto the
-  // X,Y plane.
-  public static int[] pointToImageCoordinates(LXPoint p) {
-    int[] coordinates = {0, 0};
-    double offsetX = p.x - minX;
-    double offsetY = p.y - minY;
-    int columnNumber = (int)Math.round(offsetX / colIncrementLength);
-    int rowNumber = (int)Math.round(offsetY  / rowIncrementLength);
-    coordinates[0] = columnNumber;
-    // Transpose for Processing Image coordinates, otherwise images are upside down.
-    coordinates[1] = (POINTS_HIGH-1)-rowNumber;
-    //logger.info ("x,y " + coordinates[0] + "," + coordinates[1]);
-    return coordinates;
-  }
+  // // Project the point into the image.  This currently just projects onto the
+  // // X,Y plane.
+  // public static int[] pointToImageCoordinates(LXPoint p) {
+  //   int[] coordinates = {0, 0};
+  //   double offsetX = p.x - minX;
+  //   double offsetY = p.y - minY;
+  //   int columnNumber = (int)Math.round(offsetX / colIncrementLength);
+  //   int rowNumber = (int)Math.round(offsetY  / rowIncrementLength);
+  //   coordinates[0] = columnNumber;
+  //   // Transpose for Processing Image coordinates, otherwise images are upside down.
+  //   coordinates[1] = (POINTS_HIGH-1)-rowNumber;
+  //   //logger.info ("x,y " + coordinates[0] + "," + coordinates[1]);
+  //   return coordinates;
+  // }
 
   public static float xScale(CXPoint p, int renderPointsWide) {
       float x;
@@ -618,34 +617,38 @@ public class ConeDownModel extends LXModel {
     return x;
   }
 
-  public static int[] pointToImgCoordsCylinder(CXPoint p, int renderPointsWide, int renderPointsHigh, int yTexCoordOffset) {
-    int[] coordinates = {0, 0};
-    int yCoord = p.panel.yCoordOffset + p.yCoord - yTexCoordOffset;
-    int xCoord = (int) ((float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p, renderPointsWide));
-    // For the dancefloor on the full texture, we need to offset into the middle of the image so that we match up
-    // with the back of the scoop and cone where the dancefloor is located.
-    if (renderPointsWide == POINTS_WIDE && p.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
-      int danceFloorPointsWide = p.panel.pointsWide * ConeDownModel.dancePanelsWide;
-      int totalImgPointsWide = ConeDownModel.POINTS_WIDE;
-      int imgXOffset = totalImgPointsWide/2 - danceFloorPointsWide/2;
-      int xImgCoord = imgXOffset + p.panel.danceXPanel * p.panel.pointsWide + p.xCoord;
-      xCoord = xImgCoord;
+  // public static int[] pointToImgCoordsCylinder(CXPoint p, int renderPointsWide, int renderPointsHigh, int yTexCoordOffset) {
+  //   int[] coordinates = {0, 0};
+  //   int yCoord = p.panel.yCoordOffset + p.yCoord - yTexCoordOffset;
+  //   int xCoord = (int) ((float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p, renderPointsWide));
+  //   // For the dancefloor on the full texture, we need to offset into the middle of the image so that we match up
+  //   // with the back of the scoop and cone where the dancefloor is located.
+  //   if (renderPointsWide == POINTS_WIDE && p.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
+  //     int danceFloorPointsWide = p.panel.pointsWide * ConeDownModel.dancePanelsWide;
+  //     int totalImgPointsWide = ConeDownModel.POINTS_WIDE;
+  //     int imgXOffset = totalImgPointsWide/2 - danceFloorPointsWide/2;
+  //     int xImgCoord = imgXOffset + p.panel.danceXPanel * p.panel.pointsWide + p.xCoord;
+  //     xCoord = xImgCoord;
 
-    } else if (p.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
-      xCoord = p.panel.danceXPanel * p.panel.pointsWide + p.xCoord;
-    }
-    coordinates[0] = xCoord;
+  //   } else if (p.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
+  //     xCoord = p.panel.danceXPanel * p.panel.pointsWide + p.xCoord;
+  //   }
+  //   coordinates[0] = xCoord;
 
-    coordinates[1] = (renderPointsHigh-1) - yCoord;
-    return coordinates;
-  }
+  //   coordinates[1] = (renderPointsHigh-1) - yCoord;
+  //   return coordinates;
+  // }
 
   public static float[] pointToProjectionCoords(CXPoint p) {
+      return pointToProjectionCoords(p, POINTS_WIDE, POINTS_HIGH, 0);
+  }
+
+  public static float[] pointToProjectionCoords(CXPoint p, int renderPointsWide, int renderPointsHigh, int yTexCoordOffset) {
     float[] coordinates = {0, 0};
-    float yCoord = p.panel.yCoordOffset + p.yCoord;
+    float yCoord = p.panel.yCoordOffset + p.yCoord - yTexCoordOffset;
     float xCoord;
 
-    if (p.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
+    if (renderPointsWide == POINTS_WIDE && p.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
       int danceFloorPointsWide = p.panel.pointsWide * ConeDownModel.dancePanelsWide;
       int totalImgPointsWide = POINTS_WIDE;
       float imgXOffset = (float)totalImgPointsWide/2 - (float)danceFloorPointsWide/2;
@@ -653,11 +656,11 @@ public class ConeDownModel extends LXModel {
       xCoord = xImgCoord;
 
     } else {
-      xCoord = (float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p, POINTS_WIDE);
+	xCoord = (float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p, renderPointsWide);
     }
 
     coordinates[0] = xCoord;
-    coordinates[1] = (POINTS_HIGH-1) - yCoord;
+    coordinates[1] = (renderPointsHigh-1) - yCoord;
     return coordinates;
   }
 
