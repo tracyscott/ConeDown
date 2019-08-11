@@ -82,61 +82,6 @@ public class Output {
     List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
     int totalPointsOutput = 0;
 
-    // Output by panel.
-
-    int curUnivNum = 0;
-    int curDmxAddress = 0;
-
-
-    /*
-    int[] dmxChannelsForUniverse = new int[170];
-    for (Panel panel : ConeDownModel.allPanels) {
-      int numPanelPoints = panel.getPoints().size();
-     System.out.println("Adding points for panelType: " + panel.pointsWide + "," + panel.pointsHigh);
-     if (panel.panelRegion == Panel.PanelRegion.CONE) {
-       for (int col = 0; col < panel.pointsWide; col++) {
-        for (int row = 0; row < panel.pointsHigh; row++) {
-           CXPoint p = CXPoint.getCXPointAtTexCoord(panel.getPoints(), col, row);
-           dmxChannelsForUniverse[curDmxAddress++] = p.index;
-           if (curDmxAddress >= 170) {
-             System.out.println("Added points for universe number: " + curUnivNum);
-             ArtNetDatagram artnetDatagram = new ArtNetDatagram(dmxChannelsForUniverse, curUnivNum);
-             try {
-               artnetDatagram.setAddress(artnetIpAddress).setPort(artnetPort);
-             } catch (UnknownHostException uhex) {
-               logger.log(Level.SEVERE, "Configuring ArtNet: " + artnetIpAddress, uhex);
-             }
-             datagrams.add(artnetDatagram);
-             curUnivNum++;
-             curDmxAddress = 0;
-             dmxChannelsForUniverse = new int[170];
-           }
-         }
-       }
-     } else {
-       for (int row = 0; row < panel.pointsHigh; row++) {
-         for (int col = 0; col < panel.pointsWide; col++) {
-           CXPoint p = CXPoint.getCXPointAtTexCoord(panel.getPoints(), col, row);
-           dmxChannelsForUniverse[curDmxAddress++] = p.index;
-           if (curDmxAddress >= 170) {
-             System.out.println("Added points for universe number: " + curUnivNum);
-             ArtNetDatagram artnetDatagram = new ArtNetDatagram(dmxChannelsForUniverse, curUnivNum);
-             try {
-               artnetDatagram.setAddress(artnetIpAddress).setPort(artnetPort);
-             } catch (UnknownHostException uhex) {
-               logger.log(Level.SEVERE, "Configuring ArtNet: " + artnetIpAddress, uhex);
-             }
-             datagrams.add(artnetDatagram);
-             curUnivNum++;
-             curDmxAddress = 0;
-             dmxChannelsForUniverse = new int[170];
-           }
-         }
-       }
-     }
-    }
-    */
-
     for (int univNum = 0; univNum < numUniverses; univNum++) {
       int[] dmxChannelsForUniverse = new int[170];
       for (int i = 0; i < 170 && totalPointsOutput < points.size(); i++) {
@@ -302,17 +247,68 @@ public class Output {
       }
     }
 
+    // Dance panels.  Requires 2 outputs to minimize strand length.  The first output starts with
+    // dance tile 2,0 and then 1,0 and then 0,0 and then moves over and then up so dance tile
+    // 0,1 and then 0,2 and then 0,3.
+    // The second output is dance tile 2,2 then 2,1, then 2,0.
+    List<CXPoint> pointsForDanceOutput1 = new ArrayList<CXPoint>();
+    boolean down = true;
+    for (int x = 0; x < ConeDownModel.dancePanelsWide - 1; x++) {
+      for (int y = ConeDownModel.dancePanelsHigh-1; y >= 0; y--) {
+        int actualY = (down)?y:(ConeDownModel.dancePanelsHigh - 1 - y);
+        Panel panel = Panel.getDancePanelXY(ConeDownModel.dancePanels, x, actualY);
+        List<CXPoint> pointsWireOrder = panel.pointsInWireOrder();
+        logger.info("dance panel " + panel.danceXPanel + "," + panel.danceYPanel + " points: " +
+            pointsWireOrder.size());
+        pointsForDanceOutput1.addAll(pointsWireOrder);
+      }
+      down = false;
+    }
+    // Cone+Scoop uses 3 universes per sixteenth so we start at universe 48.
+    List<ArtNetDatagram> danceOutput1Datagrams = assignPointsToArtNetDatagrams(pointsForDanceOutput1, 48,
+        artNetIpAddress, artNetIpPort);
+    countsPerOutput.add(pointsForDanceOutput1.size());
+    datagrams.addAll(danceOutput1Datagrams);
+
+    // Dance Output 2
+    List<CXPoint> pointsForDanceOutput2 = new ArrayList<CXPoint>();
+    down = true;
+    int x = 2;
+    for (int y = ConeDownModel.dancePanelsHigh-1; y >= 0; y--) {
+      int actualY = (down)?y:(ConeDownModel.dancePanelsHigh - 1 - y);
+      Panel panel = Panel.getDancePanelXY(ConeDownModel.dancePanels, x, actualY);
+      List<CXPoint> pointsWireOrder = panel.pointsInWireOrder();
+      pointsForDanceOutput2.addAll(pointsWireOrder);
+      logger.info("dance panel " + panel.danceXPanel + "," + panel.danceYPanel + " points: " +
+          pointsWireOrder.size());
+    }
+
+    // Dance output 1 used 2 universes (49 points per panel * 6 panels = 294 points @ 170-per-universe)
+    List<ArtNetDatagram> danceOutput2Datagrams = assignPointsToArtNetDatagrams(pointsForDanceOutput2, 50,
+        artNetIpAddress, artNetIpPort);
+    countsPerOutput.add(pointsForDanceOutput2.size());
+    datagrams.addAll(danceOutput2Datagrams);
+
+    // Interior lights.  Dance output 2 used one universe so our start universe is 51.
+    List<ArtNetDatagram> interiorDatagrams = assignPointsToArtNetDatagrams(ConeDownModel.interiorPoints,
+        51, artNetIpAddress, artNetIpPort);
+    countsPerOutput.add(ConeDownModel.interiorPoints.size());
+    datagrams.addAll(interiorDatagrams);
+
     int i = 0;
     for (Integer count : countsPerOutput) {
       logger.info("output " + i + ": " + count + " points");
-      Map<String, Integer> pointCountByPanelType = countsByPanelType.get(i);
-      Map<String, String> dxfByPanelType = allDXFByPanelType.get(i);
-      ArrayList<String> sortedKeys =
-          new ArrayList<String>(pointCountByPanelType.keySet());
-      Collections.sort(sortedKeys);
-      for (String key : sortedKeys) {
-        logger.info("   key= " + key + " count= " + pointCountByPanelType.get(key) + " dxf= " +
-            dxfByPanelType.get(key));
+      // Only cone/scoop outputs have counts by panel type.
+      if (i < 16) {
+        Map<String, Integer> pointCountByPanelType = countsByPanelType.get(i);
+        Map<String, String> dxfByPanelType = allDXFByPanelType.get(i);
+        ArrayList<String> sortedKeys =
+            new ArrayList<String>(pointCountByPanelType.keySet());
+        Collections.sort(sortedKeys);
+        for (String key : sortedKeys) {
+          logger.info("   key= " + key + " count= " + pointCountByPanelType.get(key) + " dxf= " +
+              dxfByPanelType.get(key));
+        }
       }
       i++;
     }
@@ -336,6 +332,54 @@ public class Output {
       logger.log(Level.SEVERE, "Did not configure output, error during LXDatagramOutput init");
     }
     logger.info("layers: " + panelLayers.size());
+  }
+
+  /**
+   * Given a set of points and a starting universe, assign the points to a series of ArtNetDatagrams.  This encapsulates
+   * the logic of chunking 170 pixels per universes.  Callers can determine the number of universes used by
+   * checking the length of the returned list.
+   * @param pointsWireOrder The points in wire order to map to ArtNet.
+   * @param startUniverse The starting universe for the set of points.
+   * @param ipAddress The IP Address for the ArtNet destination.
+   * @param ipPort The Port number for the ArtNet destination.
+   * @return
+   */
+  static public List<ArtNetDatagram> assignPointsToArtNetDatagrams(List<CXPoint> pointsWireOrder, int startUniverse,
+                                                                   String ipAddress, int ipPort) {
+    List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
+
+    // NOTE(tracy): We have to create ArtNetDatagram with the actual numbers of our points or else it
+    // will puke internally. i.e. we can't just use 170 but then pass it less than 170 points so we
+    // need to figure out how large to make our channel array for the last universe.
+    int numUniversesThisWire = (int)Math.ceil((float)pointsWireOrder.size()/170f);
+    int lastUniverseCount = pointsWireOrder.size() - 170 * (numUniversesThisWire - 1);
+    int firstUniverseCount = (numUniversesThisWire>1)?170:lastUniverseCount;
+
+    int[] thisUniverseIndices = new int[firstUniverseCount];
+    int curIndex = 0;
+    int curUnivOffset = 0;
+    for (CXPoint pt : pointsWireOrder) {
+      thisUniverseIndices[curIndex] = pt.index;
+      curIndex++;
+      if (curIndex == 170 || (curUnivOffset == numUniversesThisWire - 1 && curIndex == lastUniverseCount)) {
+        logger.log(Level.INFO, "Adding datagram: universe=" + (startUniverse+curUnivOffset) + " points=" + curIndex);
+        ArtNetDatagram datagram = new ArtNetDatagram(thisUniverseIndices, curIndex*3, startUniverse + curUnivOffset);
+        try {
+          datagram.setAddress(ipAddress).setPort(ipPort);
+        } catch (UnknownHostException uhex) {
+          logger.log(Level.SEVERE, "Configuring ArtNet: " +ipAddress + ":" + ipPort, uhex);
+        }
+        datagrams.add(datagram);
+        curUnivOffset++;
+        curIndex = 0;
+        if (curUnivOffset == numUniversesThisWire - 1) {
+          thisUniverseIndices = new int[lastUniverseCount];
+        } else {
+          thisUniverseIndices = new int[170];
+        }
+      }
+    }
+    return datagrams;
   }
 
   static public void writeSixteenthHtmlDoc(int sixteenth, List<String> panelKeysWireOrder) {

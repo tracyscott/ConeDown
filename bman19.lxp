@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1565479365117,
+  "timestamp": 1565482116538,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -16771073,
+    "modulationColor": -8448,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -27,7 +27,7 @@
       "crossfader": 0.5,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 4,
+      "focusedChannel": 6,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -400,7 +400,7 @@
               "label": "LX",
               "enabled": true,
               "Polarity": 0,
-              "Range": -0.9124999986961484
+              "Range": -0.7249999959021807
             },
             "children": {}
           }
@@ -499,22 +499,22 @@
               "attack": 10.0,
               "release": 2.137006908873942,
               "slope": 4.200000174343586,
-              "Band-1": 0.19033178398023265,
-              "Band-2": 0.28294054705948257,
-              "Band-3": 0.32889009524872137,
-              "Band-4": 0.3738913909142818,
-              "Band-5": 0.34195665548979015,
-              "Band-6": 0.15910878408224527,
-              "Band-7": 0.14122236695667123,
-              "Band-8": 0.3915947318282136,
-              "Band-9": 0.4261854729977099,
-              "Band-10": 0.4788848765834458,
-              "Band-11": 0.4526022070011425,
-              "Band-12": 0.5620503750681376,
-              "Band-13": 0.5713357924061675,
-              "Band-14": 0.4831606509542986,
-              "Band-15": 0.32911002189917815,
-              "Band-16": 0.2433055968141321
+              "Band-1": 0.22444785038916704,
+              "Band-2": 0.24337969785529368,
+              "Band-3": 0.21959628097137862,
+              "Band-4": 0.1410579243766229,
+              "Band-5": 0.1602758186073432,
+              "Band-6": 0.17878320421786842,
+              "Band-7": 0.1563552363294921,
+              "Band-8": 0.012140000932943651,
+              "Band-9": 0.003958284110521126,
+              "Band-10": 0.0574719787728637,
+              "Band-11": 0.0,
+              "Band-12": 0.05616801213066758,
+              "Band-13": 0.0,
+              "Band-14": 0.0,
+              "Band-15": 0.0,
+              "Band-16": 0.0
             },
             "children": {}
           }
@@ -562,7 +562,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.011,
+          "fader": 0.635,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -775,7 +775,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.365,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -1020,10 +1020,10 @@
         "parameters": {
           "label": "STD",
           "arm": false,
-          "selected": true,
-          "enabled": true,
+          "selected": false,
+          "enabled": false,
           "cue": false,
-          "fader": 1.0,
+          "fader": 0.013,
           "crossfadeGroup": 0,
           "blendMode": 4,
           "midiMonitor": false,
@@ -1489,7 +1489,7 @@
           "label": "AUDIO",
           "arm": false,
           "selected": false,
-          "enabled": false,
+          "enabled": true,
           "cue": false,
           "fader": 1.0,
           "crossfadeGroup": 0,
@@ -1509,7 +1509,7 @@
         "parameters": {
           "label": "Acolor",
           "arm": false,
-          "selected": false,
+          "selected": true,
           "enabled": true,
           "cue": false,
           "fader": 1.0,
@@ -2057,7 +2057,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.0,
+          "fader": 0.015,
           "crossfadeGroup": 0,
           "blendMode": 4,
           "midiMonitor": false,
@@ -2705,8 +2705,8 @@
         "camera": {
           "active": false,
           "radius": 15.417084612986589,
-          "theta": 42.01383060239853,
-          "phi": -0.06858412748146217,
+          "theta": 41.58633540707347,
+          "phi": -0.14601774705109966,
           "x": -2.4178380966186523,
           "y": 4.772895812988281,
           "z": 0.0
@@ -2715,8 +2715,8 @@
           {
             "active": false,
             "radius": 15.417084612986589,
-            "theta": 42.01383060239853,
-            "phi": -0.06858412748146217,
+            "theta": 41.58633540707347,
+            "phi": -0.14601774705109966,
             "x": -2.4178380966186523,
             "y": 4.772895812988281,
             "z": 0.0

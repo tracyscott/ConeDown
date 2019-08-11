@@ -113,7 +113,7 @@ public class ConeDownModel extends LXModel {
   public static List<LXPoint> conePoints = new ArrayList<LXPoint>();
   public static List<LXPoint> scoopPoints = new ArrayList<LXPoint>();
   public static List<LXPoint> dancePoints = new ArrayList<LXPoint>();
-  public static List<LXPoint> interiorPoints = new ArrayList<LXPoint>();
+  public static List<CXPoint> interiorPoints = new ArrayList<CXPoint>();
 
   public static List<Panel> scoopPanels = new ArrayList<Panel>();
   public static List<Panel> conePanels = new ArrayList<Panel>();
@@ -293,29 +293,6 @@ public class ConeDownModel extends LXModel {
     //   C O N E    P A N E L S
     //
     //
-    layerWidth = 0;
-    /*
-    for (int panelNum = 0; panelNum < coneSides; panelNum++) {
-      Panel panel = new Panel(panel6Width, panel6Width, panel6Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel6Radius, false, 6);
-      conePanels.add(panel);
-      xOffset += panel6Width;
-      allPoints.addAll(panel.getPoints());
-      conePoints.addAll(panel.getPoints());
-      logger.info("Adding " + panel.getPoints().size() + " points");
-      logger.info("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
-      layerWidth += panel.pointsWide;
-      layerHeight = panel.pointsHigh;
-    }
-    if (layerWidth > conePointsWide) {
-      conePointsWide = layerWidth;
-    }
-    conePointsHigh += layerHeight;
-    yCoordOffset += layerHeight;
-    logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
-    layerDimensions.add("" + layerWidth + "x" + layerHeight);
-    yOffset += panel6Height;
-    */
 
     //
     // PANEL E

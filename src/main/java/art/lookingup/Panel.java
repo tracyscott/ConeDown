@@ -876,7 +876,11 @@ public class Panel {
         double ptZ = panelZStart + (panelZFinish-panelZStart) * percentXDone;
         double ptY = 0f;
         CXPoint point = new CXPoint(this, ptX, 0f, ptZ, xCoord, yCoord, 0f, 0f);
-
+        // We need to store panel local coordinates that we will rely on for output mapping.  Since the
+        // dance floor is rotated to the back side of the installation and flat on the ground, the
+        // panel local coordinates are not the same coordinate axis as worldspace.
+        point.panelLocalX = point.z;
+        point.panelLocalY = point.x;
         points.add(point);
         pointsWide++;
         xCoord++;
@@ -1329,9 +1333,20 @@ public class Panel {
     } else if (panelType == PanelType.I && (panelNum == 13)) {
       // Left milli
       return wirePointsFromCoords(0, 1, true);
+    } else if (panelRegion == Panel.PanelRegion.DANCEFLOOR) {
+      if (danceXPanel == 2) {
+        // The last column the wire starts at top right in texture coordinates.
+        return wirePointsByTexCoords(6, 6, false, false);
+      } if (danceXPanel == 1) {
+        // The middle column of panels has the wire start in the bottom left
+        return pointsInWireOrderStandard();
+      } else if (danceXPanel == 0) {
+        return wirePointsByTexCoords(0, 6, true, false);
+      }
     } else {
       return pointsInWireOrderStandard();
     }
+    return null;
   }
 
   /**
@@ -1340,16 +1355,31 @@ public class Panel {
    * @param startXCoord The x texture coordinate of the start point.
    * @param startYCoord The y texture coordinate of the start point.
    * @param movingRight If true, start by moving right, otherwise start by moving left.
-   * @return
+   * @return List of points in wire order.
    */
+
   public List<CXPoint> wirePointsFromCoords(int startXCoord, int startYCoord, boolean movingRight) {
+    return wirePointsFromCoords(startXCoord, startYCoord, movingRight, true);
+  }
+
+  /**
+   * Retrieve points in wiring order based on start texture coordinates and whether we start moving right or
+   * start moving left and whether we wire from bottom up or from top down.
+   * @param startXCoord The x texture coordinate of the start point.
+   * @param startYCoord The y texture coordinate of the start point.
+   * @param movingRight If true, start by moving right, otherwise start by moving left.
+   * @param movingUp If true, the wire moves up otherwise it moves down.
+   * @return List of points in wire order.
+   */
+  public List<CXPoint> wirePointsFromCoords(int startXCoord, int startYCoord, boolean movingRight, boolean movingUp) {
     List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
 
     CXPoint origin = getCXPointAtTexCoord(startXCoord, startYCoord);
     pointsWireOrder.add(origin);
 
-    logger.info("wire panel: " + panelTypeNames[panelType.ordinal()] + "" + panelNum +
-        " start " + startXCoord + "," + startYCoord + " right=" + movingRight);
+    if (panelRegion != PanelRegion.DANCEFLOOR)
+      logger.info("wire panel: " + panelTypeNames[panelType.ordinal()] + "" + panelNum +
+          " start " + startXCoord + "," + startYCoord + " right=" + movingRight);
 
     CXPoint prevPoint = origin;
     CXPoint nextPoint = null;
@@ -1366,7 +1396,8 @@ public class Panel {
         prevPoint = nextPoint;
       } else {
         movingRight = !movingRight;
-        nextPoint = prevPoint.findPointAbove(points);
+        if (movingUp) nextPoint = prevPoint.findPointAbove(points);
+        else nextPoint = prevPoint.findPointBelow(points);
         if (nextPoint == null) {
           // we are done
           pointsDone = true;
@@ -1402,5 +1433,46 @@ public class Panel {
     // Keep a reference in case we want patterns to reference this.
     this.pointsWireOrder = pointsWireOrder;
     return pointsWireOrder;
+  }
+
+  public List<CXPoint> wirePointsByTexCoords(int startXCoord, int startYCoord, boolean movingRight, boolean movingUp) {
+    List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
+    // For each panel we wire from bottom left to bottom right and then move up one pixel
+    // and then wire backwards from right to left, etc.  We can use our texture coordinates
+    // to navigate the points on a panel.
+    for (int rowNum = 0; rowNum < pointsHigh; rowNum++) {
+      for (int colNum = 0; colNum < pointsWide; colNum++) {
+        int x = colNum;
+        if (!movingRight) {
+          x = (pointsWide - 1) - colNum;
+        }
+        int y = rowNum;
+        if (!movingUp) {
+          y = (pointsHigh - 1) - rowNum;
+        }
+        CXPoint p = getCXPointAtTexCoord(x, y);
+        pointsWireOrder.add(p);
+      }
+      movingRight = !movingRight;
+    }
+    // Keep a reference in case we want patterns to reference this.
+    this.pointsWireOrder = pointsWireOrder;
+    return pointsWireOrder;
+  }
+
+  /**
+   * Return the appropriate Panel given dance panel/tile coordinates.
+   * @param dancePanels The list of dance panels.
+   * @param x The x coordinate for the dance panel/tile.
+   * @param y The y coordinate for the dance panel/tile.
+   * @return The requested panel or null if not found.
+   */
+  static public Panel getDancePanelXY(List<Panel> dancePanels, int x, int y) {
+    for (Panel p : dancePanels) {
+      if (p.danceXPanel == x && p.danceYPanel == y) {
+        return p;
+      }
+    }
+    return null;
   }
 }
