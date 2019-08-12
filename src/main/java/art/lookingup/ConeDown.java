@@ -165,12 +165,14 @@ public class ConeDown extends PApplet {
 
     LXModel model = ConeDownModel.createModel();
 
+    logger.info("Computing true projection");
     projections = new Projection[MAX_SUPER_SAMPLING + 1];
     projections[1] = new TrueProjection(model);
     for (int i = 2; i <= MAX_SUPER_SAMPLING; i++) {
-	System.err.println("Computing projection " + i);
+	logger.info("Computing " + i + "x projection");
 	projections[i] = new AntiAliased(model, i);
     }
+    logger.info("Computed all projections");
 
     LXStudio.Flags flags = new LXStudio.Flags();
     //flags.showFramerate = false;

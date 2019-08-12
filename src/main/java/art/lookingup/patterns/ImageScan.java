@@ -20,7 +20,7 @@ public class ImageScan extends RainbowImageBase {
   }
 
   protected void renderToPoints() {
-    RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), image, colors, xOffset, yOffset);
+    RenderImageUtil.imageToPointsPixelPerfect(image, colors, xOffset, yOffset);
     if (!movingVertically) {
       if (movingForwards) xOffset++;
       else xOffset--;

@@ -101,7 +101,8 @@ abstract public class Pattern extends LXPattern {
 	// }
 	
 	for (LXPoint p : lx.getModel().points) {
-	    colors[p.index] = ConeDown.getProjection(superSampling).computePoint(p.index, frag.image);
+	    colors[p.index] = ConeDown.getProjection(superSampling).
+		computePoint((CXPoint) p, frag.image, 0, 0);
 	}
 
 	elapsed = current;

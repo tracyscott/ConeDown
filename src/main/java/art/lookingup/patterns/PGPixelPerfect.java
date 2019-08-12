@@ -1,6 +1,7 @@
 package art.lookingup.patterns;
 
 import art.lookingup.ConeDownModel;
+import art.lookingup.ConeDown;
 import heronarts.lx.LX;
 
 /**
@@ -11,9 +12,10 @@ import heronarts.lx.LX;
  */
 abstract class PGPixelPerfect extends PGBase {
   public PGPixelPerfect(LX lx, String drawMode) {
-    super(lx, ConeDownModel.POINTS_WIDE,
-      ConeDownModel.POINTS_HIGH,
-      drawMode);
+    super(lx,
+	  ConeDownModel.POINTS_WIDE * ConeDown.MIN_SUPER_SAMPLING,
+	  ConeDownModel.POINTS_HIGH * ConeDown.MIN_SUPER_SAMPLING,
+	  drawMode);
   }
 
   public PGPixelPerfect(LX lx, String drawMode, int width, int height) {

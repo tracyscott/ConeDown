@@ -44,6 +44,7 @@ public class Noise extends PGPixelPerfect {
     xstart = (float)(10.0 * Math.random());
     ystart = (float)(10.0 * Math.random());
   }
+
   @Override
   protected void draw(double deltaDrawMs) {
     pg.background(0);
@@ -57,10 +58,10 @@ public class Noise extends PGPixelPerfect {
     xnoise = xstart;
     ynoise = ystart;
 
-    for (int y = 0; y <= ConeDownModel.POINTS_HIGH; y+=yDensity.getValuef()) {
+    for (int y = 0; y <= renderHeight; y+=yDensity.getValuef()) {
       ynoise += 0.1;
       xnoise = xstart;
-      for (int x = 0; x <= ConeDownModel.POINTS_WIDE; x+=xDensity.getValuef()) {
+      for (int x = 0; x <= renderWidth; x+=xDensity.getValuef()) {
         xnoise += 0.1;
         drawPointLine(x, y, ConeDown.pApplet.noise(xnoise, ynoise));
       }

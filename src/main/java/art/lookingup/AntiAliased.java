@@ -2,6 +2,9 @@ package art.lookingup;
 
 import art.lookingup.Projection;
 
+import static art.lookingup.ConeDownModel.POINTS_HIGH;
+import static art.lookingup.ConeDownModel.POINTS_WIDE;
+
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
 import com.github.davidmoten.rtree.Visualizer;
@@ -31,12 +34,17 @@ public class AntiAliased implements Projection {
     int[] positions;
     int[] subpixels;
     float[] subweights;
+    int ssWide;
+    int ssHigh;
+    int superSampling;
 
-    public AntiAliased(LXModel model, int superSample) {
+    public AntiAliased(LXModel model, int superSampling) {
 	Pixel[] pixels = new Pixel[model.size];
-	float ssOff = (superSample - 1f) / 2f;
-	int ssHigh = ConeDownModel.POINTS_HIGH * superSample;
-	int ssWide = ConeDownModel.POINTS_WIDE * superSample;
+	float ssOff = (superSampling - 1f) / 2f;
+
+	this.superSampling = superSampling;
+	this.ssHigh = POINTS_HIGH * superSampling;
+	this.ssWide = POINTS_WIDE * superSampling;
 
 	float minDX = ssWide;
 	float maxDX = 0;
@@ -49,16 +57,17 @@ public class AntiAliased implements Projection {
 	    CXPoint cxp = (CXPoint) lxp;
 	    float []coords = ConeDownModel.pointToProjectionCoords(cxp);
 
-	    this.tree = this.tree.add(cxp, Geometries.point(coords[0] * superSample + ssOff,
-							    coords[1] * superSample + ssOff));
+	    this.tree = this.tree.add(cxp, Geometries.point(coords[0] * superSampling + ssOff,
+							    coords[1] * superSampling + ssOff));
+
 	    pixels[cxp.index] = new Pixel(cxp);
 
 	    // Compute the out-of-bounds regions.
 	    if (cxp.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
-		minDX = Math.min(minDX, (0 + coords[0]) * superSample);
-		maxDX = Math.max(maxDX, (1 + coords[0]) * superSample);
-		minDY = Math.min(minDY, (0 + coords[1]) * superSample);
-		maxDY = Math.max(maxDY, (1 + coords[1]) * superSample);
+		minDX = Math.min(minDX, (0 + coords[0]) * superSampling);
+		maxDX = Math.max(maxDX, (1 + coords[0]) * superSampling);
+		minDY = Math.min(minDY, (0 + coords[1]) * superSampling);
+		maxDY = Math.max(maxDY, (1 + coords[1]) * superSampling);
 	    }
 	}
 
@@ -129,7 +138,7 @@ public class AntiAliased implements Projection {
     }
 
     public float xScale(float x, float y) {
-	return ConeDownModel.xScale(lookupPoint(x, y), ConeDownModel.POINTS_WIDE);
+	return ConeDownModel.xScale(lookupPoint(x, y));
     }
 
   static class Pixel {
@@ -138,13 +147,21 @@ public class AntiAliased implements Projection {
     Pixel(CXPoint lxp) {}
   }
 
-  public int computePoint(int idx, PImage img) {
+  public int computePoint(CXPoint cxp, PImage img, int xoffset, int yoffset) {
     float r = 0, g = 0, b = 0;
-    int end = positions[idx + 1];
-    float w = 1f / (end - positions[idx]);
+    int end = positions[cxp.index + 1];
+    float w = 1f / (end - positions[cxp.index]);
 
-    for (int off = positions[idx]; off < end; off++) {
-      int s = img.pixels[subpixels[off]];
+    for (int off = positions[cxp.index]; off < end; off++) {
+      int subpos = subpixels[off];
+      
+      int subx = subpos % ssWide;
+      int suby = subpos / ssWide;
+
+      subx += xoffset;
+      suby += yoffset;
+
+      int s = img.get(subx, suby);
 
       // float w = subweights[off];
       r += w * (float) red(s);
@@ -153,4 +170,8 @@ public class AntiAliased implements Projection {
     }
     return rgb((int) r, (int) g, (int) b);
   }
+
+    public int factor() {
+	return this.superSampling;
+    }
 }

@@ -95,6 +95,8 @@ abstract class PGBase extends RPattern {
             renderHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.dancePointsHigh;
             break;
         }
+	renderWidth *= ConeDown.MIN_SUPER_SAMPLING;
+	renderHeight *= ConeDown.MIN_SUPER_SAMPLING;
         createPGraphics();
       }
     });

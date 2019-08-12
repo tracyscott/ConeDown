@@ -15,6 +15,6 @@ public class RainbowImagePP extends RainbowImageBase {
   }
 
   protected void renderToPoints() {
-    RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), image, colors);
+    RenderImageUtil.imageToPointsPixelPerfect(image, colors);
   }
 }
