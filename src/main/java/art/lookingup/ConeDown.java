@@ -87,10 +87,23 @@ public class ConeDown extends PApplet {
   public static UIFirmata firmataPortUI;
   public static UIGalacticJungle galacticJungle;
 
+  // The standard projections provide anti-aliasing at levels from
+  // some (2) to plenty (4).
+  public static int MIN_SUPER_SAMPLING = 1;
+  public static int DEFAULT_SUPER_SAMPLING = 2;
+  public static int MAX_SUPER_SAMPLING = 4;
+
+  private static Projection projections[];
 
   @Override
   public void settings() {
     size(1400, 678, P3D);
+  }
+
+  public static Projection getProjection(int ss) {
+      ss = Math.min(ss, MAX_SUPER_SAMPLING);
+      ss = Math.max(ss, MIN_SUPER_SAMPLING);
+      return projections[ss];
   }
 
   /**
@@ -153,6 +166,15 @@ public class ConeDown extends PApplet {
     }
 
     LXModel model = ConeDownModel.createModel();
+
+    logger.info("Computing true projection");
+    projections = new Projection[MAX_SUPER_SAMPLING + 1];
+    projections[1] = new TrueProjection(model);
+    for (int i = 2; i <= MAX_SUPER_SAMPLING; i++) {
+	logger.info("Computing " + i + "x projection");
+	projections[i] = new AntiAliased(model, i);
+    }
+    logger.info("Computed all projections");
 
     LXStudio.Flags flags = new LXStudio.Flags();
     //flags.showFramerate = false;

@@ -76,7 +76,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI, Un
 
   int textGapPixels = 10;
   PFont font;
-  int fontSize = pg.height;
+  int fontSize = renderHeight;
 
   public AnimatedTextPP(LX lx) {
     super(lx, "");
@@ -221,7 +221,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI, Un
         pg.textSize(fontSize);
       }
     }
-    textImage = ConeDown.pApplet.createGraphics(ceil(pg.textWidth(label)), pg.height);
+    textImage = ConeDown.pApplet.createGraphics(ceil(pg.textWidth(label)), renderHeight);
     textImage.noSmooth();
     textImage.beginDraw();
     textImage.background(0, 0);
@@ -275,7 +275,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI, Un
     textImage.updatePixels();
     currentPos = clockwise.getValueb()
         ? -textImage.width + textGapPixels
-        : pg.width + 1;
+        : renderWidth + 1;
     lastPos = Integer.MIN_VALUE;
 
     doRedraw = false;
@@ -302,7 +302,7 @@ public class AnimatedTextPP extends PGPixelPerfect implements CustomDeviceUI, Un
       boolean offscreen =
           textImage == null
               || currentPos < -(textImage.width + textGapPixels)
-              || (currentPos > pg.width && clockwise.getValueb());
+              || (currentPos > renderWidth && clockwise.getValueb());
 
       // NOTE: Don't redraw when the selection changes
       boolean needsRedraw =

@@ -527,7 +527,6 @@ public class ConeDownModel extends LXModel {
     exportPLY(points);
   }
 
-
   static public void exportPanelPoints(Panel panel) {
     String fname = (panel.panelType == Panel.PanelType.A1)?"A1":"A2";
     try {
@@ -604,37 +603,17 @@ public class ConeDownModel extends LXModel {
     return coordinates;
   }
 
-  public static float xScale(CXPoint p, int renderPointsWide) {
+  public static float xScale(CXPoint p) {
       float x;
-      if (p.panel.isHalfPanel()){
-	  x = (float)renderPointsWide / ((float)(p.panel.pointsWide * p.panel.numPanelsAround()));
+      if (p.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
+	  x = (float)dancePanelsWide / (float)dancePanelsHigh; // @@@ Hmmm
+      } else if (p.panel.isHalfPanel()){
+	  x = POINTS_WIDE / ((float)(p.panel.pointsWide * p.panel.numPanelsAround()));
       } else {
-	  x = (float)renderPointsWide / ((float)p.panel.pointsWide * ((p.panel.scoop)?scoopSides:coneSides));
+	  x = POINTS_WIDE / ((float)p.panel.pointsWide * ((p.panel.scoop)?scoopSides:coneSides));
       }
 
     return x;
-  }
-
-  public static int[] pointToImgCoordsCylinder(CXPoint p, int renderPointsWide, int renderPointsHigh, int yTexCoordOffset) {
-    int[] coordinates = {0, 0};
-    int yCoord = p.panel.yCoordOffset + p.yCoord - yTexCoordOffset;
-    int xCoord = (int) ((float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p, renderPointsWide));
-    // For the dancefloor on the full texture, we need to offset into the middle of the image so that we match up
-    // with the back of the scoop and cone where the dancefloor is located.
-    if (renderPointsWide == POINTS_WIDE && p.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
-      int danceFloorPointsWide = p.panel.pointsWide * ConeDownModel.dancePanelsWide;
-      int totalImgPointsWide = ConeDownModel.POINTS_WIDE;
-      int imgXOffset = totalImgPointsWide/2 - danceFloorPointsWide/2;
-      int xImgCoord = imgXOffset + p.panel.danceXPanel * p.panel.pointsWide + p.xCoord;
-      xCoord = xImgCoord;
-
-    } else if (p.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
-      xCoord = p.panel.danceXPanel * p.panel.pointsWide + p.xCoord;
-    }
-    coordinates[0] = xCoord;
-
-    coordinates[1] = (renderPointsHigh-1) - yCoord;
-    return coordinates;
   }
 
   public static float[] pointToProjectionCoords(CXPoint p) {
@@ -650,7 +629,7 @@ public class ConeDownModel extends LXModel {
       xCoord = xImgCoord;
 
     } else {
-      xCoord = (float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p, POINTS_WIDE);
+	xCoord = (float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p);
     }
 
     coordinates[0] = xCoord;

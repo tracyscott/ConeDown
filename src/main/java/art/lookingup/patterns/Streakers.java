@@ -33,14 +33,14 @@ public class Streakers extends PGFilterBase {
     pg.fill(255);
     pg.noStroke();
 
-    int xOffset = (int)(pg.width / (numBars.getValue()-1));
+    int xOffset = (int)(renderWidth / (numBars.getValue()-1));
     int x = 0;
     for (int i = 0; i < (int)(numBars.getValue()); i++) {
       pg.rect(x, yPos, (int) widthKnob.getValue(), (int) heightKnob.getValue());
       x += xOffset;
     }
     yPos++;
-    if (yPos >  pg.height + offKnob.getValue())
+    if (yPos >  renderHeight + offKnob.getValue())
       yPos = 0 - (int)offKnob.getValue();
 
 

@@ -2,6 +2,8 @@ package art.lookingup.patterns.play;
 
 import static processing.core.PConstants.ARGB;
 
+import art.lookingup.ConeDown;
+
 import heronarts.lx.parameter.CompoundParameter;
 import heronarts.lx.parameter.LXParameter;
 
@@ -71,7 +73,7 @@ abstract public class Fragment {
 
     public void create(Pattern p) {
 	this.area = p.createGraphics(p.app, width, height);
-	this.projection = p.standardProjection;
+	this.projection = ConeDown.getProjection(Pattern.superSampling);
     }
 
     public void registerParameters(Parameter.Adder adder) {

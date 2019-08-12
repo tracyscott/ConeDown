@@ -100,7 +100,7 @@ public class RTracers extends PGPixelPerfect {
    * Check if tracer is in the render window.
    */
   public boolean isTracerVisible(Tracer t) {
-    if (t.pos.x >= 0 && t.pos.x < pg.width && t.pos.y >= 0 && t.pos.y < pg.height) {
+    if (t.pos.x >= 0 && t.pos.x < renderWidth && t.pos.y >= 0 && t.pos.y < renderHeight) {
       return true;
     }
     return false;
@@ -122,8 +122,8 @@ public class RTracers extends PGPixelPerfect {
    */
   public void resetTracer(Tracer tracer) {
     // Reset the tracer based on our parameter knobs.
-    tracer.pos.y = pg.height + 10.0f + 20.0f * (float)Math.random();
-    tracer.pos.x = (int)(Math.random() * pg.width);
+    tracer.pos.y = renderHeight + 10.0f + 20.0f * (float)Math.random();
+    tracer.pos.x = (int)(Math.random() * renderWidth);
     tracer.velocityY = (float)(Math.random() * -0.5 * maxVelocity.getValue());
     tracer.velocityX = (float)(Math.random() * 2.0 * maxVelocity.getValue() - maxVelocity.getValue());
     tracer.hasBeenShown = false;
@@ -145,11 +145,11 @@ public class RTracers extends PGPixelPerfect {
       tracer.pos.x += tracer.velocityX;
       // TODO(Tracy): Now that we are mapping to a cylinder, we would like to horizontally wrap the tracer.
       // It also requires us to draw it twice on the left and right edges.
-      if (tracer.pos.x > pg.width) {
-        tracer.pos.x -= pg.width;
+      if (tracer.pos.x > renderWidth) {
+        tracer.pos.x -= renderWidth;
       }
       if (tracer.pos.x < 0) {
-        tracer.pos.x += pg.width;
+        tracer.pos.x += renderWidth;
       }
       tracer.pos.y += tracer.velocityY;
       if (tracerNeedsReset(tracer)) {
@@ -201,8 +201,8 @@ public class RTracers extends PGPixelPerfect {
 
   public void drawTracer(Tracer tracer) {
     /*
-    float centerX = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float centerY = ((float)Math.random() * pg.height + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float centerX = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float centerY = ((float)Math.random() * renderHeight + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
     float pt1XDelta = ((float)Math.random() * 2.0f * maxTriSize.getValuef()) - maxTriSize.getValuef();
     float pt1YDelta = ((float)Math.random() * maxTriSize.getValuef());
     float pt2XDelta = ((float)Math.random() * maxTriSize.getValuef());
@@ -211,28 +211,28 @@ public class RTracers extends PGPixelPerfect {
     float pt3YDelta = ((float)Math.random() * -1.0f * maxTriSize.getValuef());
     */
     /*
-    float pt1X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt1Y = (float)Math.random() * pg.height;
-    float pt2X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt2Y = (float)Math.random() * pg.height;
-    float pt3X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt3Y = (float)Math.random() * pg.height;
+    float pt1X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt1Y = (float)Math.random() * renderHeight;
+    float pt2X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt2Y = (float)Math.random() * renderHeight;
+    float pt3X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt3Y = (float)Math.random() * renderHeight;
     */
 
 
 
     pg.fill(tracer.hsb[0], tracer.hsb[1], tracer.hsb[2], fillAlpha.getValuef());
     //pg.triangle(pt1X, pt1Y, pt2X, pt2Y, pt3X, pt3Y);
-    // If rightOverlap = pg.width - (pos.x + tracer.size/2f) < 0 then we need to redraw the ellipse at
+    // If rightOverlap = renderWidth - (pos.x + tracer.size/2f) < 0 then we need to redraw the ellipse at
     // rightOverlap.
     pg.ellipse(tracer.pos.x, tracer.pos.y, tracer.size, tracer.size);
-    float rightOverlap = (float)pg.width - ((float)tracer.pos.x + tracer.size/2f);
+    float rightOverlap = (float)renderWidth - ((float)tracer.pos.x + tracer.size/2f);
     if (rightOverlap < 0) {
       pg.ellipse(-rightOverlap - tracer.size/2f, tracer.pos.y, tracer.size, tracer.size);
     }
     float leftEdge = (float)tracer.pos.x - ((float)tracer.size)/2f;
     if (leftEdge < 0f) {
-      pg.ellipse(pg.width + leftEdge + tracer.size/2f, tracer.pos.y, tracer.size, tracer.size);
+      pg.ellipse(renderWidth + leftEdge + tracer.size/2f, tracer.pos.y, tracer.size, tracer.size);
     }
   }
 

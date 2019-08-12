@@ -50,35 +50,35 @@ public class FluidPP extends PGPixelPerfect {
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       fluid.addTemperature(px, py, radius, temperature);
 
-      px = 1.0f * pg.width / 5.0f;
+      px = 1.0f * renderWidth / 5.0f;
       r = 255.0f / 255.0f;
       g = 140.0f / 255.0f;
       b = 0.0f;
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       fluid.addTemperature(px, py, radius, temperature);
 
-      px = 2.0f * pg.width / 5.0f;
+      px = 2.0f * renderWidth / 5.0f;
       r = 255.0f / 255.0f;
       g = 237.0f / 255.0f;
       b = 0.0f;
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       fluid.addTemperature(px, py, radius, temperature);
 
-      px = 3.0f * pg.width / 5.0f;
+      px = 3.0f * renderWidth / 5.0f;
       r = 0.0f;
       g = 128.0f / 255.0f;
       b = 38.0f / 255.0f;
       fluid.addDensity(px, py, radius, r, g, b, intensity);
       fluid.addTemperature(px, py, radius, temperature);
 
-      px = 4 * pg.width / 5.0f;
+      px = 4 * renderWidth / 5.0f;
       r = 0.0f;
       g = 77.0f / 255.0f;
       b = 1.0f;
       fluid.addDensity(px, py, radius*2, r, g, b, intensity);
       fluid.addTemperature(px, py, radius*2, temperature);
 
-      px = pg.width-2;
+      px = renderWidth-2;
       r = 117.0f / 255.0f;
       g = 7.0f / 255.0f;
       b = 135.0f / 255.0f;
@@ -100,12 +100,17 @@ public class FluidPP extends PGPixelPerfect {
   public FluidPP(LX lx) {
     super(lx, "");
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
+    updateParams();
+  }
+
+  protected void updateParams() {
+    super.updateParams();
     DwPixelFlow context = new DwPixelFlow(ConeDown.pApplet);
     context.print();
     context.printGL();
     // fluid simulation
-    logger.info(pg.width + "," + pg.height);
-    fluid = new DwFluid2D(context, pg.width, pg.height, fluidgrid_scale);
+    logger.info(renderWidth + "," + renderHeight);
+    fluid = new DwFluid2D(context, renderWidth, renderHeight, fluidgrid_scale);
     // set some simulation parameters
     fluid.param.dissipation_density     = 0.999f;
     fluid.param.dissipation_velocity    = 0.99f;
@@ -115,13 +120,13 @@ public class FluidPP extends PGPixelPerfect {
     MyFluidData cb_fluid_data = new MyFluidData();
     fluid.addCallback_FluiData(cb_fluid_data);
     // pgraphics for fluid
-    pg_fluid = (PGraphics2D) ConeDown.pApplet.createGraphics(pg.width, pg.height, P2D);
+    pg_fluid = (PGraphics2D) ConeDown.pApplet.createGraphics(renderWidth, renderHeight, P2D);
     pg_fluid.smooth(4);
     pg_fluid.beginDraw();
     pg_fluid.background(BACKGROUND_COLOR);
     pg_fluid.endDraw();
     // pgraphics for obstacles
-    pg_obstacles = (PGraphics2D) ConeDown.pApplet.createGraphics(pg.width, pg.height, P2D);
+    pg_obstacles = (PGraphics2D) ConeDown.pApplet.createGraphics(renderWidth, renderHeight, P2D);
     pg_obstacles.smooth(0);
     pg_obstacles.beginDraw();
     pg_obstacles.clear();

@@ -32,13 +32,13 @@ public class RainbowParticles extends PGPixelPerfect {
     addParameter(yPos);
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
 
-    pg_canvas = (PGraphics2D) ConeDown.pApplet.createGraphics(pg.width, pg.height, P2D);
+    pg_canvas = (PGraphics2D) ConeDown.pApplet.createGraphics(renderWidth, renderHeight, P2D);
     pg_canvas.smooth(0);
 
-    pg_impulse = (PGraphics2D) ConeDown.pApplet.createGraphics(pg.width, pg.height, P2D);
+    pg_impulse = (PGraphics2D) ConeDown.pApplet.createGraphics(renderWidth, renderHeight, P2D);
     pg_impulse.smooth(0);
 
-    pg_gravity = (PGraphics2D) ConeDown.pApplet.createGraphics(pg.width, pg.height, P2D);
+    pg_gravity = (PGraphics2D) ConeDown.pApplet.createGraphics(renderWidth, renderHeight, P2D);
     pg_gravity.smooth(0);
     pg_gravity.beginDraw();
     pg_gravity.blendMode(REPLACE);
@@ -46,7 +46,7 @@ public class RainbowParticles extends PGPixelPerfect {
     pg_gravity.endDraw();
 
 
-    pg_obstacles = (PGraphics2D) ConeDown.pApplet.createGraphics(pg.width, pg.height, P2D);
+    pg_obstacles = (PGraphics2D) ConeDown.pApplet.createGraphics(renderWidth, renderHeight, P2D);
     pg_obstacles.smooth(0);
     pg_obstacles.beginDraw();
     pg_obstacles.clear();
@@ -54,13 +54,13 @@ public class RainbowParticles extends PGPixelPerfect {
     pg_obstacles.blendMode(REPLACE);
     pg_obstacles.rectMode(CORNER);
     pg_obstacles.fill(0, 255);
-    pg_obstacles.rect(0, 0, pg.width, pg.height);
+    pg_obstacles.rect(0, 0, renderWidth, renderHeight);
     pg_obstacles.fill(0, 0);
-    pg_obstacles.rect(1, 1, pg.width-1, pg.height-1);
+    pg_obstacles.rect(1, 1, renderWidth-1, renderHeight-1);
     pg_obstacles.endDraw();
 
     boolean[] RESIZED = { false };
-    pg_luminance  = DwUtils.changeTextureSize(ConeDown.pApplet, pg_luminance , pg.width, pg.height, 0, RESIZED);
+    pg_luminance  = DwUtils.changeTextureSize(ConeDown.pApplet, pg_luminance , renderWidth, renderHeight, 0, RESIZED);
 
 
     context = new DwPixelFlow(ConeDown.pApplet);
@@ -176,8 +176,8 @@ public class RainbowParticles extends PGPixelPerfect {
     int count, vw, vh;
     float vel = 0f;
 
-    vw = pg.width;
-    vh = pg.height;
+    vw = renderWidth;
+    vh = renderHeight;
 
     count = 1;
     radius = 10;
@@ -202,8 +202,8 @@ public class RainbowParticles extends PGPixelPerfect {
 
       float pr = particles.getCollisionSize() * 0.25f;
       radius = ConeDown.pApplet.ceil(ConeDown.pApplet.sqrt(count * pr * pr));
-      px = xPos.getValuef() * pg.width; //(float)Math.sin(currentFrame) * pg.width; //pg.width/(1+(int)currentFrame%5);
-      py = yPos.getValuef() * pg.height; // pg.height/2;
+      px = xPos.getValuef() * renderWidth; //(float)Math.sin(currentFrame) * renderWidth; //renderWidth/(1+(int)currentFrame%5);
+      py = yPos.getValuef() * renderHeight; // renderHeight/2;
       vx = 1f * +vel;
       vy = 1f * -vel;
 
@@ -214,7 +214,7 @@ public class RainbowParticles extends PGPixelPerfect {
       sr.vel(vx, vy);
       sr2.num(2, 2);
       sr2.dim(1f, 1f);
-      sr2.pos(px + 0.5f * pg.width, vh-1-py);
+      sr2.pos(px + 0.5f * renderWidth, vh-1-py);
       sr2.vel(vx, vy);
       //System.out.println("px: " + px + " py:" + py + " vx:" + vx + " vy:" + vy + " vw: " + vw + " vh:" + vh);
       particles.spawn(vw, vh, sr);
@@ -225,11 +225,11 @@ public class RainbowParticles extends PGPixelPerfect {
   public void reset() {
     System.out.println("Resetting particles!");
     particles.reset();
-    particles.resizeWorld(pg.width, pg.height);
+    particles.resizeWorld(renderWidth, renderHeight);
     particles.createObstacleFlowField(pg_obstacles, new int[]{0,0,0,255}, false);
     float border = 4;
-    float dimx = pg.width  - border;
-    float dimy = pg.height - border;
+    float dimx = renderWidth  - border;
+    float dimy = renderHeight - border;
     float particle_size = particles.param.size_collision;
     int numx = (int) (dimx / (particle_size+0.1f));
     int numy = (int) (dimy / (particle_size+0.1f));
@@ -237,13 +237,13 @@ public class RainbowParticles extends PGPixelPerfect {
 
     DwFlowFieldParticles.SpawnRect spawn = new DwFlowFieldParticles.SpawnRect();
     spawn.dim(dimx, dimy);
-    spawn.pos(pg.width/2-dimx/2, pg.height/2-dimy/2);
+    spawn.pos(renderWidth/2-dimx/2, renderHeight/2-dimy/2);
     spawn.vel(0, 0);
 
     System.out.println("Initial spawn numx=" + numx + " numy=" + numy);
     spawn.num(numx, numy);
 
-    particles.spawn(pg.width, pg.height, spawn);
+    particles.spawn(renderWidth, renderHeight, spawn);
   }
 
 
@@ -258,10 +258,10 @@ public class RainbowParticles extends PGPixelPerfect {
    */
   public void addImpulse(){
     PApplet pApplet = ConeDown.pApplet;
-    impulse_size = pApplet.min(pg.width, pg.height) / 10f;
+    impulse_size = pApplet.min(renderWidth, renderHeight) / 10f;
 
-    int w = pg.width;
-    int h = pg.height;
+    int w = renderWidth;
+    int h = renderHeight;
 
     // impulse center/velocity
     // TODO(tracy): Vary the position of the impulse.  Also expose impulse magnitude as a parameter

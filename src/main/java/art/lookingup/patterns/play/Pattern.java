@@ -3,7 +3,7 @@ package art.lookingup.patterns.play;
 import static processing.core.PConstants.P2D;
 
 import art.lookingup.CXPoint;
-import art.lookingup.ConeDownModel;
+import art.lookingup.ConeDown;
 import art.lookingup.Projection;
 import art.lookingup.patterns.RenderImageUtil;
 
@@ -24,7 +24,7 @@ abstract public class Pattern extends LXPattern {
     // "" for builtin, P2D or P3D for opengl
     public static final String gtype = "";
 
-    public static final int superSample = 3;
+    public static final int superSampling = ConeDown.MAX_SUPER_SAMPLING;
 
     public final PApplet app;
 
@@ -35,15 +35,13 @@ abstract public class Pattern extends LXPattern {
 	new CompoundParameter("GlobalSpeed", 1, 0, 2)
         .setDescription("Varies global speed.");
 
-    public static Projection standardProjection;
-
     boolean init;
     float current;
     float elapsed;
     Fragment frag;
 
     public void setFragment(FragmentFactory ff) {
-	this.frag = ff.create(lx, width * superSample, height * superSample);
+	this.frag = ff.create(lx, width * superSampling, height * superSampling);
 	this.frag.registerParameters((LXParameter cp)->{
 		addParameter(cp);
 	    });
@@ -51,12 +49,6 @@ abstract public class Pattern extends LXPattern {
 
     public Pattern(LX lx, PApplet app, int width, int height) {
 	super(lx);
-
-	synchronized (Pattern.class) {
-	    if (standardProjection == null) {
-		standardProjection = new Projection(lx.getModel(), superSample);
-	    }
-	}
 
 	this.app = app;
 	this.width = width;
@@ -109,7 +101,8 @@ abstract public class Pattern extends LXPattern {
 	// }
 	
 	for (LXPoint p : lx.getModel().points) {
-	    colors[p.index] = standardProjection.computePoint(p.index, frag.image);
+	    colors[p.index] = ConeDown.getProjection(superSampling).
+		computePoint((CXPoint) p, frag.image, 0, 0);
 	}
 
 	elapsed = current;
