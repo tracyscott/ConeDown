@@ -77,7 +77,7 @@ abstract class PGBase extends RPattern {
     });
   }
 
-  void updateParams() {
+  protected void updateParams() {
       int mode = renderTarget.getValuei();
       switch (mode) {
       case 0:  // Default full render.
@@ -109,6 +109,7 @@ abstract class PGBase extends RPattern {
       renderHeight *= getSuperSampling();
       projection = ConeDown.getProjection(getSuperSampling());
       createPGraphics();
+      
   }    
 
   protected void createPGraphics() {

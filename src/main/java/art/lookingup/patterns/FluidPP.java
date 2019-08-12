@@ -100,6 +100,11 @@ public class FluidPP extends PGPixelPerfect {
   public FluidPP(LX lx) {
     super(lx, "");
     fpsKnob.setValue(GLOBAL_FRAME_RATE);
+    updateParams();
+  }
+
+  protected void updateParams() {
+    super.updateParams();
     DwPixelFlow context = new DwPixelFlow(ConeDown.pApplet);
     context.print();
     context.printGL();
