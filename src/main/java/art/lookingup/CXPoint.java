@@ -18,6 +18,9 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
   public float panelLocalY;
   public float panelLocalXUnscaled;
   public float panelLocalYUnscaled;
+  public float horizontalSpacing;
+  public float intensityCompensation;
+  public float maxHorizontalSpacing = Float.MIN_VALUE;
 
   public static final float EPSILON = 4f;
 
@@ -38,6 +41,19 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
   public void storePanelLocalXYUnscaled() {
     this.panelLocalXUnscaled = x;
     this.panelLocalYUnscaled = y;
+  }
+
+  public void computeHorizontalSpacing() {
+    CXPoint pt = findPointLeft(panel.points);
+    if (pt != null) {
+      horizontalSpacing = Math.abs(panelLocalX - pt.panelLocalX);
+    } else {
+      pt = findPointRight(panel.points);
+      horizontalSpacing = Math.abs(panelLocalX - pt.panelLocalX);
+    }
+    if (horizontalSpacing > maxHorizontalSpacing) {
+      maxHorizontalSpacing = horizontalSpacing;
+    }
   }
 
   /* Note this assumes a flat 2D plane of points in XY plane */
