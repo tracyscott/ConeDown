@@ -19,6 +19,10 @@ public class Spiral extends Fragment {
     static final int maxCount = 99;
 
     final Parameter triples;
+
+    // TODO Note that the angle changes as a result of the
+    // superSampling parameter, because the rise across `width` pixels
+    // varies with the super-width.  :shrug:
     final Parameter angle;
     final Parameter fill;
 

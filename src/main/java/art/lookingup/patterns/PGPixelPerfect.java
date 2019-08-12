@@ -12,10 +12,7 @@ import heronarts.lx.LX;
  */
 abstract class PGPixelPerfect extends PGBase {
   public PGPixelPerfect(LX lx, String drawMode) {
-    super(lx,
-	  ConeDownModel.POINTS_WIDE * ConeDown.MIN_SUPER_SAMPLING,
-	  ConeDownModel.POINTS_HIGH * ConeDown.MIN_SUPER_SAMPLING,
-	  drawMode);
+    super(lx, ConeDownModel.POINTS_WIDE, ConeDownModel.POINTS_HIGH, drawMode);
   }
 
   public PGPixelPerfect(LX lx, String drawMode, int width, int height) {
@@ -23,7 +20,7 @@ abstract class PGPixelPerfect extends PGBase {
   }
 
   protected void imageToPoints() {
-    RenderImageUtil.sampleRenderTarget(renderTarget.getValuei(), pg, colors, 0 ,0);
+      RenderImageUtil.sampleRenderTarget(projection, renderTarget.getValuei(), pg, colors, 0 ,0);
   }
 
   // Implement PGGraphics drawing code here.  PGPixelPerfect handles beginDraw()/endDraw();

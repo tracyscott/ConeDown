@@ -96,7 +96,7 @@ abstract class RainbowImageBase extends RPattern implements CustomDeviceUI {
         tileImage.resize(imageWidth, imageHeight);
         image = tileImage;
       } else {
-        // Don't resize when we are scanning, we will just move a pg.width,pg.height rectangle around
+        // Don't resize when we are scanning, we will just move a renderWidth,renderHeight rectangle around
         image = tileImage;
       }
     } else {

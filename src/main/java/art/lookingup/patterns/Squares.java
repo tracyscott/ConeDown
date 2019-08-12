@@ -75,16 +75,16 @@ public class Squares extends PGFilterBase {
 
 
   public void drawSquare(int squareNum) {
-    float centerX =  squareNum%4 * (pg.width / 4);
-    float centerY =  squareNum/4 * (pg.height / 4);
+    float centerX =  squareNum%4 * (renderWidth / 4);
+    float centerY =  squareNum/4 * (renderHeight / 4);
 
     /*
-    float pt1X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt1Y = (float)Math.random() * pg.height;
-    float pt2X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt2Y = (float)Math.random() * pg.height;
-    float pt3X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt3Y = (float)Math.random() * pg.height;
+    float pt1X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt1Y = (float)Math.random() * renderHeight;
+    float pt2X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt2Y = (float)Math.random() * renderHeight;
+    float pt3X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt3Y = (float)Math.random() * renderHeight;
     */
 
     int whichPalette = paletteKnob.getValuei();

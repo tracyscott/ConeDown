@@ -1,6 +1,8 @@
 package art.lookingup.patterns;
 
+import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
+
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 
@@ -15,6 +17,6 @@ public class RainbowImagePP extends RainbowImageBase {
   }
 
   protected void renderToPoints() {
-    RenderImageUtil.imageToPointsPixelPerfect(image, colors);
+      RenderImageUtil.imageToPointsPixelPerfect(ConeDown.getProjection(ConeDown.DEFAULT_SUPER_SAMPLING), image, colors);
   }
 }

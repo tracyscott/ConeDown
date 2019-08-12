@@ -1,6 +1,7 @@
 package art.lookingup.patterns;
 
 import art.lookingup.ConeDownModel;
+import art.lookingup.ConeDown;
 import heronarts.lx.LX;
 
 public class ImageScan extends RainbowImageBase {
@@ -20,7 +21,7 @@ public class ImageScan extends RainbowImageBase {
   }
 
   protected void renderToPoints() {
-    RenderImageUtil.imageToPointsPixelPerfect(image, colors, xOffset, yOffset);
+      RenderImageUtil.imageToPointsPixelPerfect(ConeDown.getProjection(ConeDown.DEFAULT_SUPER_SAMPLING), image, colors, xOffset, yOffset);
     if (!movingVertically) {
       if (movingForwards) xOffset++;
       else xOffset--;

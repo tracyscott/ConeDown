@@ -173,7 +173,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   @Override
   protected void createPGraphics() {
     super.createPGraphics();
-    toyGraphics = ConeDown.pApplet.createGraphics(pg.width, pg.height, P2D);
+    toyGraphics = ConeDown.pApplet.createGraphics(renderWidth, renderHeight, P2D);
   }
 
   /**

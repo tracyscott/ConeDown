@@ -47,6 +47,7 @@ public class Noise extends PGPixelPerfect {
 
   @Override
   protected void draw(double deltaDrawMs) {
+      //System.err.println("WTF " + renderWidth + " " + renderHeight);
     pg.background(0);
     pg.smooth();
     xstartNoise += 0.05;
@@ -58,10 +59,10 @@ public class Noise extends PGPixelPerfect {
     xnoise = xstart;
     ynoise = ystart;
 
-    for (int y = 0; y <= renderHeight; y+=yDensity.getValuef()) {
+    for (int y = 0; y <= renderHeight; y+=yDensity.getValuef() * getSuperSampling()) {
       ynoise += 0.1;
       xnoise = xstart;
-      for (int x = 0; x <= renderWidth; x+=xDensity.getValuef()) {
+      for (int x = 0; x <= renderWidth; x+=xDensity.getValuef() * getSuperSampling()) {
         xnoise += 0.1;
         drawPointLine(x, y, ConeDown.pApplet.noise(xnoise, ynoise));
       }
@@ -70,14 +71,14 @@ public class Noise extends PGPixelPerfect {
 
   protected void drawPointLine(float x, float y, float noiseFactor) {
     pg.pushMatrix();
-    x = x + swingAmt.getValuef() * (float)Math.sin(((float)currentFrame/swing.getValuef()));
+    x = x + swingAmt.getValuef() * (float)Math.sin(((float)currentFrame/swing.getValuef())) * getSuperSampling();
     pg.translate(x, y);
     noiseFactor = 1.0f;
     pg.rotate(noiseFactor * ConeDown.pApplet.radians(360) * rotateMult.getValuef());
-    pg.strokeWeight(weight.getValuef());
+    pg.strokeWeight(weight.getValuef() * getSuperSampling());
     pg.stroke(255, 190);
     float len = 20f * Math.abs((float)Math.sin( ((float)currentFrame)/20f )) + 10f;
-    len = length.getValuef();
+    len = length.getValuef() * getSuperSampling();
     pg.line(0, 0, len, 0);
     pg.popMatrix();
   }

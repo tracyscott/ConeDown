@@ -6,6 +6,7 @@ import static processing.core.PConstants.P3D;
 
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
+import art.lookingup.Projection;
 import com.google.common.annotations.Beta;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
@@ -23,6 +24,8 @@ abstract class PGBase extends RPattern {
 
   public final DiscreteParameter renderTarget =
       new DiscreteParameter("Tgt", 0, 0, 6);
+  public final DiscreteParameter superSampling =
+      new DiscreteParameter("Super", ConeDown.DEFAULT_SUPER_SAMPLING, ConeDown.MIN_SUPER_SAMPLING, ConeDown.MAX_SUPER_SAMPLING + 1);
 
   protected PGraphics pg;
 
@@ -32,6 +35,7 @@ abstract class PGBase extends RPattern {
   protected String drawMode = "";
   protected int renderWidth = 0;
   protected int renderHeight = 0;
+  protected Projection projection;
 
   /** Indicates whether {@link #setup()} has been called. */
   private boolean setupCalled;
@@ -56,51 +60,56 @@ abstract class PGBase extends RPattern {
   public PGBase(LX lx, int width, int height, String drawMode) {
     super(lx);
     this.drawMode = drawMode;
-    renderWidth = width;
-    renderHeight = height;
+    renderWidth = width * getSuperSampling();
+    renderHeight = height * getSuperSampling();
+    projection = ConeDown.getProjection(getSuperSampling());
 
     createPGraphics();
     addParameter(fpsKnob);
     addParameter(renderTarget);
+    addParameter(superSampling);
 
-    renderTarget.addListener(new LXParameterListener() {
-      @Override
-      public void onParameterChanged(LXParameter parameter) {
-        DiscreteParameter iKnob = (DiscreteParameter) parameter;
-        // recreate our our pgraphics.
-        int which = iKnob.getValuei();
-        switch (which) {
-          case 0:  // Default full render.
-            renderWidth = ConeDownModel.POINTS_WIDE;
-            renderHeight = ConeDownModel.POINTS_HIGH;
-            break;
-          case 1:
-            renderWidth = ConeDownModel.dancePointsWide;
-            renderHeight = ConeDownModel.dancePointsHigh;
-            break;
-          case 2:
-            renderWidth = ConeDownModel.scoopPointsWide;
-            renderHeight = ConeDownModel.scoopPointsHigh;
-            break;
-          case 3:
-            renderWidth = ConeDownModel.conePointsWide;
-            renderHeight = ConeDownModel.conePointsHigh;
-            break;
-          case 4:  // Scoop + cone
-            renderWidth = Math.max(ConeDownModel.conePointsWide, ConeDownModel.scoopPointsWide);
-            renderHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.conePointsHigh;
-            break;
-          case 5:  // Dancefloor + scoop
-            renderWidth = ConeDownModel.scoopPointsWide;
-            renderHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.dancePointsHigh;
-            break;
-        }
-	renderWidth *= ConeDown.MIN_SUPER_SAMPLING;
-	renderHeight *= ConeDown.MIN_SUPER_SAMPLING;
-        createPGraphics();
-      }
+    renderTarget.addListener((LXParameter parameter)->{
+	updateParams();
+    });
+    superSampling.addListener((LXParameter parameter)->{
+	updateParams();
     });
   }
+
+  void updateParams() {
+      int mode = renderTarget.getValuei();
+      switch (mode) {
+      case 0:  // Default full render.
+	  renderWidth = ConeDownModel.POINTS_WIDE;
+	  renderHeight = ConeDownModel.POINTS_HIGH;
+	  break;
+      case 1:
+	  renderWidth = ConeDownModel.dancePointsWide;
+	  renderHeight = ConeDownModel.dancePointsHigh;
+	  break;
+      case 2:
+	  renderWidth = ConeDownModel.scoopPointsWide;
+	  renderHeight = ConeDownModel.scoopPointsHigh;
+	  break;
+      case 3:
+	  renderWidth = ConeDownModel.conePointsWide;
+	  renderHeight = ConeDownModel.conePointsHigh;
+	  break;
+      case 4:  // Scoop + cone
+	  renderWidth = Math.max(ConeDownModel.conePointsWide, ConeDownModel.scoopPointsWide);
+	  renderHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.conePointsHigh;
+	  break;
+      case 5:  // Dancefloor + scoop
+	  renderWidth = ConeDownModel.scoopPointsWide;
+	  renderHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.dancePointsHigh;
+	  break;
+      }
+      renderWidth *= getSuperSampling();
+      renderHeight *= getSuperSampling();
+      projection = ConeDown.getProjection(getSuperSampling());
+      createPGraphics();
+  }    
 
   protected void createPGraphics() {
     if (P3D.equals(drawMode) || P2D.equals(drawMode)) {
@@ -185,5 +194,9 @@ abstract class PGBase extends RPattern {
   protected abstract void draw(double deltaDrawMs);
 
   protected void preDraw(double deltaDrawMs) {
+  }
+
+  protected int getSuperSampling() {
+      return (int) superSampling.getValue();
   }
 }

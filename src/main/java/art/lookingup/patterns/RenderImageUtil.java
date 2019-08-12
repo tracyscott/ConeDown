@@ -48,8 +48,8 @@ public class RenderImageUtil {
     return rainbow;
   }
 
-  public static void imageToPointsPixelPerfect(PImage image, int[] colors) {
-      sampleRenderTarget(0, image, colors, 0, 0);
+  public static void imageToPointsPixelPerfect(Projection proj, PImage image, int[] colors) {
+      sampleRenderTarget(proj, 0, image, colors, 0, 0);
   }
 
   /**
@@ -62,8 +62,8 @@ public class RenderImageUtil {
    * <p>
    * Note that point (0,0) is at the bottom left in {@code colors}.</p>
    */
-  public static void imageToPointsPixelPerfect(PImage image, int[] colors, int xOffset, int yOffset) {
-      sampleRenderTarget(0, image, colors, xOffset, yOffset);
+  public static void imageToPointsPixelPerfect(Projection proj, PImage image, int[] colors, int xOffset, int yOffset) {
+      sampleRenderTarget(proj, 0, image, colors, xOffset, yOffset);
   }
 
   /**
@@ -76,8 +76,8 @@ public class RenderImageUtil {
    * @param image
    * @param colors
    */
-  public static void sampleRenderTarget(int renderTarget, PImage image, int[] colors, int xOffset, int yOffset) {
-    Projection projection = ConeDown.getProjection(ConeDown.MIN_SUPER_SAMPLING);
+    public static void sampleRenderTarget(Projection proj, int renderTarget, PImage image, int[] colors, int xOffset, int yOffset) {
+    Projection projection = proj;
 
     // Dance floor is easy, since there is no texture coordinate offsets.
     image.loadPixels();

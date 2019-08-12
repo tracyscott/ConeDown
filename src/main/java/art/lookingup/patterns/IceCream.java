@@ -71,7 +71,7 @@ public class IceCream extends PGPixelPerfect {
   public void resetChipPoints() {
     chipPoints = new Point[chips.getValuei()];
     for (int i = 0; i < chipPoints.length; i++) {
-      chipPoints[i] = new Point((int)(Math.random() * pg.width),
+      chipPoints[i] = new Point((int)(Math.random() * renderWidth),
           ConeDownModel.conePointsHigh + (int)(Math.random() * scoopDancePointsHigh));
     }
   }
