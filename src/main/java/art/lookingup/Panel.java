@@ -36,6 +36,39 @@ public class Panel {
     I,
   }
 
+  // Per panel-type panel margins used to model inter-panel spacing when creating 3D model.  These are
+  // specified here in Inches.
+  final static public float[] panelLeftMargins = {
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f
+  };
+
+  final static public float[] panelBottomMargins = {
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f
+  };
+
+
   final static public String[] panelFilenames = {
       "A",
       "A",
@@ -100,6 +133,7 @@ public class Panel {
   public PanelRegion panelRegion;
   public PanelType panelType;
   public int panelLayoutNum;
+  public String dxfFilename;
   public float topWidth;
   public float bottomWidth;
   public float height;
@@ -117,6 +151,7 @@ public class Panel {
   // map our points from a render buffer image.
   public int pointsWide;
   public int pointsHigh;
+  public boolean mirrored = false;
 
   public List<CXPoint> points;
   public List<CXPoint> pointsWireOrder;
@@ -134,7 +169,13 @@ public class Panel {
     this.zPos = zPos;
     this.panelNum = panelNum;
     this.yCoordOffset = yCoordOffset;
+
+    // NOTE(tracy): A hack to increase all radii to account for panel margins (inter panel spacing).  The current
+    // radii were just hand tuned visually.  We need the radii to a bottom corner for each panel layer.
+    // This number gives some visual gaps so I will leave it as an approximation.
+    radius = radius + CNC_SCALE * 20.0f;
     this.radius = radius;
+
 
     boolean mirror = false;
     boolean flip = false;
@@ -142,10 +183,10 @@ public class Panel {
     if (panelType == PanelType.A2 || panelType == PanelType.B2 || panelType == PanelType.E2)
       mirror = true;
 
-    if (panelType == PanelType.I && (panelNum > 8))
+    if (panelType == PanelType.I && panelNum > 8)
       mirror = true;
 
-    if (panelType == PanelType.H && panelNum == 0 || (panelNum >= 9 && panelNum <= 10))
+    if (panelType == PanelType.H && panelNum == 0 || (panelType == PanelType.H && panelNum >= 9 && panelNum <= 10))
       mirror = true;
 
     if (panelType == panelType.H || panelType == panelType.G || panelType == PanelType.F || panelType == PanelType.I) {
@@ -185,7 +226,10 @@ public class Panel {
         filenameBase = filenameBase + "_nano";
     }
     String filename = filenameBase + "_LED.dxf";
-    points = loadDXFPanel(filename, mirror, flip);
+    dxfFilename = filename;
+    // Store this for later debugging.
+    mirrored = mirror;
+    points = loadDXFPanel(dxfFilename, mirror, flip);
 
     for (CXPoint p : points) {
       // Keep so we have some values referenced in the units of the DXF file.
@@ -210,7 +254,7 @@ public class Panel {
       }
     } else if (panelType == PanelType.I) {
       if (panelNum == 0) {
-        textureMapPoints((getExpectedPointsWide() - 1) - 3, 0);
+        textureMapPoints(getExpectedPointsWide() - 3, 0);
       } else if (panelNum == 2 || panelNum == 13) {
         textureMapPoints(0, 1);
       } else if (panelNum == 3 || panelNum == 12) {
@@ -234,7 +278,7 @@ public class Panel {
     double panelXStart =  radius * Math.cos(Math.toRadians(panelAngle));
     double panelZStart = radius * Math.sin(Math.toRadians(panelAngle));
 
-    // Need the panel anglea of the endpoint
+    // Need the panel angle of the endpoint
     double panelXFinish = radius * Math.cos(Math.toRadians(panelAngle + angleIncr));
     double panelZFinish = radius * Math.sin(Math.toRadians(panelAngle + angleIncr));
 
@@ -248,6 +292,12 @@ public class Panel {
 
     // logger.info("yCoordOffset =" + yCoordOffset + " pointsHigh=" + pointsHigh);
     for (CXPoint p : points) {
+      // TODO(Tracy): Account for inter-panel spacing by incrementing x,y positions here based on
+      // per panel-type left and bottom margins.  We are already converted to meters at this point
+      // so margins should be multiplied by CNC_SCALE
+      // TODO(tracy): The various radii have to fixed for this work.
+      p.x = p.x + CNC_SCALE * panelLeftMargins[panelType.ordinal()];
+      p.y = p.y + CNC_SCALE * panelBottomMargins[panelType.ordinal()];
       float angle =  90f + 45f/2f + (angleIncr * faceNum());
       if (panelType == PanelType.I) {
         angle = 90f + (360f / numFacesAround()) / 2f + (angleIncr * faceNum());
@@ -874,7 +924,11 @@ public class Panel {
         double ptZ = panelZStart + (panelZFinish-panelZStart) * percentXDone;
         double ptY = 0f;
         CXPoint point = new CXPoint(this, ptX, 0f, ptZ, xCoord, yCoord, 0f, 0f);
-
+        // We need to store panel local coordinates that we will rely on for output mapping.  Since the
+        // dance floor is rotated to the back side of the installation and flat on the ground, the
+        // panel local coordinates are not the same coordinate axis as worldspace.
+        point.panelLocalX = point.z;
+        point.panelLocalY = point.x;
         points.add(point);
         pointsWide++;
         xCoord++;
@@ -1156,6 +1210,14 @@ public class Panel {
       BPoint topRight = bPoints[2];
       BPoint topLeft = bPoints[3];
 
+      // TODO(tracy): This are all just visual hacks to get an approximation.  The correct solution
+      // would be to position the points in X and Y such that they are relative to the hypothetical
+      // full-panel boundary that this partial panel is based on. Would it be possible to just
+      // account for the bottom and left deltas?  For half a square panel tall, we could just take the difference
+      // in height of the panels and add that to all y coordinates (assuming that it was the bottom half that
+      // was missing).  For half a square panel wide we could take the difference in widths and add that to the
+      // x coordinate (assuming it was the left half that was missing).  Top and right missing portions don't
+      // affect our 3d positioning.
       if (panelType == PanelType.H && (panelNum == 0 || panelNum == 15)) {
         bottomRight.y = bottomLeft.y;
         bottomRight.x = topRight.x - 2f;
@@ -1165,7 +1227,7 @@ public class Panel {
       }
       if (panelType == PanelType.H) {
         if (panelNum == 5)
-          bottomLeft.x -= 20f;
+          bottomLeft.x -= 15f;
         if (panelNum == 6)
           bottomLeft.x -= 1f;
         if (panelNum == 9) {
@@ -1327,9 +1389,20 @@ public class Panel {
     } else if (panelType == PanelType.I && (panelNum == 13)) {
       // Left milli
       return wirePointsFromCoords(0, 1, true);
+    } else if (panelRegion == Panel.PanelRegion.DANCEFLOOR) {
+      if (danceXPanel == 2) {
+        // The last column the wire starts at top right in texture coordinates.
+        return wirePointsByTexCoords(6, 6, false, false);
+      } if (danceXPanel == 1) {
+        // The middle column of panels has the wire start in the bottom left
+        return pointsInWireOrderStandard();
+      } else if (danceXPanel == 0) {
+        return wirePointsByTexCoords(0, 6, true, false);
+      }
     } else {
       return pointsInWireOrderStandard();
     }
+    return null;
   }
 
   /**
@@ -1338,16 +1411,31 @@ public class Panel {
    * @param startXCoord The x texture coordinate of the start point.
    * @param startYCoord The y texture coordinate of the start point.
    * @param movingRight If true, start by moving right, otherwise start by moving left.
-   * @return
+   * @return List of points in wire order.
    */
+
   public List<CXPoint> wirePointsFromCoords(int startXCoord, int startYCoord, boolean movingRight) {
+    return wirePointsFromCoords(startXCoord, startYCoord, movingRight, true);
+  }
+
+  /**
+   * Retrieve points in wiring order based on start texture coordinates and whether we start moving right or
+   * start moving left and whether we wire from bottom up or from top down.
+   * @param startXCoord The x texture coordinate of the start point.
+   * @param startYCoord The y texture coordinate of the start point.
+   * @param movingRight If true, start by moving right, otherwise start by moving left.
+   * @param movingUp If true, the wire moves up otherwise it moves down.
+   * @return List of points in wire order.
+   */
+  public List<CXPoint> wirePointsFromCoords(int startXCoord, int startYCoord, boolean movingRight, boolean movingUp) {
     List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
 
     CXPoint origin = getCXPointAtTexCoord(startXCoord, startYCoord);
     pointsWireOrder.add(origin);
 
-    logger.info("wire panel: " + panelTypeNames[panelType.ordinal()] + "" + panelNum +
-        " start " + startXCoord + "," + startYCoord + " right=" + movingRight);
+    if (panelRegion != PanelRegion.DANCEFLOOR)
+      logger.info("wire panel: " + panelTypeNames[panelType.ordinal()] + "" + panelNum +
+          " start " + startXCoord + "," + startYCoord + " right=" + movingRight);
 
     CXPoint prevPoint = origin;
     CXPoint nextPoint = null;
@@ -1364,7 +1452,8 @@ public class Panel {
         prevPoint = nextPoint;
       } else {
         movingRight = !movingRight;
-        nextPoint = prevPoint.findPointAbove(points);
+        if (movingUp) nextPoint = prevPoint.findPointAbove(points);
+        else nextPoint = prevPoint.findPointBelow(points);
         if (nextPoint == null) {
           // we are done
           pointsDone = true;
@@ -1400,5 +1489,64 @@ public class Panel {
     // Keep a reference in case we want patterns to reference this.
     this.pointsWireOrder = pointsWireOrder;
     return pointsWireOrder;
+  }
+
+  public List<CXPoint> wirePointsByTexCoords(int startXCoord, int startYCoord, boolean movingRight, boolean movingUp) {
+    List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
+    // For each panel we wire from bottom left to bottom right and then move up one pixel
+    // and then wire backwards from right to left, etc.  We can use our texture coordinates
+    // to navigate the points on a panel.
+    for (int rowNum = 0; rowNum < pointsHigh; rowNum++) {
+      for (int colNum = 0; colNum < pointsWide; colNum++) {
+        int x = colNum;
+        if (!movingRight) {
+          x = (pointsWide - 1) - colNum;
+        }
+        int y = rowNum;
+        if (!movingUp) {
+          y = (pointsHigh - 1) - rowNum;
+        }
+        CXPoint p = getCXPointAtTexCoord(x, y);
+        pointsWireOrder.add(p);
+      }
+      movingRight = !movingRight;
+    }
+    // Keep a reference in case we want patterns to reference this.
+    this.pointsWireOrder = pointsWireOrder;
+    return pointsWireOrder;
+  }
+
+  /**
+   * Return the appropriate Panel given dance panel/tile coordinates.
+   * @param dancePanels The list of dance panels.
+   * @param x The x coordinate for the dance panel/tile.
+   * @param y The y coordinate for the dance panel/tile.
+   * @return The requested panel or null if not found.
+   */
+  static public Panel getDancePanelXY(List<Panel> dancePanels, int x, int y) {
+    for (Panel p : dancePanels) {
+      if (p.danceXPanel == x && p.danceYPanel == y) {
+        return p;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Return a list of points cropped by texture coordinates.  This helps us build a map
+   * for the Galactic Jungle cars.  Coordinates are *inclusive*
+   * @param x1
+   * @param y1
+   * @param x2
+   * @param y2
+   * @return
+   */
+  public List<CXPoint> cropPoints(int x1, int y1, int x2, int y2) {
+    List<CXPoint> cropPoints = new ArrayList<CXPoint>();
+    for (CXPoint p : points) {
+      if (p.x >= x1 && p.x <= x2 && p.y >= y1 && p.y <= y2)
+        cropPoints.add(p);
+    }
+    return cropPoints;
   }
 }

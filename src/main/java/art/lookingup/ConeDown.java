@@ -85,6 +85,7 @@ public class ConeDown extends PApplet {
   public static com.giantrainbow.OSCSensor oscSensor;
   public static OSCSensorUI oscSensorUI;
   public static UIFirmata firmataPortUI;
+  public static UIGalacticJungle galacticJungle;
 
   // The standard projections provide anti-aliasing at levels from
   // some (2) to plenty (4).
@@ -224,10 +225,15 @@ public class ConeDown extends PApplet {
     gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     uiMidiControl = (UIMidiControl) new UIMidiControl(lx.ui, lx, modeSelector).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    galacticJungle = (UIGalacticJungle) new UIGalacticJungle(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+
     lx.engine.midi.addListener(uiMidiControl);
     if (enableOutput) {
-      //Output.configurePixliteOutput(lx);
-      Output.configureUnityArtNet(lx);
+      Output.configurePixliteOutput(lx);
+      //Output.configureUnityArtNet(lx);
+      // By default the output in Galactic Jungle is disabled.
+      Output.outputGalacticJungle(lx);
+
     }
     if (disableOutputOnStart)
       lx.engine.output.enabled.setValue(false);

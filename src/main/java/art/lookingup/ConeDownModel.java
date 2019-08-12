@@ -113,6 +113,8 @@ public class ConeDownModel extends LXModel {
   public static List<LXPoint> conePoints = new ArrayList<LXPoint>();
   public static List<LXPoint> scoopPoints = new ArrayList<LXPoint>();
   public static List<LXPoint> dancePoints = new ArrayList<LXPoint>();
+  public static List<CXPoint> interiorPoints = new ArrayList<CXPoint>();
+
   public static List<Panel> scoopPanels = new ArrayList<Panel>();
   public static List<Panel> conePanels = new ArrayList<Panel>();
   public static List<Panel> dancePanels = new ArrayList<Panel>();
@@ -131,7 +133,7 @@ public class ConeDownModel extends LXModel {
   public static ConeDownModel createModel() {
     List<LXPoint> allPoints = new ArrayList<LXPoint>();
     // Create panels, add points from each panel to allPoints.
-    float yOffset = 0f;
+    float yOffset = -0.5f;
     int layerWidth = 0;
     int layerHeight = 0;
     int yCoordOffset = 0;
@@ -291,29 +293,6 @@ public class ConeDownModel extends LXModel {
     //   C O N E    P A N E L S
     //
     //
-    layerWidth = 0;
-    /*
-    for (int panelNum = 0; panelNum < coneSides; panelNum++) {
-      Panel panel = new Panel(panel6Width, panel6Width, panel6Height, pitch, xOffset, yOffset, zOffset, panelNum,
-          yCoordOffset, panel6Radius, false, 6);
-      conePanels.add(panel);
-      xOffset += panel6Width;
-      allPoints.addAll(panel.getPoints());
-      conePoints.addAll(panel.getPoints());
-      logger.info("Adding " + panel.getPoints().size() + " points");
-      logger.info("Panel dimensions: " + panel.pointsWide + "x" + panel.pointsHigh);
-      layerWidth += panel.pointsWide;
-      layerHeight = panel.pointsHigh;
-    }
-    if (layerWidth > conePointsWide) {
-      conePointsWide = layerWidth;
-    }
-    conePointsHigh += layerHeight;
-    yCoordOffset += layerHeight;
-    logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
-    layerDimensions.add("" + layerWidth + "x" + layerHeight);
-    yOffset += panel6Height;
-    */
 
     //
     // PANEL E
@@ -455,6 +434,17 @@ public class ConeDownModel extends LXModel {
 
     logger.info("Computed POINTS_WIDExPOINTS_HIGH: " + POINTS_WIDE + "x" + POINTS_HIGH);
 
+    // Interior lighting 8 high power leds + 8 other leds.
+    float interiorRadius = panel5Radius - 6.0f / inchesPerMeter;
+    int i = 0;
+    for (float angle = 0; angle < 360; angle += 360f/16f) {
+      CXPoint p = new CXPoint(null, interiorRadius * Math.cos(Math.toRadians(angle)), 2.0,
+          interiorRadius * Math.sin(Math.toRadians(angle)), i, 0, angle, interiorRadius);
+      interiorPoints.add(p);
+      i++;
+    }
+    allPoints.addAll(interiorPoints);
+
     float scoopYOffset = 0.0f; // 0.75f;
     for (LXPoint p : conePoints) {
       float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
@@ -470,6 +460,13 @@ public class ConeDownModel extends LXModel {
         logger.info("p below ground: " + p.y);
       }
     }
+
+    for (LXPoint p : interiorPoints) {
+      float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
+      p.x = (float)(p.x * Math.cos(Math.toRadians(-15)) + p.y * Math.sin(Math.toRadians(-15)));
+      p.y = (float)(-p.x * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
+    }
+
     logger.info("All Layer Dimensions:");
     for (String dim : layerDimensions) {
       logger.info(dim);
