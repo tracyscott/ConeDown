@@ -15,8 +15,9 @@ import com.github.davidmoten.rtree.geometry.Point;
 import static art.lookingup.colors.Colors.blue;
 import static art.lookingup.colors.Colors.green;
 import static art.lookingup.colors.Colors.red;
-import static art.lookingup.colors.Colors.rgb;
+import static art.lookingup.colors.Colors.alpha;
 
+import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXModel;
 import heronarts.lx.model.LXPoint;
 
@@ -163,7 +164,7 @@ public class AntiAliased implements Projection {
   }
 
   public int computePoint(CXPoint cxp, PImage img, int xoffset, int yoffset) {
-    float r = 0, g = 0, b = 0;
+    float r = 0, g = 0, b = 0, a = 0;
     int end = positions[cxp.index + 1];
     float w = 1f / (end - positions[cxp.index]);
 
@@ -182,8 +183,9 @@ public class AntiAliased implements Projection {
       r += w * (float) red(s);
       g += w * (float) green(s);
       b += w * (float) blue(s);
+      a += w * (float) alpha(s);
     }
-    return rgb((int) r, (int) g, (int) b);
+    return LXColor.rgba((int) r, (int) g, (int) b, (int) a);
   }
 
     public int factor() {
