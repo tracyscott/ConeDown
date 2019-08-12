@@ -196,9 +196,10 @@ public class Output {
         String panelKey = Panel.panelTypeNames[panel.panelType.ordinal()] + "_" + panel.panelNum;
         String dxfbase = panel.dxfFilename.replace(".dxf", "").replace("panel_", "").replace("_LED", "");
         panelKey = dxfbase + "_" + panel.panelNum;
+        if (panel.mirrored) panelKey = panelKey + "_mirror";
         if (!wireFilesWritten.contains(panelKey)) {
-          String pointsFilename = "points_panel_" + dxfbase + "_" + panel.panelNum + ".csv";
-          String wiringFilename = "wiring_panel_" + dxfbase + "_" + panel.panelNum + ".txt";
+          String pointsFilename = "points_panel_" + panelKey + ".csv";
+          String wiringFilename = "wiring_panel_" + panelKey + ".txt";
           writePointsFile(pointsFilename, pointsWireOrder);
           writeWiringFile(wiringFilename, pointsWireOrder);
           wireFilesWritten.add(panelKey);
@@ -425,82 +426,84 @@ public class Output {
     }
   }
 
-  public static void configureUnityArtNetOutput(LX lx) {
-    //loadWiring("wiring.txt");
-    // This only works if we have less than 170 lxpoints.
-    String artNetIpAddress = ConeDown.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_IP).getString();
-    int artNetIpPort = Integer.parseInt(ConeDown.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_PORT).getString());
-    logger.log(Level.INFO, "Using ArtNet: " + artNetIpAddress + ":" + artNetIpPort);
+  static public final int NUM_CARS = 5;
+  static public LXDatagramOutput carOutput = null;
 
-    List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
+  static public void outputGalacticJungle(LX lx) {
+    List<ArtNetDatagram> allCarsAllDatagrams = new ArrayList<ArtNetDatagram>();
 
-    int outputNumber = 1;
-    int universeNumber = 0;
-
-    while (universeNumber < RAVE_UNIVERSES) {
-      for (List<Integer> indices : outputs) {
-        // For the Rave sign, we only have outputs 1 through 4 mapped.  If there is nothing on the output in the
-        // wiring.txt file skip it.  We will make 2 passes of the wiring.txt file, one for each side of the sign.
-        if (indices.size() == 0) continue;
-        // Add point indices in chunks of 170.  After 170 build datagram and then increment the universeNumber.
-        // Continuing adding points and building datagrams every 170 points.  After all points for an output
-        // have been added to datagrams, start on a new output and reset counters.
-        int chunkNumber = 0;
-        int pointNum = 0;
-        while (pointNum + chunkNumber * 170 < indices.size()) {
-          // Compute the dataLength.  For a string of 200 leds, we should have dataLengths of
-          // 170 and then 30.  So for the second pass, chunkNumber=1.  Overrun is 2*170 - 200 = 340 - 200 = 140
-          // We subtract 170-overrun = 30, which is the remainder number of the leds on the last chunk.
-          // 350 leds = chunkNumber = 2, 510 - 350 = 160.  170-160=10.
-          int overrun = ((chunkNumber + 1) * 170) - indices.size();
-          int dataLength = (overrun < 0) ? 170 : 170 - overrun;
-          int[] thisUniverseIndices = new int[dataLength];
-          // For each chunk of 170 points, add them to a datagram.
-          for (pointNum = 0; pointNum < 170 && (pointNum + chunkNumber * 170 < indices.size());
-               pointNum++) {
-            int pIndex = indices.get(pointNum + chunkNumber * 170);
-            if (outputNumber > RAVE_OUTPUTS/2) pIndex += 1050;
-            thisUniverseIndices[pointNum] = pIndex;
-           }
-          logger.info("thisUniverseIndices.length: " + thisUniverseIndices.length);
-          for (int k = 0; k < thisUniverseIndices.length; k++) {
-            logger.info("" + thisUniverseIndices[k] + ",");
-          }
-          logger.log(Level.INFO, "Adding datagram: output=" + outputNumber + " universe=" + universeNumber + " points=" + pointNum);
-          ArtNetDatagram artNetDatagram = new ArtNetDatagram(thisUniverseIndices, dataLength*3, universeNumber);
-          try {
-            artNetDatagram.setAddress(artNetIpAddress).setPort(artNetIpPort);
-          } catch (UnknownHostException uhex) {
-            logger.log(Level.SEVERE, "Configuring ArtNet: " + artNetIpAddress + ":" + artNetIpPort, uhex);
-          }
-          datagrams.add(artNetDatagram);
-          // We have either added 170 points and maybe less if it is the last few points for a given output.  Each
-          // time we build a datagram for a chunk, we need to increment the universeNumber, reset the pointNum to zero,
-          // and increment our chunkNumber
-          ++universeNumber;
-          pointNum = 0;
-          chunkNumber++;
-        }
-        outputNumber++;
-      }
+    // If we have an existing output, remove it and disable it.
+    if (carOutput != null) {
+      lx.engine.output.removeChild(carOutput);
     }
-    try {
-      datagramOutput = new LXDatagramOutput(lx);
-      for (ArtNetDatagram datagram : datagrams) {
-        datagramOutput.addDatagram(datagram);
+
+    for (int i = 0; i < NUM_CARS; i++) {
+      // For now, we are assuming that a car is 20x200 so 4000 points.  Let's just take the G layer of
+      // points and replicate them to fill the car.
+      List<Panel> gLayer = getPanelLayer(Panel.PanelType.G);
+      String ipAddress = ConeDown.galacticJungle.getStringParameter("ip" + (i+1)).getString();
+      int port = Integer.parseInt(ConeDown.galacticJungle.getStringParameter("port" + (i+1)).getString());
+      int startUniv = Integer.parseInt(ConeDown.galacticJungle.getStringParameter("univ" + (i+1)).getString());
+
+      // G Panels are 7x7.  16 panels is 112. 15 panels is 105.  So we want 14 panels + 5 cols off the last
+      // panel.  To get 20 points high we want three layers of panels except -1 row for the final panel.
+      List<CXPoint> allCarPoints = new ArrayList<CXPoint>();
+      for (int rowNum = 0; rowNum < 3; rowNum++) {
+        for (int colNum = 0; colNum < 15; colNum++) {
+          Panel panel = gLayer.get(colNum);
+          List<CXPoint> points = panel.getPoints();
+          if (rowNum == 3) {
+            if (colNum == 14) {
+              // We don't want the bottom row of points and only 5 columns on this last panel
+              points = panel.cropPoints(0, 1, 4, 6);
+            } else {
+              // We don't want to bottom row of points.
+              points = panel.cropPoints(0, 1, 6, 6);
+            }
+          } else if (colNum == 14) {
+            points = panel.cropPoints(0, 0, 4, 6);
+          }
+          allCarPoints.addAll(points);
+        }
       }
+
+      List<ArtNetDatagram> perCarDatagrams = assignPointsToArtNetDatagrams(allCarPoints, startUniv, ipAddress, port);
+
+      // We send separate ArtNet sync datagrams to each car independently
+      /*
       try {
-        datagramOutput.addDatagram(new ArtSyncDatagram().setAddress(artNetIpAddress).setPort(artNetIpPort));
+        datagramOutput.addDatagram(new ArtSyncDatagram().setAddress(ipAddress).setPort(port));
       } catch (UnknownHostException uhex) {
-        logger.log(Level.SEVERE, "Unknown host for ArtNet sync.", uhex);
+        logger.log(Level.SEVERE, "Unknown host for Galactic ArtNet sync.", uhex);
+      }
+      */
+      allCarsAllDatagrams.addAll(perCarDatagrams);
+    }
+
+    // For now we are just going to have one LXDatagramOutput for all cars.
+    try {
+      carOutput = new LXDatagramOutput(lx);
+      for (ArtNetDatagram datagram : allCarsAllDatagrams) {
+        carOutput.addDatagram(datagram);
       }
     } catch (SocketException sex) {
-      logger.log(Level.SEVERE, "Initializing LXDatagramOutput failed.", sex);
+      logger.log(Level.SEVERE, "Initializing Galactic LXDatagramOutput failed.", sex);
     }
-    if (datagramOutput != null) {
-      lx.engine.output.addChild(datagramOutput);
+    carOutput.enabled.setValue(false);
+    if (carOutput != null) {
+      lx.engine.output.addChild(carOutput);
     } else {
-      logger.log(Level.SEVERE, "Did not configure output, error during LXDatagramOutput init");
+      logger.log(Level.SEVERE, "Did not configure Galactic output, error during LXDatagramOutput init");
     }
+  }
+
+  static public List<Panel> getPanelLayer(Panel.PanelType pt) {
+    for (List<Panel> layer : panelLayers) {
+      Panel panel = layer.get(0);
+      if (panel.panelType == pt) {
+        return layer;
+      }
+    }
+    return null;
   }
 }

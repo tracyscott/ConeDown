@@ -36,6 +36,39 @@ public class Panel {
     I,
   }
 
+  // Per panel-type panel margins used to model inter-panel spacing when creating 3D model.  These are
+  // specified here in Inches.
+  final static public float[] panelLeftMargins = {
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f
+  };
+
+  final static public float[] panelBottomMargins = {
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f,
+      6f
+  };
+
+
   final static public String[] panelFilenames = {
       "A",
       "A",
@@ -118,6 +151,7 @@ public class Panel {
   // map our points from a render buffer image.
   public int pointsWide;
   public int pointsHigh;
+  public boolean mirrored = false;
 
   public List<CXPoint> points;
   public List<CXPoint> pointsWireOrder;
@@ -135,7 +169,13 @@ public class Panel {
     this.zPos = zPos;
     this.panelNum = panelNum;
     this.yCoordOffset = yCoordOffset;
+
+    // NOTE(tracy): A hack to increase all radii to account for panel margins (inter panel spacing).  The current
+    // radii were just hand tuned visually.  We need the radii to a bottom corner for each panel layer.
+    // This number gives some visual gaps so I will leave it as an approximation.
+    radius = radius + CNC_SCALE * 20.0f;
     this.radius = radius;
+
 
     boolean mirror = false;
     boolean flip = false;
@@ -143,10 +183,10 @@ public class Panel {
     if (panelType == PanelType.A2 || panelType == PanelType.B2 || panelType == PanelType.E2)
       mirror = true;
 
-    if (panelType == PanelType.I && (panelNum > 8))
+    if (panelType == PanelType.I && panelNum > 8)
       mirror = true;
 
-    if (panelType == PanelType.H && panelNum == 0 || (panelNum >= 9 && panelNum <= 10))
+    if (panelType == PanelType.H && panelNum == 0 || (panelType == PanelType.H && panelNum >= 9 && panelNum <= 10))
       mirror = true;
 
     if (panelType == panelType.H || panelType == panelType.G || panelType == PanelType.F || panelType == PanelType.I) {
@@ -187,6 +227,8 @@ public class Panel {
     }
     String filename = filenameBase + "_LED.dxf";
     dxfFilename = filename;
+    // Store this for later debugging.
+    mirrored = mirror;
     points = loadDXFPanel(dxfFilename, mirror, flip);
 
     for (CXPoint p : points) {
@@ -236,7 +278,7 @@ public class Panel {
     double panelXStart =  radius * Math.cos(Math.toRadians(panelAngle));
     double panelZStart = radius * Math.sin(Math.toRadians(panelAngle));
 
-    // Need the panel anglea of the endpoint
+    // Need the panel angle of the endpoint
     double panelXFinish = radius * Math.cos(Math.toRadians(panelAngle + angleIncr));
     double panelZFinish = radius * Math.sin(Math.toRadians(panelAngle + angleIncr));
 
@@ -250,6 +292,12 @@ public class Panel {
 
     // logger.info("yCoordOffset =" + yCoordOffset + " pointsHigh=" + pointsHigh);
     for (CXPoint p : points) {
+      // TODO(Tracy): Account for inter-panel spacing by incrementing x,y positions here based on
+      // per panel-type left and bottom margins.  We are already converted to meters at this point
+      // so margins should be multiplied by CNC_SCALE
+      // TODO(tracy): The various radii have to fixed for this work.
+      p.x = p.x + CNC_SCALE * panelLeftMargins[panelType.ordinal()];
+      p.y = p.y + CNC_SCALE * panelBottomMargins[panelType.ordinal()];
       float angle =  90f + 45f/2f + (angleIncr * faceNum());
       if (panelType == PanelType.I) {
         angle = 90f + (360f / numFacesAround()) / 2f + (angleIncr * faceNum());
@@ -1162,6 +1210,14 @@ public class Panel {
       BPoint topRight = bPoints[2];
       BPoint topLeft = bPoints[3];
 
+      // TODO(tracy): This are all just visual hacks to get an approximation.  The correct solution
+      // would be to position the points in X and Y such that they are relative to the hypothetical
+      // full-panel boundary that this partial panel is based on. Would it be possible to just
+      // account for the bottom and left deltas?  For half a square panel tall, we could just take the difference
+      // in height of the panels and add that to all y coordinates (assuming that it was the bottom half that
+      // was missing).  For half a square panel wide we could take the difference in widths and add that to the
+      // x coordinate (assuming it was the left half that was missing).  Top and right missing portions don't
+      // affect our 3d positioning.
       if (panelType == PanelType.H && (panelNum == 0 || panelNum == 15)) {
         bottomRight.y = bottomLeft.y;
         bottomRight.x = topRight.x - 2f;
@@ -1171,7 +1227,7 @@ public class Panel {
       }
       if (panelType == PanelType.H) {
         if (panelNum == 5)
-          bottomLeft.x -= 20f;
+          bottomLeft.x -= 15f;
         if (panelNum == 6)
           bottomLeft.x -= 1f;
         if (panelNum == 9) {
@@ -1474,5 +1530,23 @@ public class Panel {
       }
     }
     return null;
+  }
+
+  /**
+   * Return a list of points cropped by texture coordinates.  This helps us build a map
+   * for the Galactic Jungle cars.  Coordinates are *inclusive*
+   * @param x1
+   * @param y1
+   * @param x2
+   * @param y2
+   * @return
+   */
+  public List<CXPoint> cropPoints(int x1, int y1, int x2, int y2) {
+    List<CXPoint> cropPoints = new ArrayList<CXPoint>();
+    for (CXPoint p : points) {
+      if (p.x >= x1 && p.x <= x2 && p.y >= y1 && p.y <= y2)
+        cropPoints.add(p);
+    }
+    return cropPoints;
   }
 }
