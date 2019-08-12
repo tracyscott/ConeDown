@@ -27,6 +27,12 @@ public class TrueProjection implements Projection {
 
 	for (LXPoint lxp : model.points) {
 	    CXPoint cxp = (CXPoint) lxp;
+
+	    if (cxp.panel == null) {
+		// TODO interior lights
+		continue;
+	    }
+		
 	    float []coords = ConeDownModel.pointToProjectionCoords(cxp);
 
 	    int x = (int)(coords[0] + 0.5);
@@ -49,16 +55,19 @@ public class TrueProjection implements Projection {
     }
 
     public CXPoint lookupPoint(float x, float y) {
-	int xi = Math.max(0, Math.min((int)(x + 0.5), POINTS_WIDE));
-	int yi = Math.max(0, Math.min((int)(y + 0.5), POINTS_HIGH));
+	int xi = Math.max(0, Math.min((int)(x + 0.5), POINTS_WIDE-1));
+	int yi = Math.max(0, Math.min((int)(y + 0.5), POINTS_HIGH-1));
 	int idx = yi * POINTS_WIDE + xi;
-	return this.lookup[idx];
+	if (idx >= lookup.length) {
+	    return null;
+	}
+	return lookup[idx];
     }
 
     public float xScale(float x, float y) {
 	return ConeDownModel.xScale(lookupPoint(x, y));
     }
-
+    
     public int computePoint(CXPoint p, PImage img, int xoffset, int yoffset) {
 	int idx = mapping[p.index];
 	int x = idx % POINTS_WIDE;

@@ -89,7 +89,8 @@ public class ConeDown extends PApplet {
 
   // The standard projections provide anti-aliasing at levels from
   // some (2) to plenty (4).
-  public static int MIN_SUPER_SAMPLING = 2;
+  public static int MIN_SUPER_SAMPLING = 1;
+  public static int DEFAULT_SUPER_SAMPLING = 2;
   public static int MAX_SUPER_SAMPLING = 4;
 
   private static Projection projections[];

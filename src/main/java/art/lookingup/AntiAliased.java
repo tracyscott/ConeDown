@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class AntiAliased implements Projection {
     RTree<CXPoint, Point> tree = RTree.create();
@@ -37,6 +38,8 @@ public class AntiAliased implements Projection {
     int ssWide;
     int ssHigh;
     int superSampling;
+
+    private static final Logger logger = Logger.getLogger(AntiAliased.class.getName());
 
     public AntiAliased(LXModel model, int superSampling) {
 	Pixel[] pixels = new Pixel[model.size];
@@ -55,6 +58,10 @@ public class AntiAliased implements Projection {
 	
 	for (LXPoint lxp : model.points) {
 	    CXPoint cxp = (CXPoint) lxp;
+	    if (cxp.panel == null) {
+		// TODO interior lighting
+		continue;
+	    }
 	    float []coords = ConeDownModel.pointToProjectionCoords(cxp);
 
 	    this.tree = this.tree.add(cxp, Geometries.point(coords[0] * superSampling + ssOff,
@@ -97,6 +104,9 @@ public class AntiAliased implements Projection {
 	
 	for (LXPoint lxp : model.points) {
 	    CXPoint cxp = (CXPoint) lxp;
+	    if (cxp.panel == null) {
+		continue;
+	    }
 	    sumSubs += pixels[cxp.index].subs.size();
 	}
 
@@ -115,6 +125,11 @@ public class AntiAliased implements Projection {
 	}
 
 	for (LXPoint lxp : points) {
+	    CXPoint cxp = (CXPoint)lxp;
+	    if (cxp.panel == null) {
+		// TODO interior lighting
+		continue;
+	    }
 	    positions[lxp.index] = position;
 
 	    for (int sub : pixels[lxp.index].subs) {
