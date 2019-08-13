@@ -31,6 +31,7 @@ public class IceCream extends PGPixelPerfect {
 
   protected int scoopDancePointsHigh;
   protected int scoopDancePointsWide;
+  protected int conePointsHigh;
 
   static public class Point {
     public Point(int x, int y) { this.x = x; this.y = y; }
@@ -51,16 +52,19 @@ public class IceCream extends PGPixelPerfect {
     addParameter(flavor);
     addParameter(chips);
     addParameter(chipSize);
-    resetChipPoints();
-    chips.addListener(new LXParameterListener() {
-      @Override
-      public void onParameterChanged(LXParameter parameter) {
-        resetChipPoints();
-      }
+    chips.addListener((LXParameter parameter)-> {
+      updateParams();
     });
     renderTarget.setValue(0);  // Target scoop + dance floor
-    scoopDancePointsWide = ConeDownModel.scoopPointsWide;
-    scoopDancePointsHigh = ConeDownModel.scoopPointsHigh + ConeDownModel.dancePointsHigh;
+    updateParams();
+  }
+
+  protected void updateParams() {
+    super.updateParams();
+    resetChipPoints();
+    scoopDancePointsWide = ConeDownModel.scoopPointsWide * getSuperSampling();
+    scoopDancePointsHigh = (ConeDownModel.scoopPointsHigh + ConeDownModel.dancePointsHigh) * getSuperSampling();
+    conePointsHigh = ConeDownModel.conePointsHigh * getSuperSampling();
   }
 
   @Override
@@ -72,7 +76,7 @@ public class IceCream extends PGPixelPerfect {
     chipPoints = new Point[chips.getValuei()];
     for (int i = 0; i < chipPoints.length; i++) {
       chipPoints[i] = new Point((int)(Math.random() * renderWidth),
-          ConeDownModel.conePointsHigh + (int)(Math.random() * scoopDancePointsHigh));
+          conePointsHigh + (int)(Math.random() * scoopDancePointsHigh));
     }
   }
 
@@ -102,39 +106,39 @@ public class IceCream extends PGPixelPerfect {
   public void renderVanilla() {
     pg.fill(243, 229, 171);
     pg.noStroke();
-    pg.rect(0, ConeDownModel.conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
+    pg.rect(0, conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
   }
 
   public void renderChocolate() {
     pg.fill(60, 30, 0);
     pg.noStroke();
-    pg.rect(0, ConeDownModel.conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
+    pg.rect(0, conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
   }
 
   public void renderStrawberry() {
     pg.fill(198, 78, 89);
     pg.noStroke();
-    pg.rect(0, ConeDownModel.conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
+    pg.rect(0, conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
   }
 
   public void renderChocoChip() {
     pg.fill(243, 229, 171);
     pg.noStroke();
-    pg.rect(0, ConeDownModel.conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
+    pg.rect(0, conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
     chips(true);
   }
 
   public void renderMintChip() {
     pg.fill(60, 100, 60);
     pg.noStroke();
-    pg.rect(0, ConeDownModel.conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
+    pg.rect(0, conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
     chips(true);
   }
 
   public void renderRockyRoad() {
     pg.fill(60, 30, 0);
     pg.noStroke();
-    pg.rect(0, ConeDownModel.conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
+    pg.rect(0, conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
     chips(false);
   }
 
@@ -143,7 +147,7 @@ public class IceCream extends PGPixelPerfect {
     //pg.fill(68, 58, 29);
     pg.fill(80, 68, 34);
     pg.noStroke();
-    pg.rect(0, 0, scoopDancePointsWide, ConeDownModel.conePointsHigh);
+    pg.rect(0, 0, scoopDancePointsWide, conePointsHigh);
   }
 
   public void chips(boolean black) {
@@ -151,7 +155,10 @@ public class IceCream extends PGPixelPerfect {
     for (int i = 0; i < chipPoints.length; i++) {
       if (black) pg.fill(0, 0,0);
       else pg.fill(222, 222, 222);
-      pg.rect(chipPoints[i].x, chipPoints[i].y, chipSize.getValuei(), chipSize.getValuei());
+      pg.rect(chipPoints[i].x,
+	      chipPoints[i].y,
+	      chipSize.getValuei() * getSuperSampling(),
+	      chipSize.getValuei() * getSuperSampling());
     }
   }
 
