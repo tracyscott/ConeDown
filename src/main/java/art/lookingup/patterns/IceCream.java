@@ -56,6 +56,7 @@ public class IceCream extends PGPixelPerfect {
       updateParams();
     });
     renderTarget.setValue(0);  // Target scoop + dance floor
+    renderFullSize = true;
     updateParams();
   }
 

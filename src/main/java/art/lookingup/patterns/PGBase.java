@@ -36,6 +36,7 @@ abstract class PGBase extends RPattern {
   protected int renderWidth = 0;
   protected int renderHeight = 0;
   protected Projection projection;
+  protected boolean renderFullSize = false;
 
   /** Indicates whether {@link #setup()} has been called. */
   private boolean setupCalled;
@@ -104,6 +105,10 @@ abstract class PGBase extends RPattern {
 	  renderWidth = ConeDownModel.scoopPointsWide;
 	  renderHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.dancePointsHigh;
 	  break;
+      }
+      if (renderFullSize) {
+	  renderWidth = ConeDownModel.POINTS_WIDE;
+	  renderHeight = ConeDownModel.POINTS_HIGH;
       }
       renderWidth *= getSuperSampling();
       renderHeight *= getSuperSampling();
