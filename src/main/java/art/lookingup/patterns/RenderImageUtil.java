@@ -169,6 +169,9 @@ public class RenderImageUtil {
 			    int yOffset,
 			    boolean targetScaling) {
       if (targetScaling) {
+	  // TODO There's an off-by-one pixel error somewhere around here, probably in
+	  // both X and Y dimensions.
+
 	  // The texture begins at yTexCoordOffset.  Subtract by combining w/ yOffset.
 	  yOffset -= yTexCoordOffset;
 
