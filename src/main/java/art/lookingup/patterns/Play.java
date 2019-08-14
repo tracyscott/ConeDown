@@ -3,7 +3,7 @@ package art.lookingup.patterns;
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.play.Pattern;
-simport art.lookingup.patterns.play.fragments.Balls;
+import art.lookingup.patterns.play.fragments.Balls;
 import art.lookingup.patterns.play.fragments.Beacon;
 import art.lookingup.patterns.play.fragments.Cone;
 import art.lookingup.patterns.play.fragments.Solid;
