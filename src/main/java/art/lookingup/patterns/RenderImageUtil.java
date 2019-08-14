@@ -49,7 +49,7 @@ public class RenderImageUtil {
   }
 
   public static void imageToPointsPixelPerfect(Projection proj, PImage image, int[] colors) {
-      sampleRenderTarget(proj, 0, image, colors, 0, 0);
+      sampleRenderTarget(proj, 0, image, colors, 0, 0, true);
   }
 
   /**
@@ -63,7 +63,7 @@ public class RenderImageUtil {
    * Note that point (0,0) is at the bottom left in {@code colors}.</p>
    */
   public static void imageToPointsPixelPerfect(Projection proj, PImage image, int[] colors, int xOffset, int yOffset) {
-      sampleRenderTarget(proj, 0, image, colors, xOffset, yOffset);
+      sampleRenderTarget(proj, 0, image, colors, xOffset, yOffset, true);
   }
 
   /**
@@ -76,7 +76,7 @@ public class RenderImageUtil {
    * @param image
    * @param colors
    */
-    public static void sampleRenderTarget(Projection proj, int renderTarget, PImage image, int[] colors, int xOffset, int yOffset) {
+  public static void sampleRenderTarget(Projection proj, int renderTarget, PImage image, int[] colors, int xOffset, int yOffset, boolean targetScaling) {
     Projection projection = proj;
 
     // Dance floor is easy, since there is no texture coordinate offsets.
@@ -128,7 +128,7 @@ public class RenderImageUtil {
       if (renderTarget == 0 || renderTarget == 3 || renderTarget == 4) {
 	colors[p.index] = getRenderColor((CXPoint) p, projection, image,
 					 pointsWide, pointsHigh, yTexCoordOffset,
-					 xOffset, yOffset);	  
+					 xOffset, yOffset, targetScaling);
       } else {
         colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
@@ -138,7 +138,7 @@ public class RenderImageUtil {
       if (renderTarget == 0 || renderTarget == 2 || renderTarget == 5 || renderTarget == 4) {
 	colors[p.index] = getRenderColor((CXPoint) p, projection, image,
 					 pointsWide, pointsHigh, yTexCoordOffset,
-					 xOffset, yOffset);
+					 xOffset, yOffset, targetScaling);
       } else {
         colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
@@ -148,7 +148,7 @@ public class RenderImageUtil {
       if (renderTarget == 0 || renderTarget == 1 || renderTarget == 5) {
 	colors[p.index] = getRenderColor((CXPoint) p, projection, image,
 					 pointsWide, pointsHigh, yTexCoordOffset,
-					 xOffset, yOffset);
+					 xOffset, yOffset, targetScaling);
       } else {
         colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
@@ -166,15 +166,21 @@ public class RenderImageUtil {
 			    int pointsHigh,
 			    int yTexCoordOffset,
 			    int xOffset,
-			    int yOffset) {
-      // The texture begins at yTexCoordOffset.  Subtract by combining w/ yOffset.
-      yOffset -= yTexCoordOffset;
+			    int yOffset,
+			    boolean targetScaling) {
+      if (targetScaling) {
+	  // TODO There's an off-by-one pixel error somewhere around here, probably in
+	  // both X and Y dimensions.
 
-      // When rendering only the dance floor, these are different.  In
-      // that case, apply an offset.
-      int fullWidth = projection.factor() * ConeDownModel.POINTS_WIDE;
-      if (pointsWide != fullWidth) {
-	  xOffset -= (fullWidth - pointsWide) / 2;
+	  // The texture begins at yTexCoordOffset.  Subtract by combining w/ yOffset.
+	  yOffset -= yTexCoordOffset;
+
+	  // When rendering only the dance floor, these are different.  In
+	  // that case, apply an offset.
+	  int fullWidth = projection.factor() * ConeDownModel.POINTS_WIDE;
+	  if (pointsWide != fullWidth) {
+	      xOffset -= (fullWidth - pointsWide) / 2;
+	  }
       }
       return projection.computePoint(cxp, image, xOffset, yOffset);
     }
