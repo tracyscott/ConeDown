@@ -1,12 +1,26 @@
 package art.lookingup;
 
-import art.lookingup.ui.*;
+import art.lookingup.ui.OSCSensorUI;
+import art.lookingup.ui.UIAudioMonitorLevels;
+import art.lookingup.ui.UIFirmata;
+import art.lookingup.ui.UIGalacticJungle;
+import art.lookingup.ui.UIGammaSelector;
+import art.lookingup.ui.UIMidiControl;
+import art.lookingup.ui.UIModeSelector;
+import art.lookingup.ui.UIPixliteConfig;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import com.google.common.reflect.ClassPath;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.Uninterruptibles;
 import heronarts.lx.LXEffect;
 import heronarts.lx.LXPattern;
 import heronarts.lx.model.LXModel;
 import heronarts.lx.studio.LXStudio;
-
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
@@ -15,16 +29,18 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-
+import java.util.stream.IntStream;
 import processing.core.PApplet;
 
 public class ConeDown extends PApplet {
-	
+
 	static {
     System.setProperty(
         "java.util.logging.SimpleFormatter.format",
@@ -90,10 +106,9 @@ public class ConeDown extends PApplet {
   // The standard projections provide anti-aliasing at levels from
   // some (2) to plenty (4).
   public static int MIN_SUPER_SAMPLING = 1;
-  public static int DEFAULT_SUPER_SAMPLING = 2;
   public static int MAX_SUPER_SAMPLING = 4;
 
-  private static Projection projections[];
+  private static Projection projections[] = new Projection[MAX_SUPER_SAMPLING + 1];
 
   @Override
   public void settings() {
@@ -167,12 +182,28 @@ public class ConeDown extends PApplet {
 
     LXModel model = ConeDownModel.createModel();
 
-    logger.info("Computing true projection");
-    projections = new Projection[MAX_SUPER_SAMPLING + 1];
-    projections[1] = new TrueProjection(model);
-    for (int i = 2; i <= MAX_SUPER_SAMPLING; i++) {
-	logger.info("Computing " + i + "x projection");
-	projections[i] = new AntiAliased(model, i);
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      Map<Integer, Projection> projectionMap = Maps.newConcurrentMap();
+      ListeningExecutorService executor =
+          MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(MAX_SUPER_SAMPLING + 1));
+      ListenableFuture<TrueProjection> trueProjection =
+          executor.submit(() -> new TrueProjection(model));
+      ImmutableList<ListenableFuture<Projection>> futures =
+          IntStream.range(0, MAX_SUPER_SAMPLING + 1)
+              .mapToObj(Integer::valueOf)
+              .peek(i -> logger.info("Computing " + i + "x projection"))
+              .map(i -> executor.submit(() ->
+                  projectionMap.put(i, i <= 1
+                    ? trueProjection.get()
+                    : new AntiAliased(model, i + 1))))
+              .collect(ImmutableList.toImmutableList());
+      Uninterruptibles.getUninterruptibly(Futures.allAsList(futures));
+      logger.info("Computed all projections in " + stopwatch);
+      projectionMap.forEach((k, v) -> projections[k] = v);
+    } catch (Exception e) {
+      logger.log(Level.SEVERE, "Error computing projections", e);
+      System.exit(1);
     }
     logger.info("Computed all projections");
 
@@ -181,7 +212,7 @@ public class ConeDown extends PApplet {
     //flags.isP3LX = true;
     //flags.immutableModel = true;
     flags.useGLPointCloud = false;
-    flags.startMultiThreaded = false;
+    flags.startMultiThreaded = true;
     //flags.showFramerate = true;
 
     logger.info("Current renderer:" + sketchRenderer());
@@ -192,6 +223,7 @@ public class ConeDown extends PApplet {
     lx = new LXStudio(this, flags, model);
 
     lx.ui.setResizable(true);
+    lx.ui.preview.setRadius(10.0f);
 
     // Put this here because it needs to be after file loads in order to find appropriate channels.
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
