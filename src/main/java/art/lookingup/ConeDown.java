@@ -212,7 +212,7 @@ public class ConeDown extends PApplet {
     //flags.isP3LX = true;
     //flags.immutableModel = true;
     flags.useGLPointCloud = false;
-    flags.startMultiThreaded = true;
+    flags.startMultiThreaded = false;
     //flags.showFramerate = true;
 
     logger.info("Current renderer:" + sketchRenderer());
@@ -223,7 +223,6 @@ public class ConeDown extends PApplet {
     lx = new LXStudio(this, flags, model);
 
     lx.ui.setResizable(true);
-    lx.ui.preview.setRadius(10.0f);
 
     // Put this here because it needs to be after file loads in order to find appropriate channels.
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
