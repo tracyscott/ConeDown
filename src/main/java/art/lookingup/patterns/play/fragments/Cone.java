@@ -35,7 +35,7 @@ public class Cone extends Multi {
 			    scoop.create(lx,
 					 factor * ConeDownModel.scoopPointsWide,
 					 factor * ConeDownModel.scoopPointsHigh),
-			    cone.create(lx,
+			    dance.create(lx,
 					factor * ConeDownModel.dancePointsWide,
 					factor * ConeDownModel.dancePointsHigh));
 	}
@@ -58,5 +58,25 @@ public class Cone extends Multi {
 		  0,
 		  factor * ConeDownModel.conePointsWide,
 		  factor * ConeDownModel.conePointsHigh);
+
+	area.copy(fragments[1].image,
+		  0,
+		  0,
+		  factor * ConeDownModel.scoopPointsWide,
+		  factor * ConeDownModel.scoopPointsHigh,
+		  0,
+		  factor * ConeDownModel.conePointsHigh,
+		  factor * ConeDownModel.scoopPointsWide,
+		  factor * ConeDownModel.scoopPointsHigh);
+	area.copy(fragments[2].image,
+		  0,
+		  0,
+		  factor * ConeDownModel.dancePointsWide,
+		  factor * ConeDownModel.dancePointsHigh,
+		  factor * (ConeDownModel.scoopPointsWide - ConeDownModel.dancePointsWide) / 2,
+		  factor * (ConeDownModel.conePointsHigh + ConeDownModel.scoopPointsHigh),
+		  factor * ConeDownModel.dancePointsWide,
+		  factor * ConeDownModel.dancePointsHigh);
+	// @@@
     }
 };
