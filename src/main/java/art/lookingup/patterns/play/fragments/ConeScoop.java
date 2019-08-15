@@ -12,29 +12,24 @@ import heronarts.lx.LX;
 
 import processing.core.PGraphics;
 
-public class Cone extends Multi {
+public class ConeScoop extends Multi {
 
     static public class Factory implements FragmentFactory {
-	FragmentFactory cone;
-	FragmentFactory scoop;
+	FragmentFactory conescoop;
 	FragmentFactory dance;
 
-	public Factory(FragmentFactory cone, FragmentFactory scoop, FragmentFactory dance) {
-	    this.cone = cone;
-	    this.scoop = scoop;
+	public Factory(FragmentFactory conescoop, FragmentFactory dance) {
+	    this.conescoop = conescoop;
 	    this.dance = dance;
 	}
 
 	public Fragment create(LX lx, int width, int height) {
 	    int factor = width / ConeDownModel.POINTS_WIDE;
 	    
-	    return new Cone(lx, width, height,
-			    cone.create(lx,
-					factor * ConeDownModel.conePointsWide,
-					factor * ConeDownModel.conePointsHigh),
-			    scoop.create(lx,
-					 factor * ConeDownModel.scoopPointsWide,
-					 factor * ConeDownModel.scoopPointsHigh),
+	    return new ConeScoop(lx, width, height,
+			    conescoop.create(lx,
+					     factor * ConeDownModel.conePointsWide,
+					     factor * (ConeDownModel.conePointsHigh + ConeDownModel.scoopPointsHigh)),
 			    dance.create(lx,
 					factor * ConeDownModel.dancePointsWide,
 					factor * ConeDownModel.dancePointsHigh));
@@ -43,8 +38,8 @@ public class Cone extends Multi {
     
     int factor;
 
-    protected Cone(LX lx, int width, int height, Fragment cone, Fragment scoop, Fragment dance) {
-	super(lx, width, height, cone, scoop, dance);
+    protected ConeScoop(LX lx, int width, int height, Fragment conescoop, Fragment dance) {
+	super(lx, width, height, conescoop, dance);
 	this.factor = width / ConeDownModel.POINTS_WIDE;
     }
 
@@ -53,22 +48,12 @@ public class Cone extends Multi {
 		  0,
 		  0,
 		  factor * ConeDownModel.conePointsWide,
-		  factor * ConeDownModel.conePointsHigh,
+		  factor * (ConeDownModel.conePointsHigh + ConeDownModel.scoopPointsHigh),
 		  0,
 		  0,
 		  factor * ConeDownModel.conePointsWide,
-		  factor * ConeDownModel.conePointsHigh);
-
+		  factor * (ConeDownModel.conePointsHigh + ConeDownModel.scoopPointsHigh));
 	area.copy(fragments[1].image,
-		  0,
-		  0,
-		  factor * ConeDownModel.scoopPointsWide,
-		  factor * ConeDownModel.scoopPointsHigh,
-		  0,
-		  factor * ConeDownModel.conePointsHigh,
-		  factor * ConeDownModel.scoopPointsWide,
-		  factor * ConeDownModel.scoopPointsHigh);
-	area.copy(fragments[2].image,
 		  0,
 		  0,
 		  factor * ConeDownModel.dancePointsWide,
@@ -79,3 +64,4 @@ public class Cone extends Multi {
 		  factor * ConeDownModel.dancePointsHigh);
     }
 };
+

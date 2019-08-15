@@ -6,6 +6,7 @@ import art.lookingup.patterns.play.Pattern;
 import art.lookingup.patterns.play.fragments.Balls;
 import art.lookingup.patterns.play.fragments.Beacon;
 import art.lookingup.patterns.play.fragments.Cone;
+import art.lookingup.patterns.play.fragments.ConeScoop;
 import art.lookingup.patterns.play.fragments.Solid;
 import art.lookingup.patterns.play.fragments.Spiral;
 
@@ -34,8 +35,12 @@ public class Play extends Pattern {
 	// 				  new Balls.Factory(),
 	// 				  new Balls.Factory()));
 	
+	this.setFragment(new ConeScoop.Factory(new Balls.Factory(),
+					       new Solid.Factory()));
+	
+
 	// this.setFragment(new Spiral.Factory());
 
-	this.setFragment(new Balls.Factory());
+	// this.setFragment(new Balls.Factory());
     }
 };
