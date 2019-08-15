@@ -118,7 +118,7 @@ public class Balls extends Fragment {
 	b.update(elapsed() * period);
 
 	float x = b.getX();
-	float y = b.getY();
+	float y = (height - 1 - b.getY());
 
 	area.pushMatrix();
 	area.translate(x, y);

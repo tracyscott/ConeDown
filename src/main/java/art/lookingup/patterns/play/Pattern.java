@@ -24,7 +24,7 @@ abstract public class Pattern extends LXPattern {
     // "" for builtin, P2D or P3D for opengl
     public static final String gtype = "";
 
-    public static final int superSampling = ConeDown.MAX_SUPER_SAMPLING;
+    public static final int superSampling = 1; // ConeDown.MAX_SUPER_SAMPLING;
 
     public final PApplet app;
 
