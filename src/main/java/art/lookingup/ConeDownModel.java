@@ -481,6 +481,11 @@ public class ConeDownModel extends LXModel {
         //exportPanelPoints(exportPanel);
     }
 
+    for (LXPoint pt : allPoints) {
+      CXPoint cpt = (CXPoint) pt;
+      cpt.intensityCompensation = cpt.horizontalSpacing / cpt.maxHorizontalSpacing;
+    }
+
     return new ConeDownModel(allPoints);
   }
 

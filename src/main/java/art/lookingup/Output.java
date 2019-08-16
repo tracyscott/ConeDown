@@ -172,7 +172,7 @@ public class Output {
         // leds per output we alternate C and D on different outputs.
         if (panel.panelType == Panel.PanelType.C && sixteenthNum % 2 == 0) {
           panel = layer.get(sixteenthNum / 2);
-        } else if (panel.panelType == Panel.PanelType.D && sixteenthNum % 2 == 1) {
+        } else if (panel.panelType == Panel.PanelType.D && sixteenthNum % 2 == 0) {
           logger.info("Assign panel to D panel");
           panel = layer.get(sixteenthNum / 2);
         } else if (!(panel.panelType == Panel.PanelType.C || panel.panelType == Panel.PanelType.D)) {

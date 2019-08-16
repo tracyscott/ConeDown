@@ -271,6 +271,10 @@ public class Panel {
 
     Collections.sort(points);
 
+    for (CXPoint p : points) {
+      p.computeHorizontalSpacing();
+    }
+
     float angleIncr = 360f / numFullPanelsAround();
     float panelAngle = faceNum() * angleIncr;
 

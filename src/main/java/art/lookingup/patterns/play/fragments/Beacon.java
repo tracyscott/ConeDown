@@ -2,6 +2,7 @@ package art.lookingup.patterns.play.fragments;
 
 import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.FragmentFactory;
+import art.lookingup.patterns.play.Multi;
 import art.lookingup.patterns.play.Pattern;
 import art.lookingup.patterns.play.Parameter;
 
@@ -9,11 +10,8 @@ import heronarts.lx.LX;
 
 import processing.core.PGraphics;
 
-public class Beacon extends Fragment {
+public class Beacon extends Multi {
     static final float period = 0.1f / Pattern.superSampling;
-    
-    final Fragment frag0;
-    final Fragment frag1;
 
     final int halfWidth;
 
@@ -33,46 +31,16 @@ public class Beacon extends Fragment {
     };
     
     public Beacon(LX lx, int width, int height, Fragment f0, Fragment f1) {
-	super(width, height);
-	this.frag0 = f0;
-	this.frag1 = f1;
+	super(lx, width, height, f0, f1);
 	this.halfWidth = width / 2;
     }
 
     @Override
-    public void create(Pattern p) {
-	super.create(p);
-	frag0.create(p);
-	frag1.create(p);
-    }    
-
-    @Override
-    public void preDrawFragment(float vdelta) {
-	super.preDrawFragment(vdelta);
-
-	frag0.render(vdelta);
-	frag1.render(vdelta);
-    }
-
-    @Override
-    public void setup() {
-	frag0.setup();
-	frag1.setup();
-    }
-
-    @Override
-    public void registerParameters(Parameter.Adder adder) {
-	super.registerParameters(adder);
-	frag0.registerParameters(adder);
-	frag1.registerParameters(adder);
-    }
-    
-    @Override
     public void drawFragment() {
 	int f0pos = (int)(elapsed() / period);
 
-	drawHalf(f0pos, frag0);
-	drawHalf(f0pos+halfWidth, frag1);
+	drawHalf(f0pos, fragments[0]);
+	drawHalf(f0pos+halfWidth, fragments[1]);
     }
 
     void drawHalf(int pos, Fragment f) {
