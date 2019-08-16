@@ -35,11 +35,13 @@ public class Play extends Pattern {
 	// 				  new Balls.Factory(),
 	// 				  new Balls.Factory()));
 	
-	this.setFragment(new ConeScoop.Factory(new Balls.Factory(),
-					       new Solid.Factory()));
+	this.setFragment(new ConeScoop.Factory(new Spiral.Factory(),
+					       new Spiral.Factory()));
 	
 
 	// this.setFragment(new Spiral.Factory());
+
+	// this.setFragment(new Solid.Factory());
 
 	// this.setFragment(new Balls.Factory());
     }

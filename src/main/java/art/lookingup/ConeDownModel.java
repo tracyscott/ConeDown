@@ -627,14 +627,14 @@ public class ConeDownModel extends LXModel {
     float xCoord;
 
     if (p.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
-      int danceFloorPointsWide = p.panel.pointsWide * ConeDownModel.dancePanelsWide;
-      int totalImgPointsWide = POINTS_WIDE;
-      float imgXOffset = (float)totalImgPointsWide/2 - (float)danceFloorPointsWide/2;
-      float xImgCoord = imgXOffset + p.panel.danceXPanel * p.panel.pointsWide + p.xCoord;
-      xCoord = xImgCoord;
+	int danceFloorPointsWide = p.panel.pointsWide * ConeDownModel.dancePanelsWide;
+	int totalImgPointsWide = POINTS_WIDE;
+	float imgXOffset = (float)totalImgPointsWide/2 - (float)danceFloorPointsWide/2;
+	float xImgCoord = imgXOffset + p.panel.danceXPanel * p.panel.pointsWide + p.xCoord;
 
+	xCoord = xImgCoord;
     } else {
-	xCoord = (float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p);
+	xCoord = (p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p);
     }
 
     coordinates[0] = xCoord;
