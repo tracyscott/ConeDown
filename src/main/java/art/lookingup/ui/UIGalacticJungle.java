@@ -14,21 +14,11 @@ public class UIGalacticJungle extends UIConfig {
   private static final Logger logger = Logger.getLogger(UIGalacticJungle.class.getName());
 
   public static final String ENABLED = "enabled";
-  public static final String CAR_1_IP = "ip1";
-  public static final String CAR_1_PORT = "port1";
-  public static final String CAR_1_UNIV = "univ1";
-  public static final String CAR_2_IP = "ip2";
-  public static final String CAR_2_PORT = "port2";
-  public static final String CAR_2_UNIV = "univ2";
-  public static final String CAR_3_IP = "ip3";
-  public static final String CAR_3_PORT = "port3";
-  public static final String CAR_3_UNIV = "univ3";
-  public static final String CAR_4_IP = "ip4";
-  public static final String CAR_4_PORT = "port4";
-  public static final String CAR_4_UNIV = "univ4";
-  public static final String CAR_5_IP = "ip5";
-  public static final String CAR_5_PORT = "port5";
-  public static final String CAR_5_UNIV = "univ5";
+  public static final String CAR_1_IP = "zebra";
+  public static final String CAR_2_IP = "elephant";
+  public static final String CAR_3_IP = "lion";
+  public static final String CAR_4_IP = "rhino";
+  public static final String CAR_5_IP = "tiger";
 
   public static final String title = "Galactic";
   public static final String filename = "galacticjungle.json";
@@ -41,21 +31,11 @@ public class UIGalacticJungle extends UIConfig {
     this.lx = lx;
 
     registerBooleanParameter(ENABLED, false);
-    registerStringParameter(CAR_1_IP, "192.168.2.120");
-    registerStringParameter(CAR_1_PORT, "6454");
-    registerStringParameter(CAR_1_UNIV, "100");
-    registerStringParameter(CAR_2_IP, "192.168.2.134");
-    registerStringParameter(CAR_2_PORT, "6454");
-    registerStringParameter(CAR_2_UNIV, "100");
-    registerStringParameter(CAR_3_IP, "192.168.2.134");
-    registerStringParameter(CAR_3_UNIV, "100");
-    registerStringParameter(CAR_3_PORT, "6454");
-    registerStringParameter(CAR_4_IP, "192.168.2.134");
-    registerStringParameter(CAR_4_PORT, "6454");
-    registerStringParameter(CAR_4_UNIV, "100");
-    registerStringParameter(CAR_5_IP, "192.168.2.134");
-    registerStringParameter(CAR_5_PORT, "6454");
-    registerStringParameter(CAR_5_UNIV, "100");
+    registerStringParameter(CAR_1_IP, "10.42.1.1");
+    registerStringParameter(CAR_2_IP, "10.42.1.11");
+    registerStringParameter(CAR_3_IP, "10.42.1.24");
+    registerStringParameter(CAR_4_IP, "10.42.1.33");
+    registerStringParameter(CAR_5_IP, "10.42.1.46");
 
     save();
 
@@ -89,7 +69,7 @@ public class UIGalacticJungle extends UIConfig {
       lx.engine.output.enabled.setValue(false);
       if (galacticOutput != null)
         galacticOutput.enabled.setValue(false);
-      Output.outputGalacticJungle(lx);
+      Output.outputGalactic(lx);
       if (galacticOutput != null)
         galacticOutput.enabled.setValue(originalGalacticOutput);
       parameterChanged = false;

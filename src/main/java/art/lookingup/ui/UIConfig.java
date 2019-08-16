@@ -125,7 +125,7 @@ public class UIConfig extends UICollapsibleSection implements LXParameterListene
       oscMessage.add(oscFloat);
     }
 
-    ConeDown.rainbowOSC.sendOscMessage(oscMessage);
+    // ConeDown.rainbowOSC.sendOscMessage(oscMessage);
   }
 
   public void buildUI(LXStudio.UI ui) {

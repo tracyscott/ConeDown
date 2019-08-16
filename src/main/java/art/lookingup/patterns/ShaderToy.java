@@ -72,7 +72,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   PGraphics toyGraphics;
   PImage textureImage;
 
-  private static final int CONTROLS_MIN_WIDTH = 200;
+  private static final int CONTROLS_MIN_WIDTH = 250;
 
   private static final String SHADER_DATA_DIR = "";
   private static final String LOCAL_SHADER_DIR = "shaders/";
@@ -304,6 +304,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(0, 0, 0, 0);
+    new UIKnob(fpsKnob).addToContainer(knobsContainer);
     new UIKnob(renderTarget).addToContainer(knobsContainer);
     new UIKnob(knob1).addToContainer(knobsContainer);
     new UIKnob(knob2).addToContainer(knobsContainer);
