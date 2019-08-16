@@ -28,7 +28,7 @@ public class ConeScoop extends Multi {
 	    
 	    return new ConeScoop(lx, width, height,
 			    conescoop.create(lx,
-					     factor * ConeDownModel.conePointsWide,
+					     factor * ConeDownModel.scoopPointsWide,
 					     factor * (ConeDownModel.conePointsHigh + ConeDownModel.scoopPointsHigh)),
 			    dance.create(lx,
 					factor * ConeDownModel.dancePointsWide,
@@ -47,11 +47,11 @@ public class ConeScoop extends Multi {
 	area.copy(fragments[0].image,
 		  0,
 		  0,
-		  factor * ConeDownModel.conePointsWide,
+		  factor * ConeDownModel.scoopPointsWide,
 		  factor * (ConeDownModel.conePointsHigh + ConeDownModel.scoopPointsHigh),
 		  0,
 		  0,
-		  factor * ConeDownModel.conePointsWide,
+		  factor * ConeDownModel.scoopPointsWide,
 		  factor * (ConeDownModel.conePointsHigh + ConeDownModel.scoopPointsHigh));
 	area.copy(fragments[1].image,
 		  0,
