@@ -42,8 +42,8 @@ abstract public class Pattern extends LXPattern {
 
     public void setFragment(FragmentFactory ff) {
 	this.frag = ff.create(lx, width * superSampling, height * superSampling);
-	this.frag.registerParameters((LXParameter cp)->{
-		addParameter(cp);
+	this.frag.registerParameters((Parameter p)->{
+		addParameter(p.lxp);
 	    });
     }
 
@@ -51,7 +51,6 @@ abstract public class Pattern extends LXPattern {
 	super(lx);
 
 	this.app = app;
-
 	this.width = width;
 	this.height = height;
 
@@ -63,15 +62,13 @@ abstract public class Pattern extends LXPattern {
 	render(deltaMs);
     }
 
-    @Override
-    public void onActive() {
-	// Hmmm
-    }
+    // @Override
+    // public void onActive() {
+    // }
 
-    @Override
-    public void onInactive() {
-	// Hmm
-    }
+    // @Override
+    // public void onInactive() {
+    // }
 
     static PGraphics createGraphics(PApplet app, int w, int h) {
 	if (gtype == "") {
@@ -114,7 +111,7 @@ abstract public class Pattern extends LXPattern {
 	elapsed = current;
     }
     
-    static int counter;
+    // static int counter;
 
     public void setup() {
     }
