@@ -633,8 +633,11 @@ public class ConeDownModel extends LXModel {
       float xImgCoord = imgXOffset + p.panel.danceXPanel * p.panel.pointsWide + p.xCoord;
       xCoord = xImgCoord;
 
+      // System.err.println("DANCE yCoordOffset = " + p.panel.yCoordOffset + " yCoord " + yCoord + " xCoord " + xCoord);
     } else {
-	xCoord = (float)(p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p);
+	xCoord = (p.panel.panelNum * p.panel.pointsWide + p.xCoord) * xScale(p);
+
+	// System.err.println("OTHER yCoordOffset = " + p.panel.yCoordOffset + " yCoord " + yCoord + " xCoord " + xCoord);
     }
 
     coordinates[0] = xCoord;

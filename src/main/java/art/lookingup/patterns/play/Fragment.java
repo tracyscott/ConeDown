@@ -34,6 +34,7 @@ abstract public class Fragment {
     static int nextNum;
 
     protected Fragment(int width, int height) {
+	System.err.println("New fragment " + width + ":" + height);
 	this.width = width;
 	this.height = height;
 	this.elapsed = 0;  // Note: updated by Pattern.preDraw()

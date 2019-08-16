@@ -24,7 +24,7 @@ abstract public class Pattern extends LXPattern {
     // "" for builtin, P2D or P3D for opengl
     public static final String gtype = "";
 
-    public static final int superSampling = 1; // ConeDown.MAX_SUPER_SAMPLING;
+    public static final int superSampling = ConeDown.MAX_SUPER_SAMPLING;
 
     public final PApplet app;
 
@@ -51,6 +51,7 @@ abstract public class Pattern extends LXPattern {
 	super(lx);
 
 	this.app = app;
+
 	this.width = width;
 	this.height = height;
 
@@ -72,11 +73,11 @@ abstract public class Pattern extends LXPattern {
 	// Hmm
     }
 
-    static PGraphics createGraphics(PApplet app, int width, int height) {
+    static PGraphics createGraphics(PApplet app, int w, int h) {
 	if (gtype == "") {
-	    return app.createGraphics(width, height);
+	    return app.createGraphics(w, h);
 	}
-	return app.createGraphics(width, height, gtype);
+	return app.createGraphics(w, h, gtype);
     }
 
     void render(double deltaMs) {
@@ -99,16 +100,21 @@ abstract public class Pattern extends LXPattern {
 	// if (counter++ % 100 == 0) {
 	//     frag.image.save(String.format("/Users/jmacd/Desktop/dump/canvas-%s.png", counter++));
 	// }
-	
+
 	for (LXPoint p : lx.getModel().points) {
+	    CXPoint cxp = (CXPoint)p;
+	    if (cxp.panel == null) {
+		// TODO the interior lights!
+		continue;
+	    }
 	    colors[p.index] = ConeDown.getProjection(superSampling).
-		computePoint((CXPoint) p, frag.image, 0, 0);
+		computePoint(cxp, frag.image, 0, 0);
 	}
 
 	elapsed = current;
     }
     
-    // static int counter;
+    static int counter;
 
     public void setup() {
     }

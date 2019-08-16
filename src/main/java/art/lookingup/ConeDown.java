@@ -107,7 +107,7 @@ public class ConeDown extends PApplet {
   // some (2) to plenty (4).
   public static int MIN_SUPER_SAMPLING = 1;
   public static int DEFAULT_SUPER_SAMPLING = 1;
-  public static int MAX_SUPER_SAMPLING = 4;
+  public static int MAX_SUPER_SAMPLING = 2;
 
   private static Projection projections[] = new Projection[MAX_SUPER_SAMPLING + 1];
 
@@ -197,7 +197,7 @@ public class ConeDown extends PApplet {
               .map(i -> executor.submit(() ->
                   projectionMap.put(i, i <= 1
                     ? trueProjection.get()
-                    : new AntiAliased(model, i + 1))))
+                    : new AntiAliased(model, i))))
               .collect(ImmutableList.toImmutableList());
       Uninterruptibles.getUninterruptibly(Futures.allAsList(futures));
       logger.info("Computed all projections in " + stopwatch);
