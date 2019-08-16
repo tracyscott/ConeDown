@@ -328,7 +328,7 @@ public class Output {
       logger.log(Level.SEVERE, "Initializing LXDatagramOutput failed.", sex);
     }
     if (datagramOutput != null) {
-      datagramOutput.enabled.setValue(false);
+      datagramOutput.enabled.setValue(true);
       lx.engine.output.addChild(datagramOutput);
     } else {
       logger.log(Level.SEVERE, "Did not configure output, error during LXDatagramOutput init");
