@@ -66,9 +66,6 @@ public class AntiAliased implements Projection {
 	    }
 	    float []coords = ConeDownModel.pointToProjectionCoords(cxp);
 
-	    System.err.println("Point " + cxp.panel.panelRegion + " x=" + coords[0] + " y=" + coords[1] +
-			       " ss " + (coords[0] * superSampling + ssOff) +  " " + (coords[1] * superSampling + ssOff));
-
 	    this.tree = this.tree.add(cxp, Geometries.point(coords[0] * superSampling + ssOff,
 							    coords[1] * superSampling + ssOff));
 
@@ -84,8 +81,6 @@ public class AntiAliased implements Projection {
 		maxOY = Math.max(maxOY, (1 + coords[1]) * superSampling);
 	    }		
 	}
-
-	System.err.println("AntiAliased superSampling=" + superSampling + " ssWide " + ssWide + " sshigh " + ssHigh + " mindy " + minDY + " maxOY " + maxOY);
 
 	int pCount = 0;
 
@@ -104,18 +99,25 @@ public class AntiAliased implements Projection {
 		    CXPoint cxp = point.value();
 		    Geometry geo = point.geometry();
 
-		    // if (cxp.panel.panelRegion != Panel.PanelRegion.DANCEFLOOR) {
-		    // 	if (j >= minDY) {
-		    // 	    System.err.println("Pixel crosser: " + i + ":" + j + " w/ " + minDY);
-		    // 	}
-		    // }		    
-
 		    if (cxp.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
 		    	if (j < minDY) {
-		    	    System.err.println("Pixel crosser: " + i + ":" + j + " w/ " + minDY + " geo " + geo);
+			    // Dance floors should not see pixels above the line.
+			    // This happens because of the missing pixels between scoop and
+			    // dancefloor.
+			    continue;
 		    	}
-		    }		    
-		    
+		    }
+		    double xd = (j - geo.mbr().y1());
+		    double yd = (i - geo.mbr().x1());
+		    double dist = Math.sqrt(xd * xd + yd * yd);
+
+		    // Somewhat arbitrary limit, this is here because
+		    // we do not have a proper perimeter in the area
+		    // between the scoop and the dance floor.
+		    if (dist > superSampling * 1.5) {
+			continue;
+		    }
+
 		    pixels[cxp.index].subs.add(idx);
 		    pCount++;
 		    break;
@@ -179,15 +181,11 @@ public class AntiAliased implements Projection {
     int end = positions[cxp.index + 1];
     float w = 1f / (end - positions[cxp.index]);
 
-    //System.err.println("Compute " + cxp.index);
-
     for (int off = positions[cxp.index]; off < end; off++) {
       int subpos = subpixels[off];
       
       int subx = subpos % ssWide;
       int suby = subpos / ssWide;
-
-      //System.err.println("  @ " + subx + ":" + suby + " sswide " + ssWide + " subpos " + subpos);
 
       subx += xoffset;
       suby += yoffset;

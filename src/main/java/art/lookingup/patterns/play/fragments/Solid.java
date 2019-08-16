@@ -19,7 +19,6 @@ public class Solid extends Fragment {
 	public Factory() { }
 
 	public Fragment create(LX lx, int width, int height) {
-	    System.err.println("New solid " + width + ":" + height);
 	    return new Solid(lx, width, height);
 	}
     };
