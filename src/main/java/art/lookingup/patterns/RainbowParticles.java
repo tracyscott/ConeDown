@@ -127,7 +127,7 @@ public class RainbowParticles extends PGPixelPerfect {
     pg_canvas.endDraw();
     particles.displayParticles(pg_canvas);
     pg.blendMode(REPLACE);
-    applyLiquidFx();
+    //applyLiquidFx();
     //applyBloom();
     pg_canvas.loadPixels();
     pg_canvas.updatePixels();
@@ -162,12 +162,14 @@ public class RainbowParticles extends PGPixelPerfect {
     filter.luminance_threshold.param.exponent  = 5;
     filter.luminance_threshold.apply(pg_canvas, pg_luminance);
 
+    /*
     filter.bloom.setBlurLayers(10);
 //      filter.bloom.gaussianpyramid.setBlurLayers(10);
     filter.bloom.param.blur_radius = 1;
     filter.bloom.param.mult   = 1.2f;    //map(mouseX, 0, width, 0, 10);
     filter.bloom.param.radius = 0.1f;//map(mouseY, 0, height, 0, 1);
     filter.bloom.apply(pg_luminance, null, pg_canvas);
+    */
   }
 
   public void spawnParticles(){
@@ -186,8 +188,8 @@ public class RainbowParticles extends PGPixelPerfect {
     vx = 0;
     vy = 0;
 
-    DwFlowFieldParticles.SpawnRadial srt = new DwFlowFieldParticles.SpawnRadial();
-    DwFlowFieldParticles.SpawnRect sr = new DwFlowFieldParticles.SpawnRect();
+    DwFlowFieldParticles.SpawnRadial sr = new DwFlowFieldParticles.SpawnRadial();
+    DwFlowFieldParticles.SpawnRect sr1 = new DwFlowFieldParticles.SpawnRect();
     DwFlowFieldParticles.SpawnRect sr2 = new DwFlowFieldParticles.SpawnRect();
 //    sr.num(count);
 //    sr.dim(radius, radius);
@@ -207,8 +209,8 @@ public class RainbowParticles extends PGPixelPerfect {
       vx = 1f * +vel;
       vy = 1f * -vel;
 
-      sr.num(2, 2);
-      //sr.num(2);
+      //sr.num(2, 2);
+      sr.num(10);
       sr.dim(1f, 1f); //radius, radius);
       sr.pos(px, vh-1-py);
       sr.vel(vx, vy);

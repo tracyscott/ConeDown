@@ -113,7 +113,7 @@ public class ConeDown extends PApplet {
 
   @Override
   public void settings() {
-    size(1400, 678, P3D);
+    size(1600, 800, P3D);
   }
 
   public static Projection getProjection(int ss) {
