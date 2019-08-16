@@ -70,7 +70,7 @@ public class Output {
     return true;
   }
 
-  public static String artnetIpAddress = "192.168.2.120";
+  public static String artnetIpAddress = "192.168.137.146";
   public static int artnetPort = 6454;
 
   // TODO(tracy): We need to put out the points in the same order for the CNC-based panels that we did for
@@ -328,6 +328,7 @@ public class Output {
       logger.log(Level.SEVERE, "Initializing LXDatagramOutput failed.", sex);
     }
     if (datagramOutput != null) {
+      datagramOutput.enabled.setValue(false);
       lx.engine.output.addChild(datagramOutput);
     } else {
       logger.log(Level.SEVERE, "Did not configure output, error during LXDatagramOutput init");
@@ -428,62 +429,79 @@ public class Output {
 
   static public final int NUM_CARS = 5;
   static public LXDatagramOutput carOutput = null;
+  static public int[] fdCarZCounts = {630, 408, 551, 630, 408, 551, 900};
+  static public int[][] fdCarZDims = {{30, 21}, {34, 12}, {29, 19}, {30, 21}, {34, 12}, {29, 19}, {45, 20}, {19,16}};
 
-  static public void outputGalacticJungle(LX lx) {
-    List<ArtNetDatagram> allCarsAllDatagrams = new ArrayList<ArtNetDatagram>();
+  static public int[][] fdCarEDims = {{23, 19}, {21, 21}, {44, 13}, {17, 36}, {20, 23}, {21, 22}, {44, 12}, {37,18}, {20, 20}, {20, 20}, {20, 20}};
+  static public int[][] fdCarLDims = {{32, 21}, {32, 21}, {42, 17}, {23, 13}, {32, 21}, {41, 17}, {44, 28}};
+  static public int[][] fdCarRDims = {{20, 20}, {20, 20}, {20, 20}, {36, 24}, {27, 12}, {32, 10}, {32, 14}, {36, 22}, {46, 23}, {34, 10}, {52, 28}};
+  static public int[][] fdCarTDims = {{29, 19}, {22, 17}, {20, 20}, {29, 19}, {22, 17}, {36, 19}, {32, 21}, {32, 21}};
+
+  static public int[][][] fdCarDims;
+
+  static public void outputGalactic(LX lx) {
+    List<int[][]> fdCarDims = new ArrayList<int[][]>();
+
+    fdCarDims.add(fdCarZDims);
+    fdCarDims.add(fdCarEDims);
+    fdCarDims.add(fdCarLDims);
+    fdCarDims.add(fdCarRDims);
+    fdCarDims.add(fdCarTDims);
 
     // If we have an existing output, remove it and disable it.
     if (carOutput != null) {
       lx.engine.output.removeChild(carOutput);
     }
 
+    List<ArtNetDatagram> allCarsDatagrams = new ArrayList<ArtNetDatagram>();
+    int curUniverseStart = 1;
+    int globalPointNum = 0;
     for (int i = 0; i < NUM_CARS; i++) {
-      // For now, we are assuming that a car is 20x200 so 4000 points.  Let's just take the G layer of
-      // points and replicate them to fill the car.
-      List<Panel> gLayer = getPanelLayer(Panel.PanelType.G);
-      String ipAddress = ConeDown.galacticJungle.getStringParameter("ip" + (i+1)).getString();
-      int port = Integer.parseInt(ConeDown.galacticJungle.getStringParameter("port" + (i+1)).getString());
-      int startUniv = Integer.parseInt(ConeDown.galacticJungle.getStringParameter("univ" + (i+1)).getString());
-
-      // G Panels are 7x7.  16 panels is 112. 15 panels is 105.  So we want 14 panels + 5 cols off the last
-      // panel.  To get 20 points high we want three layers of panels except -1 row for the final panel.
-      List<CXPoint> allCarPoints = new ArrayList<CXPoint>();
-      for (int rowNum = 0; rowNum < 3; rowNum++) {
-        for (int colNum = 0; colNum < 15; colNum++) {
-          Panel panel = gLayer.get(colNum);
-          List<CXPoint> points = panel.getPoints();
-          if (rowNum == 3) {
-            if (colNum == 14) {
-              // We don't want the bottom row of points and only 5 columns on this last panel
-              points = panel.cropPoints(0, 1, 4, 6);
-            } else {
-              // We don't want to bottom row of points.
-              points = panel.cropPoints(0, 1, 6, 6);
-            }
-          } else if (colNum == 14) {
-            points = panel.cropPoints(0, 0, 4, 6);
+      String thisCarIpAddress = ConeDown.galacticJungle.getStringParameter("ip" + (i+1)).getString();
+      // Need the base ip address
+      String[] ipParts = thisCarIpAddress.split("\\.");
+      int lastIpPart = Integer.parseInt(ipParts[3]);
+      String baseIpPart = ipParts[0] + "." + ipParts[1] + "." + ipParts[2] + ".";
+      List<ArtNetDatagram> thisCarDatagrams = new ArrayList<ArtNetDatagram>();
+      int[][] thisCarDimensions = fdCarDims.get(i);
+      for (int fluxDriveNum = 0; fluxDriveNum < thisCarDimensions.length; fluxDriveNum++) {
+        int[] thisFluxDriveDims = thisCarDimensions[fluxDriveNum];
+        int pointCount = thisFluxDriveDims[0] * thisFluxDriveDims[1];
+        // Each fluxDriveNum == 0 has a 200 pt auxillary output.
+        if (fluxDriveNum == 0)
+          pointCount += 200;
+        List<CXPoint> pointsForThisFluxDrive = new ArrayList<CXPoint>();
+        for (int ptNum = 0; ptNum < pointCount; ptNum++) {
+          CXPoint pt = (CXPoint) lx.getModel().getPoints().get(globalPointNum);
+          // Test mode. All points for this flux drive will be red, green, blue, or yellow.
+          // CXPoint pt = (CXPoint) lx.getModel().getPoints().get(fluxDriveNum % 4);
+          // Currently, we are just throwing our points directly to their artnet universes without
+          // any spatial mapping.
+          pointsForThisFluxDrive.add(pt);
+          globalPointNum++;
+          if (globalPointNum >= lx.getModel().getPoints().size()) {
+            globalPointNum = 0;
           }
-          allCarPoints.addAll(points);
         }
+        int thisFluxDriveLastIp = lastIpPart + fluxDriveNum;
+        String thisFluxDriveIp = baseIpPart + thisFluxDriveLastIp;
+        logger.info("datagrams for: " + thisFluxDriveIp);
+        List<ArtNetDatagram> thisFluxDriveDatagrams =
+            assignPointsToArtNetDatagrams(pointsForThisFluxDrive, curUniverseStart, thisFluxDriveIp, 6454);
+        logger.info("car num: " + i + " fdNum: " + fluxDriveNum + " start: " + curUniverseStart + " univs:" +
+            thisFluxDriveDatagrams.size());
+        curUniverseStart += thisFluxDriveDatagrams.size();
+        thisCarDatagrams.addAll(thisFluxDriveDatagrams);
       }
-
-      List<ArtNetDatagram> perCarDatagrams = assignPointsToArtNetDatagrams(allCarPoints, startUniv, ipAddress, port);
-
-      // We send separate ArtNet sync datagrams to each car independently
-      /*
-      try {
-        datagramOutput.addDatagram(new ArtSyncDatagram().setAddress(ipAddress).setPort(port));
-      } catch (UnknownHostException uhex) {
-        logger.log(Level.SEVERE, "Unknown host for Galactic ArtNet sync.", uhex);
-      }
-      */
-      allCarsAllDatagrams.addAll(perCarDatagrams);
+      logger.info("car num: " + i + " universes: " + thisCarDatagrams.size());
+      allCarsDatagrams.addAll(thisCarDatagrams);
+      curUniverseStart += 10;  // For reserved space.
     }
 
     // For now we are just going to have one LXDatagramOutput for all cars.
     try {
       carOutput = new LXDatagramOutput(lx);
-      for (ArtNetDatagram datagram : allCarsAllDatagrams) {
+      for (ArtNetDatagram datagram : allCarsDatagrams) {
         carOutput.addDatagram(datagram);
       }
     } catch (SocketException sex) {

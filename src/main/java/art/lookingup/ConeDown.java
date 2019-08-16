@@ -73,7 +73,7 @@ public class ConeDown extends PApplet {
   private heronarts.lx.studio.LXStudio lx;
 
   public static PApplet pApplet;
-  public static final int GLOBAL_FRAME_RATE = 40;
+  public static final int GLOBAL_FRAME_RATE = 33;
 
   public static RainbowOSC rainbowOSC;
 
@@ -196,7 +196,7 @@ public class ConeDown extends PApplet {
     // Put this here because it needs to be after file loads in order to find appropriate channels.
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     modeSelector.standardMode.setActive(true);
-    //frameRate(GLOBAL_FRAME_RATE);
+    frameRate(GLOBAL_FRAME_RATE);
   }
 
 
@@ -233,8 +233,8 @@ public class ConeDown extends PApplet {
       Output.configurePixliteOutput(lx);
       //Output.configureUnityArtNet(lx);
       // By default the output in Galactic Jungle is disabled.
-      Output.outputGalacticJungle(lx);
-
+      //Output.outputGalacticBrightnessDown(lx);
+      Output.outputGalactic(lx);
     }
     if (disableOutputOnStart)
       lx.engine.output.enabled.setValue(false);
