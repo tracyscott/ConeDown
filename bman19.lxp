@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1566009988969,
+  "timestamp": 1566014486773,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -16758785,
+    "modulationColor": -9436929,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -27,7 +27,7 @@
       "crossfader": 0.5,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 6,
+      "focusedChannel": 4,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -105,7 +105,7 @@
               "exp": 0.0
             },
             "children": {},
-            "basis": 0.3476003569985063
+            "basis": 0.3995793427552508
           }
         ],
         "modulations": [
@@ -588,6 +588,29 @@
               "Range": 0.37500000558793545
             },
             "children": {}
+          },
+          {
+            "source": {
+              "componentId": 25,
+              "parameterPath": "Band-1",
+              "path": "/audio/modulator/1/Band-1"
+            },
+            "target": {
+              "componentId": 11575,
+              "parameterPath": "K1",
+              "path": "/channel/5/pattern/16/K1"
+            },
+            "id": 11879,
+            "class": "heronarts.lx.parameter.LXCompoundModulation",
+            "modulationColor": -23296,
+            "internal": {},
+            "parameters": {
+              "label": "LX",
+              "enabled": true,
+              "Polarity": 0,
+              "Range": 1.0
+            },
+            "children": {}
           }
         ],
         "triggers": []
@@ -684,20 +707,20 @@
               "attack": 30.99999953061342,
               "release": 2.137006908873942,
               "slope": 1.9499998893588781,
-              "Band-1": 0.6896304202703984,
-              "Band-2": 0.8178538768197836,
-              "Band-3": 0.895482709512087,
-              "Band-4": 0.9602538402279488,
-              "Band-5": 0.9645522007145424,
-              "Band-6": 0.8425735749188219,
-              "Band-7": 1.0,
-              "Band-8": 1.0,
-              "Band-9": 0.9149118649996514,
-              "Band-10": 0.7779038782449239,
-              "Band-11": 0.6364731677574895,
-              "Band-12": 0.6638007356434577,
-              "Band-13": 0.650876089754977,
-              "Band-14": 0.31555107295177365,
+              "Band-1": 0.5206402061528113,
+              "Band-2": 0.6422727463616567,
+              "Band-3": 0.7491559028630077,
+              "Band-4": 0.8255720113546355,
+              "Band-5": 0.7682442327323123,
+              "Band-6": 0.4909111611827238,
+              "Band-7": 0.6445315071273636,
+              "Band-8": 0.8549808003353091,
+              "Band-9": 0.7371552952945559,
+              "Band-10": 0.7187766395908679,
+              "Band-11": 0.7151582467060369,
+              "Band-12": 0.6676847179166164,
+              "Band-13": 0.4274367626383805,
+              "Band-14": 0.06356983972978758,
               "Band-15": 0.0,
               "Band-16": 0.0
             },
@@ -747,7 +770,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.011,
+          "fader": 0.021,
           "crossfadeGroup": 0,
           "blendMode": 0
         },
@@ -893,7 +916,7 @@
                       "exp": 0.0
                     },
                     "children": {},
-                    "basis": 0.914593553409096
+                    "basis": 0.4632800635637883
                   }
                 ],
                 "modulations": [
@@ -1145,7 +1168,7 @@
           "selected": false,
           "enabled": false,
           "cue": false,
-          "fader": 0.02,
+          "fader": 0.024,
           "crossfadeGroup": 0,
           "blendMode": 0,
           "midiMonitor": false,
@@ -1390,10 +1413,10 @@
         "parameters": {
           "label": "STD",
           "arm": false,
-          "selected": false,
-          "enabled": false,
+          "selected": true,
+          "enabled": true,
           "cue": false,
-          "fader": 0.021,
+          "fader": 1.0,
           "crossfadeGroup": 0,
           "blendMode": 4,
           "midiMonitor": false,
@@ -1438,7 +1461,7 @@
           }
         ],
         "clips": [],
-        "patternIndex": 13,
+        "patternIndex": 15,
         "patterns": [
           {
             "id": 247,
@@ -2065,6 +2088,46 @@
                 "triggers": []
               }
             }
+          },
+          {
+            "id": 11575,
+            "class": "art.lookingup.patterns.ShaderToy",
+            "modulationColor": -16711936,
+            "internal": {
+              "expanded": true,
+              "modulationExpanded": false,
+              "autoCycleEligible": true
+            },
+            "parameters": {
+              "label": "ShaderToy",
+              "Fps": 23.220000442117453,
+              "Tgt": 0,
+              "Super": 1,
+              "Audio": true,
+              "K1": 0.04000001773238182,
+              "K2": 0.0,
+              "K3": 0.0,
+              "K4": 0.0,
+              "Blur": 0.0,
+              "frag": "hearts",
+              "tex": "tunneltex.png",
+              "Texture": 0
+            },
+            "children": {
+              "modulation": {
+                "id": 11576,
+                "class": "heronarts.lx.LXModulationEngine",
+                "modulationColor": -65350,
+                "internal": {},
+                "parameters": {
+                  "label": "Modulation"
+                },
+                "children": {},
+                "modulators": [],
+                "modulations": [],
+                "triggers": []
+              }
+            }
           }
         ]
       },
@@ -2077,7 +2140,7 @@
           "label": "AUDIO",
           "arm": false,
           "selected": false,
-          "enabled": true,
+          "enabled": false,
           "cue": false,
           "fader": 0.30000000167638063,
           "crossfadeGroup": 0,
@@ -2097,7 +2160,7 @@
         "parameters": {
           "label": "Acolor",
           "arm": false,
-          "selected": true,
+          "selected": false,
           "enabled": true,
           "cue": false,
           "fader": 1.0,
@@ -2628,7 +2691,7 @@
               "Blur": 104.54999718815088,
               "frag": "tunnel",
               "tex": "fractal6.png",
-              "Texture": 9
+              "Texture": 10
             },
             "children": {
               "modulation": {
@@ -3401,7 +3464,7 @@
             "parameters": {
               "label": "Blur",
               "enabled": true,
-              "amount": 0.7199999690055847
+              "amount": 0.7199999913573265
             },
             "children": {
               "modulation": {
@@ -3421,7 +3484,7 @@
           }
         ],
         "clips": [],
-        "patternIndex": 2,
+        "patternIndex": 1,
         "patterns": [
           {
             "id": 6382,
@@ -3506,7 +3569,7 @@
                       "exp": 0.0
                     },
                     "children": {},
-                    "basis": 0.5700000000019544
+                    "basis": 0.1480000000025985
                   }
                 ],
                 "modulations": [
@@ -3666,9 +3729,9 @@
         "centerPoint": false,
         "camera": {
           "active": false,
-          "radius": 19.667401825059812,
-          "theta": 275.05647898120714,
-          "phi": -0.28033550302192,
+          "radius": 27.60526425753442,
+          "theta": 324.82390403244443,
+          "phi": -0.005159545844488479,
           "x": -2.4178380966186523,
           "y": 4.772895812988281,
           "z": 0.0
@@ -3676,9 +3739,9 @@
         "cue": [
           {
             "active": false,
-            "radius": 19.667401825059812,
-            "theta": 275.05647898120714,
-            "phi": -0.28033550302192,
+            "radius": 27.60526425753442,
+            "theta": 324.82390403244443,
+            "phi": -0.005159545844488479,
             "x": -2.4178380966186523,
             "y": 4.772895812988281,
             "z": 0.0
