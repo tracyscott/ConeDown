@@ -1,35 +1,24 @@
 package art.lookingup;
 
-import art.lookingup.Projection;
-
 import static art.lookingup.ConeDownModel.POINTS_HIGH;
 import static art.lookingup.ConeDownModel.POINTS_WIDE;
-
-import com.github.davidmoten.rtree.Entry;
-import com.github.davidmoten.rtree.RTree;
-import com.github.davidmoten.rtree.Visualizer;
-import com.github.davidmoten.rtree.geometry.Geometries;
-import com.github.davidmoten.rtree.geometry.Geometry;
-import com.github.davidmoten.rtree.geometry.Point;
-
+import static art.lookingup.colors.Colors.alpha;
 import static art.lookingup.colors.Colors.blue;
 import static art.lookingup.colors.Colors.green;
 import static art.lookingup.colors.Colors.red;
-import static art.lookingup.colors.Colors.alpha;
 
+import com.github.davidmoten.rtree.Entry;
+import com.github.davidmoten.rtree.RTree;
+import com.github.davidmoten.rtree.geometry.Geometries;
+import com.github.davidmoten.rtree.geometry.Geometry;
+import com.github.davidmoten.rtree.geometry.Point;
+import com.google.common.base.Stopwatch;
 import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXModel;
 import heronarts.lx.model.LXPoint;
-
-import processing.core.PImage;
-
-import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Map;
 import java.util.logging.Logger;
+import processing.core.PImage;
 
 public class AntiAliased implements Projection {
     RTree<CXPoint, Point> tree = RTree.create();
@@ -43,6 +32,7 @@ public class AntiAliased implements Projection {
     private static final Logger logger = Logger.getLogger(AntiAliased.class.getName());
 
     public AntiAliased(LXModel model, int superSampling) {
+    	Stopwatch stopwatch =  Stopwatch.createStarted();
 	Pixel[] pixels = new Pixel[model.size];
 	float ssOff = superSampling / 2f;
 
@@ -57,7 +47,7 @@ public class AntiAliased implements Projection {
 	float maxOY = 0;
 
 	this.positions = new int[ssHigh * ssWide + 1];
-	
+
 	for (LXPoint lxp : model.points) {
 	    CXPoint cxp = (CXPoint) lxp;
 	    if (cxp.panel == null) {
@@ -79,7 +69,7 @@ public class AntiAliased implements Projection {
 		maxDY = Math.max(maxDY, (1 + coords[1]) * superSampling);
 	    } else {
 		maxOY = Math.max(maxOY, (1 + coords[1]) * superSampling);
-	    }		
+	    }
 	}
 
 	int pCount = 0;
@@ -92,7 +82,7 @@ public class AntiAliased implements Projection {
 		if (j >= minDY && (i < minDX || i >= maxDX)) {
 		    continue;
 		}
-		
+
 		for (Entry<CXPoint, Point> point :
 			 this.tree.nearest(Geometries.point(i, j), Double.POSITIVE_INFINITY, 1).
 			 toBlocking().toIterable()) {
@@ -156,6 +146,7 @@ public class AntiAliased implements Projection {
 	// for (LXPoint lxp : model.points) {
 	//     buildWeights(lxp);
 	// }
+			System.out.format("*** Initialized AntiAliased(%s) in %s\n", superSampling, stopwatch);
     }
 
     public CXPoint lookupPoint(float x, float y) {
@@ -183,7 +174,7 @@ public class AntiAliased implements Projection {
 
     for (int off = positions[cxp.index]; off < end; off++) {
       int subpos = subpixels[off];
-      
+
       int subx = subpos % ssWide;
       int suby = subpos / ssWide;
 
