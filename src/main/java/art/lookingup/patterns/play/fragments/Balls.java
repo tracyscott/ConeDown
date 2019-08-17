@@ -129,7 +129,7 @@ public class Balls extends Fragment {
 
 	float d = (float)(b.dp * sizeParam.value() /** ConeDown.autoAudio.bestVal*/);
 
-	area.scale(projection.xScale(0, y), 1);
+	area.scale(getProjection().xScale(0, y), 1);
 
 	// TODO @@@ fix the seam, double draw near borders
 	area.ellipse(0, 0, d, d);

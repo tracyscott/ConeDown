@@ -127,18 +127,9 @@ public class ConeDown extends PApplet {
   }
 
   public static Projection getProjection(int ss) {
+    ss = Math.max(Math.min(ss, MAX_SUPER_SAMPLING), MIN_SUPER_SAMPLING);
     try {
-      for(int i = ss; i >= MIN_SUPER_SAMPLING; i--) {
-        int max = Math.max(Math.min(ss, MAX_SUPER_SAMPLING), MIN_SUPER_SAMPLING);
-        Future<? extends Projection> projection = projectionMap.get(i);
-        if (projection != null && projection.isDone()) {
-          if (i > currentSample) {
-            currentSample = i;
-            logger.info(String.format("Switching to level %s", i));
-          }
-        }
-      }
-      return projectionMap.get(MIN_SUPER_SAMPLING).get();
+      return projectionMap.get(ss).get();
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException("Error initializing projection:", e);
     }
