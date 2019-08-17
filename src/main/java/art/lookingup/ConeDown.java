@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
@@ -90,6 +91,9 @@ public class ConeDown extends PApplet {
 
   public static PApplet pApplet;
   public static final int GLOBAL_FRAME_RATE = 33;
+
+  public static final Optional<Float> DEFAULT_ZOOM = Optional.empty();
+  //public static final Optional<Float> DEFAULT_ZOOM = Optional.of(10f);
 
   public static RainbowOSC rainbowOSC;
 
@@ -224,6 +228,7 @@ public class ConeDown extends PApplet {
     lx = new LXStudio(this, flags, model);
 
     lx.ui.setResizable(true);
+    DEFAULT_ZOOM.ifPresent(lx.ui.preview::setRadius);
 
     // Put this here because it needs to be after file loads in order to find appropriate channels.
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
