@@ -28,8 +28,12 @@ public class Play extends Pattern {
     public Play(LX lx, PApplet app, int width, int height) {
 	super(lx, app, width, height);
 
-	 this.setFragment(new Beacon.Factory(new Balls.Factory(),
-	 				    new Spiral.Factory()));
+	this.setFragment(new ConeScoop.Factory(new Beacon.Factory(new Balls.Factory(),
+								  new Spiral.Factory()),
+					       new Blend.Factory(ADD,
+								 new Spiral.Factory(),
+								 new Spiral.Factory())));
+
 	// this.setFragment(new Cone.Factory(new Solid.Factory(),
 	// 				  new Spiral.Factory(),
 	// 				  new Balls.Factory()));

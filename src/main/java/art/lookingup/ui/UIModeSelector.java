@@ -1,5 +1,6 @@
 package art.lookingup.ui;
 
+import art.lookingup.ConeDown;
 import art.lookingup.ParameterFile;
 import art.lookingup.PropertyFile;
 import art.lookingup.patterns.UninterruptiblePattern;
@@ -480,6 +481,8 @@ public class UIModeSelector extends UICollapsibleSection {
     public double avgTimeRemaining;
 
     public void loop(double deltaMs) {
+      ConeDown.autoAudio.update();
+
       // TODO(tracy): We need a number of samples over time and then decide if we should switch
       // based on that.
       if (!autoAudioModeP.isOn()) return;

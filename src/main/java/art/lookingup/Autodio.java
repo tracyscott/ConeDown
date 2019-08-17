@@ -18,12 +18,13 @@ public class Autodio extends LXComponent {
   public CompoundParameter bestHigh = new CompoundParameter("bestHigh", 1, 0, 1);
 
     LXStudio lxs;
+    GraphicMeter eq;
 
     public static final int windowSize = 100;
     private static final Logger logger = Logger.getLogger(Autodio.class.getName());
 
     public double[] bandVar;
-    public double bestVal;
+
     double[][] window;
     int next;
 
@@ -35,7 +36,7 @@ public class Autodio extends LXComponent {
 	addParameter(bestMid);
 	addParameter(bestHigh);
 
-	GraphicMeter eq = lxs.engine.audio.meter;
+	this.eq = lxs.engine.audio.meter;
 
 	this.lxs = lxs;
 	this.window = new double[eq.fft.getNumBands()][];
@@ -46,7 +47,6 @@ public class Autodio extends LXComponent {
     }
 
     public void update() {
-	GraphicMeter eq = lxs.engine.audio.meter;
 
 	// EQ size 0.5598034 16 44100 512
 	// logger.info("EQ size " +
@@ -61,10 +61,17 @@ public class Autodio extends LXComponent {
 
 	next++;
 	next %= eq.fft.getNumBands();
+
+	bestLow.setValue(getBest(0, 5));
+	bestMid.setValue(getBest(5, 11));
+	bestHigh.setValue(getBest(11, 16));
+    }
+
+    double getBest(int from, int to) {
 	double maxV = 0;
 	double maxB = 0;
 
- 	for (int i = 0; i < eq.numBands; i++) {
+ 	for (int i = from; i < to; i++) {
 	    double v = variance.evaluate(window[i]);
 	    bandVar[i] = v;
 
@@ -73,22 +80,6 @@ public class Autodio extends LXComponent {
 		maxB = eq.bands[i].getValue();
 	    }
 	}
-
-	bestVal = maxB;
-	
-	// byte[] fftAudioTex = new byte[1024];
-	// for (int i = 0; i < 256; i++) {
-	//     int fftValue = (int) (256 * eq.fft.get(i));
-	//     // Audio buffer is only 512 bytes, so fft is 256.  Let's
-	//     // just add duplicate values.
-	//     fftAudioTex[i] = (byte) fftValue;
-	//     //fftAudioTex[i*2+1] = (byte) fftValue;
-	// }
-	// float[] audioSamples = eq.getSamples();
-	// for (int i = 512; i < 1024; i++) {
-	//     int audioValue = (int) (256 * audioSamples[i-512]);
-	//     fftAudioTex[i] = (byte) audioValue;
-	// }
-	// ByteBuffer audioTexBuf = ByteBuffer.wrap(fftAudioTex);
+	return maxB;
     }
 }

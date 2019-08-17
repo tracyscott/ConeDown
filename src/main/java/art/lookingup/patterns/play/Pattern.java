@@ -80,9 +80,6 @@ abstract public class Pattern extends LXPattern {
     void render(double deltaMs) {
 	current += (float)(speedKnob.getValue() * (deltaMs / 1e3));
 
-	// @@@ @@@
-	ConeDown.autoAudio.update();
-
 	if (!init) {
 	    init = true;
 

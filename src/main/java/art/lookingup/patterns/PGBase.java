@@ -25,7 +25,7 @@ abstract class PGBase extends RPattern {
   public final DiscreteParameter renderTarget =
       new DiscreteParameter("Tgt", 0, 0, 6);
   public final DiscreteParameter superSampling =
-      new DiscreteParameter("Super", 0, 0, 2);
+      new DiscreteParameter("Super", 0, 0, 3);
 
   protected PGraphics pg;
 

@@ -7,7 +7,6 @@ import heronarts.lx.LX;
 import processing.core.PGraphics;
 import processing.core.PImage;
 
-import art.lookingup.Autodio;
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 import art.lookingup.Projection;
@@ -127,7 +126,7 @@ public class Balls extends Fragment {
 	area.noStroke();
 	area.fill(b.color);
 
-	float d = (float)(b.dp * sizeParam.value() /** ConeDown.autoAudio.bestVal*/);
+	float d = (float)(b.dp * sizeParam.value());
 
 	area.scale(getProjection().xScale(0, y), 1);
 
