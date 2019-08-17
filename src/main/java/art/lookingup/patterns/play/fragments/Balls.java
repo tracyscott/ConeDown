@@ -126,9 +126,9 @@ public class Balls extends Fragment {
 	area.noStroke();
 	area.fill(b.color);
 
-	float d = b.dp * sizeParam.value();
+	float d = (float)(b.dp * sizeParam.value());
 
-	area.scale(projection.xScale(0, y), 1);
+	area.scale(getProjection().xScale(0, y), 1);
 
 	// TODO @@@ fix the seam, double draw near borders
 	area.ellipse(0, 0, d, d);

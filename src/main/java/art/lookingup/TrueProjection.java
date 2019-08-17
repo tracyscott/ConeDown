@@ -5,21 +5,19 @@ import static art.lookingup.ConeDownModel.POINTS_WIDE;
 
 import com.github.davidmoten.rtree.Entry;
 import com.github.davidmoten.rtree.RTree;
-import com.github.davidmoten.rtree.Visualizer;
 import com.github.davidmoten.rtree.geometry.Geometries;
-import com.github.davidmoten.rtree.geometry.Geometry;
 import com.github.davidmoten.rtree.geometry.Point;
-
-import processing.core.PImage;
-
-import heronarts.lx.model.LXPoint;
+import com.google.common.base.Stopwatch;
 import heronarts.lx.model.LXModel;
+import heronarts.lx.model.LXPoint;
+import processing.core.PImage;
 
 public class TrueProjection implements Projection {
     int []mapping;
     CXPoint []lookup;
 
     public TrueProjection(LXModel model) {
+    	Stopwatch stopwatch = Stopwatch.createStarted();
 	RTree<CXPoint, Point> tree = RTree.create();
 
 	this.mapping = new int[model.size];
@@ -32,7 +30,7 @@ public class TrueProjection implements Projection {
 		// TODO interior lights
 		continue;
 	    }
-		
+
 	    float []coords = ConeDownModel.pointToProjectionCoords(cxp);
 
 	    int x = (int)(coords[0] + 0.5);
@@ -49,9 +47,10 @@ public class TrueProjection implements Projection {
 			 tree.nearest(Geometries.point(x, y), Double.POSITIVE_INFINITY, 1).
 			 toBlocking().toIterable()) {
 		    this.lookup[y * POINTS_WIDE + x] = point.value();
-		}		
+		}
 	    }
 	}
+	System.out.format("*** Initialized TrueProjection in %s\n", stopwatch);
     }
 
     public CXPoint lookupPoint(float x, float y) {
@@ -67,7 +66,7 @@ public class TrueProjection implements Projection {
     public float xScale(float x, float y) {
 	return ConeDownModel.xScale(lookupPoint(x, y));
     }
-    
+
     public int computePoint(CXPoint p, PImage img, int xoffset, int yoffset) {
 	int idx = mapping[p.index];
 	int x = idx % POINTS_WIDE;

@@ -17,7 +17,6 @@ abstract public class Fragment {
     public final PImage image;
 
     public PGraphics area;
-    public Projection projection;
 
     public final List<Parameter> params = new ArrayList<>();
     public final Parameter rate;
@@ -62,6 +61,10 @@ abstract public class Fragment {
 	return this.area;
     }
 
+    protected Projection getProjection() {
+	return ConeDown.getProjection(Pattern.superSampling);
+    }
+
     public void setup() {}
 
     public void notifyChange() {}
@@ -74,7 +77,6 @@ abstract public class Fragment {
 
     public void create(Pattern p) {
 	this.area = p.createGraphics(p.app, width, height);
-	this.projection = ConeDown.getProjection(Pattern.superSampling);
     }
 
     public void registerParameters(Parameter.Adder adder) {

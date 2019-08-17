@@ -20,4 +20,8 @@ public class Parameter {
     public float value() {
 	return lxp.getValuef();
     }
+
+    public void setValue(double v) {
+	lxp.setValue(v);
+    }
 }
