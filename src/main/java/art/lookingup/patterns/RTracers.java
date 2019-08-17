@@ -21,12 +21,13 @@ import java.util.logging.Logger;
 import static java.lang.Math.ceil;
 import static processing.core.PConstants.BLEND;
 import static processing.core.PConstants.HSB;
+import static processing.core.PConstants.RGB;
 
 public class RTracers extends PGPixelPerfect {
   private static final Logger logger = Logger.getLogger(RTracers.class.getName());
 
   public DiscreteParameter paletteKnob = new DiscreteParameter("palette", 0, 0, Colors.ALL_PALETTES.length + 1);
-  public CompoundParameter blurKnob = new CompoundParameter("blur", 0.25, 0.0, 1.0);
+  public CompoundParameter blurKnob = new CompoundParameter("blur", 0f, 0.0, 255f);
   public CompoundParameter bgAlpha = new CompoundParameter("bgalpha", 0.0, 0.0, 1.0);
   // Probability of a new triangle show up each frame.  Should we allow multiple triangles per frame?  nah,
   // probably not.
@@ -41,6 +42,13 @@ public class RTracers extends PGPixelPerfect {
   public CompoundParameter fillAlpha = new CompoundParameter("falpha", 0.75, 0.0, 1.0);
   public CompoundParameter saturation = new CompoundParameter("sat", 0.5, 0.0, 1.0);
   public CompoundParameter bright = new CompoundParameter("bright", 1.0, 0.0, 1.0);
+  public CompoundParameter sizeMultiKnob =new CompoundParameter("sizeMult", 1.0f, 1.0f, 20.0f)
+      .setDescription("Dynamic size multiplier (map from bass)");
+  public CompoundParameter vertOff = new CompoundParameter("vertOff", 0.0f, 0.0f, 30.0f)
+      .setDescription("Dynamic y offset. (map from mid/high freq");
+  public BooleanParameter outlinedKnob = new BooleanParameter("outline", true)
+      .setDescription("Include black outlines");
+
   public final BooleanParameter randomPaletteKnob =
       new BooleanParameter("RandomPlt", true);
 
@@ -74,7 +82,10 @@ public class RTracers extends PGPixelPerfect {
     addParameter(maxOffScreen);
     addParameter(fillAlpha);
     addParameter(saturation);
+    addParameter(sizeMultiKnob);
+    addParameter(vertOff);
     addParameter(randomPaletteKnob);
+    addParameter(outlinedKnob);
   }
 
   /*
@@ -86,8 +97,14 @@ public class RTracers extends PGPixelPerfect {
   * checked?  Or if palette dropdown has a selected palette so can be both rainbow and redbull.
    */
   public void draw(double drawDeltaMs) {
-    pg.colorMode(HSB, 1.0f);
-    pg.background(0.0f, 0.0f, 0.0f, bgAlpha.getValuef());
+    // pg.colorMode(HSB, 255.0f);
+    pg.colorMode(PConstants.HSB, 1.0f, 1.0f, 1.0f, 255.0f);
+    pg.fill(0, 255 - (int)blurKnob.getValuef());
+    pg.rect(0, 0, pg.width, pg.height);
+    pg.fill(255);
+
+    pg.smooth();
+    //pg.background(0.0f, 0.0f, 0.0f, bgAlpha.getValuef());
 
     updateTracers();
     processTracers();
@@ -220,19 +237,25 @@ public class RTracers extends PGPixelPerfect {
     */
 
 
-
-    pg.fill(tracer.hsb[0], tracer.hsb[1], tracer.hsb[2], fillAlpha.getValuef());
+    if (outlinedKnob.getValueb()) {
+      pg.strokeWeight(1f);
+    } else {
+      pg.strokeWeight(0f);
+    }
+    pg.fill(tracer.hsb[0], tracer.hsb[1], tracer.hsb[2]); //, fillAlpha.getValuef());
     //pg.triangle(pt1X, pt1Y, pt2X, pt2Y, pt3X, pt3Y);
     // If rightOverlap = renderWidth - (pos.x + tracer.size/2f) < 0 then we need to redraw the ellipse at
     // rightOverlap.
-    pg.ellipse(tracer.pos.x, tracer.pos.y, tracer.size, tracer.size);
-    float rightOverlap = (float)renderWidth - ((float)tracer.pos.x + tracer.size/2f);
+    float multipliedSize = tracer.size * sizeMultiKnob.getValuef();
+    float offsetY = tracer.pos.y - vertOff.getValuef();
+    pg.ellipse(tracer.pos.x, offsetY, multipliedSize, multipliedSize);
+    float rightOverlap = (float)renderWidth - ((float)tracer.pos.x + multipliedSize/2f);
     if (rightOverlap < 0) {
-      pg.ellipse(-rightOverlap - tracer.size/2f, tracer.pos.y, tracer.size, tracer.size);
+      pg.ellipse(-rightOverlap - multipliedSize/2f, offsetY, multipliedSize, multipliedSize);
     }
-    float leftEdge = (float)tracer.pos.x - ((float)tracer.size)/2f;
+    float leftEdge = (float)tracer.pos.x - ((float)multipliedSize)/2f;
     if (leftEdge < 0f) {
-      pg.ellipse(renderWidth + leftEdge + tracer.size/2f, tracer.pos.y, tracer.size, tracer.size);
+      pg.ellipse(renderWidth + leftEdge + multipliedSize/2f, offsetY, multipliedSize, multipliedSize);
     }
   }
 
@@ -248,7 +271,7 @@ public class RTracers extends PGPixelPerfect {
       CompoundParameter amount = (CompoundParameter) effect.getParameters().toArray()[2];
       if (amount != null) {
         originalBlurAmount = amount.getValuef();
-        amount.setValue(blurKnob.getValue());
+        //amount.setValue(blurKnob.getValue());
       }
       effect.enable();
 
