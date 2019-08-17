@@ -127,7 +127,7 @@ public class Balls extends Fragment {
 	area.noStroke();
 	area.fill(b.color);
 
-	float d = (float)(b.dp * sizeParam.value() * ConeDown.autoAudio.bestVal);
+	float d = (float)(b.dp * sizeParam.value() /** ConeDown.autoAudio.bestVal*/);
 
 	area.scale(projection.xScale(0, y), 1);
 
