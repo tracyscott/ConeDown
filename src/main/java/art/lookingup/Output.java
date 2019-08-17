@@ -437,6 +437,7 @@ public class Output {
   static public int[][] fdCarRDims = {{20, 20}, {20, 20}, {20, 20}, {36, 24}, {27, 12}, {32, 10}, {32, 14}, {36, 22}, {46, 23}, {34, 10}, {52, 28}};
   static public int[][] fdCarTDims = {{29, 19}, {22, 17}, {20, 20}, {29, 19}, {22, 17}, {36, 19}, {32, 21}, {32, 21}};
 
+  static public String[] carNames = {"zebra", "elephant", "lion", "rhino", "tiger"};
   static public int[][][] fdCarDims;
 
   static public void outputGalactic(LX lx) {
@@ -457,7 +458,7 @@ public class Output {
     int curUniverseStart = 1;
     int globalPointNum = 0;
     for (int i = 0; i < NUM_CARS; i++) {
-      String thisCarIpAddress = ConeDown.galacticJungle.getStringParameter("ip" + (i+1)).getString();
+      String thisCarIpAddress = ConeDown.galacticJungle.getStringParameter(carNames[i]).getString();
       // Need the base ip address
       String[] ipParts = thisCarIpAddress.split("\\.");
       int lastIpPart = Integer.parseInt(ipParts[3]);
