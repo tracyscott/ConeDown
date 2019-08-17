@@ -2,21 +2,20 @@ package art.lookingup;
 
 import heronarts.lx.model.LXModel;
 import heronarts.lx.model.LXPoint;
-import org.jengineering.sjmply.PLY;
-import org.jengineering.sjmply.PLYElementList;
-import org.jengineering.sjmply.PLYFormat;
-import org.jengineering.sjmply.PLYType;
-
-import art.lookingup.Projection;
-
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.jengineering.sjmply.PLY;
+import org.jengineering.sjmply.PLYElementList;
+import org.jengineering.sjmply.PLYFormat;
+import org.jengineering.sjmply.PLYType;
 
 // TODO(tracy): This doesn't really need to extend LXModel anymore.  We can just construct it directly
 // with wrapper.  ConeDownModel should not extend LXModel and should encompass the Tori gate dimensions,
