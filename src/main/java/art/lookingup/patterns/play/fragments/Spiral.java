@@ -94,6 +94,7 @@ public class Spiral extends Fragment {
 
     @Override
     public void drawFragment() {
+	notifyChange();
 	int count = (int)triples.value() * 3;
 
 	// Spin is the offset of the 0th color index into the area

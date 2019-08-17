@@ -4,9 +4,6 @@ import static processing.core.PConstants.ARGB;
 
 import art.lookingup.ConeDown;
 
-import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.LXParameter;
-
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +50,10 @@ abstract public class Fragment {
 	return p;
     }
 
+    protected void noRateKnob() {
+	params.remove(rate);	
+    }
+
     public float elapsed() {
 	return elapsed;
     }
@@ -78,11 +79,7 @@ abstract public class Fragment {
 
     public void registerParameters(Parameter.Adder adder) {
 	for (Parameter p : params) {
-	    CompoundParameter cp = new CompoundParameter(p.name, p.value, p.min, p.max);
-	    cp.addListener((LXParameter lxp)->{
-		    p.setValue((float) lxp.getValue());
-		});
-	    adder.registerParameter(cp);
+	    adder.registerParameter(p);
 	}
     }
 
@@ -91,7 +88,7 @@ abstract public class Fragment {
 	
 	area.beginDraw();
 	area.pushMatrix();
-	area.background(0);
+	area.background(0, 0, 0, 255);
 	drawFragment();
 	area.popMatrix();
 	area.endDraw();

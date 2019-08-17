@@ -197,7 +197,7 @@ public class ConeDown extends PApplet {
               .map(i -> executor.submit(() ->
                   projectionMap.put(i, i <= 1
                     ? trueProjection.get()
-                    : new AntiAliased(model, i + 1))))
+                    : new AntiAliased(model, i))))
               .collect(ImmutableList.toImmutableList());
       Uninterruptibles.getUninterruptibly(Futures.allAsList(futures));
       logger.info("Computed all projections in " + stopwatch);

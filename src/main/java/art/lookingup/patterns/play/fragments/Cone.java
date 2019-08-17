@@ -30,7 +30,7 @@ public class Cone extends Multi {
 	    
 	    return new Cone(lx, width, height,
 			    cone.create(lx,
-					factor * ConeDownModel.conePointsWide,
+					factor * ConeDownModel.scoopPointsWide,
 					factor * ConeDownModel.conePointsHigh),
 			    scoop.create(lx,
 					 factor * ConeDownModel.scoopPointsWide,
@@ -52,11 +52,11 @@ public class Cone extends Multi {
 	area.copy(fragments[0].image,
 		  0,
 		  0,
-		  factor * ConeDownModel.conePointsWide,
+		  factor * ConeDownModel.scoopPointsWide,
 		  factor * ConeDownModel.conePointsHigh,
 		  0,
 		  0,
-		  factor * ConeDownModel.conePointsWide,
+		  factor * ConeDownModel.scoopPointsWide,
 		  factor * ConeDownModel.conePointsHigh);
 
 	area.copy(fragments[1].image,

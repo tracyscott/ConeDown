@@ -35,7 +35,7 @@ public class AntiAliased implements Projection {
     RTree<CXPoint, Point> tree = RTree.create();
     int[] positions;
     int[] subpixels;
-    float[] subweights;
+    // float[] subweights;
     int ssWide;
     int ssHigh;
     int superSampling;
@@ -44,7 +44,7 @@ public class AntiAliased implements Projection {
 
     public AntiAliased(LXModel model, int superSampling) {
 	Pixel[] pixels = new Pixel[model.size];
-	float ssOff = (superSampling - 1f) / 2f;
+	float ssOff = superSampling / 2f;
 
 	this.superSampling = superSampling;
 	this.ssHigh = POINTS_HIGH * superSampling;
@@ -54,6 +54,7 @@ public class AntiAliased implements Projection {
 	float maxDX = 0;
 	float minDY = ssHigh;
 	float maxDY = 0;
+	float maxOY = 0;
 
 	this.positions = new int[ssHigh * ssWide + 1];
 	
@@ -76,7 +77,9 @@ public class AntiAliased implements Projection {
 		maxDX = Math.max(maxDX, (1 + coords[0]) * superSampling);
 		minDY = Math.min(minDY, (0 + coords[1]) * superSampling);
 		maxDY = Math.max(maxDY, (1 + coords[1]) * superSampling);
-	    }
+	    } else {
+		maxOY = Math.max(maxOY, (1 + coords[1]) * superSampling);
+	    }		
 	}
 
 	int pCount = 0;
@@ -91,9 +94,30 @@ public class AntiAliased implements Projection {
 		}
 		
 		for (Entry<CXPoint, Point> point :
-			 this.tree.nearest(Geometries.point(i, j), 100, 1).toBlocking().toIterable()) {
+			 this.tree.nearest(Geometries.point(i, j), Double.POSITIVE_INFINITY, 1).
+			 toBlocking().toIterable()) {
 		    CXPoint cxp = point.value();
-		    Point geo = point.geometry();
+		    Geometry geo = point.geometry();
+
+		    if (cxp.panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) {
+		    	if (j < minDY) {
+			    // Dance floors should not see pixels above the line.
+			    // This happens because of the missing pixels between scoop and
+			    // dancefloor.
+			    continue;
+		    	}
+		    }
+		    double xd = (j - geo.mbr().y1());
+		    double yd = (i - geo.mbr().x1());
+		    double dist = Math.sqrt(xd * xd + yd * yd);
+
+		    // Somewhat arbitrary limit, this is here because
+		    // we do not have a proper perimeter in the area
+		    // between the scoop and the dance floor.
+		    if (dist > superSampling * 1.5) {
+			continue;
+		    }
+
 		    pixels[cxp.index].subs.add(idx);
 		    pCount++;
 		    break;
@@ -101,20 +125,10 @@ public class AntiAliased implements Projection {
 	    }
 	}
 
-	int sumSubs = 0;
-	
-	for (LXPoint lxp : model.points) {
-	    CXPoint cxp = (CXPoint) lxp;
-	    if (cxp.panel == null) {
-		continue;
-	    }
-	    sumSubs += pixels[cxp.index].subs.size();
-	}
-
 	int position = 0;
 
 	this.subpixels = new int[pCount];
-	this.subweights = new float[pCount];
+	// this.subweights = new float[pCount];
 
 	LXPoint[] points = new LXPoint[model.size];
 
@@ -126,12 +140,11 @@ public class AntiAliased implements Projection {
 	}
 
 	for (LXPoint lxp : points) {
-	    CXPoint cxp = (CXPoint)lxp;
-	    if (cxp.panel == null) {
-		// TODO interior lighting
+	    positions[lxp.index] = position;
+
+	    if (pixels[lxp.index] == null) {
 		continue;
 	    }
-	    positions[lxp.index] = position;
 
 	    for (int sub : pixels[lxp.index].subs) {
 		subpixels[position] = sub;
