@@ -41,6 +41,7 @@ public class ConeScoop extends Multi {
     protected ConeScoop(LX lx, int width, int height, Fragment conescoop, Fragment dance) {
 	super(lx, width, height, conescoop, dance);
 	this.factor = width / ConeDownModel.POINTS_WIDE;
+	noRateKnob();
     }
 
     public void drawFragment() {

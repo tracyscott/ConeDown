@@ -1,5 +1,6 @@
 package art.lookingup;
 
+import art.lookingup.ui.AutodioUI;
 import art.lookingup.ui.OSCSensorUI;
 import art.lookingup.ui.UIAudioMonitorLevels;
 import art.lookingup.ui.UIFirmata;
@@ -117,6 +118,9 @@ public class ConeDown extends PApplet {
 
   private static final Map<Integer, Future<? extends Projection>> projectionMap = Maps.newConcurrentMap();
 
+  public static Autodio autoAudio;
+  public static AutodioUI autoAudioUI;
+
   @Override
   public void settings() {
     size(1600, 800, P3D);
@@ -229,7 +233,6 @@ public class ConeDown extends PApplet {
     lx = new LXStudio(this, flags, model);
 
     lx.ui.setResizable(true);
-    DEFAULT_ZOOM.ifPresent(lx.ui.preview::setRadius);
 
     // Put this here because it needs to be after file loads in order to find appropriate channels.
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
@@ -259,6 +262,10 @@ public class ConeDown extends PApplet {
     //modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     //modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     oscSensorUI = (OSCSensorUI) new OSCSensorUI(lx.ui, lx, oscSensor).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    
+    autoAudio = new Autodio(lx);
+    lx.engine.registerComponent("autoAudio", autoAudio);
+    autoAudioUI = (AutodioUI) new AutodioUI(lx.ui, lx, autoAudio).setExpanded(false).addToContainer(lx.ui.leftPane.global);
 
     audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
