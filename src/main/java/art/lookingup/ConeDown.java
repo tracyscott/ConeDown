@@ -1,5 +1,6 @@
 package art.lookingup;
 
+import art.lookingup.ui.AutodioUI;
 import art.lookingup.ui.OSCSensorUI;
 import art.lookingup.ui.UIAudioMonitorLevels;
 import art.lookingup.ui.UIFirmata;
@@ -110,6 +111,9 @@ public class ConeDown extends PApplet {
   public static int MAX_SUPER_SAMPLING = 4;
 
   private static Projection projections[] = new Projection[MAX_SUPER_SAMPLING + 1];
+
+  public static Autodio autoAudio;
+  public static AutodioUI autoAudioUI;
 
   @Override
   public void settings() {
@@ -222,6 +226,7 @@ public class ConeDown extends PApplet {
     //logger.info("Multithreaded hint: " + MULTITHREADED);
     //logger.info("Multithreaded actually: " + (MULTITHREADED && !getGraphics().isGL()));
     lx = new LXStudio(this, flags, model);
+    autoAudio = new Autodio(lx);
 
     lx.ui.setResizable(true);
 
@@ -253,6 +258,9 @@ public class ConeDown extends PApplet {
     //modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     //modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     oscSensorUI = (OSCSensorUI) new OSCSensorUI(lx.ui, lx, oscSensor).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+
+    lx.engine.registerComponent("autoAudio", autoAudio);
+    autoAudioUI = (AutodioUI) new AutodioUI(lx.ui, lx, autoAudio).setExpanded(false).addToContainer(lx.ui.leftPane.global);
 
     audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
