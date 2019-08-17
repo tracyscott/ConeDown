@@ -92,8 +92,8 @@ public class ConeDown extends PApplet {
   public static PApplet pApplet;
   public static final int GLOBAL_FRAME_RATE = 40;
 
-  // public static final Optional<Float> DEFAULT_ZOOM = Optional.empty();
-  public static final Optional<Float> DEFAULT_ZOOM = Optional.of(10f);
+  public static final Optional<Float> DEFAULT_ZOOM = Optional.empty();
+  //public static final Optional<Float> DEFAULT_ZOOM = Optional.of(10f);
 
   public static RainbowOSC rainbowOSC;
 
