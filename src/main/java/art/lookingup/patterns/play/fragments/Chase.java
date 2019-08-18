@@ -7,7 +7,7 @@ import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.pacman.PacmanBoard;
 import art.lookingup.patterns.pacman.PacmanGame;
 import art.lookingup.patterns.pacman.PacmanSprite;
-import processing.core.PImage;
+import art.lookingup.patterns.pacman.GhostSprite;
 
 import art.lookingup.patterns.play.Pattern;
 import art.lookingup.patterns.play.Fragment;
@@ -17,6 +17,7 @@ import art.lookingup.colors.Gradient;
 
 import heronarts.lx.LX;
 
+import processing.core.PImage;
 import processing.core.PGraphics;
 
 public class Chase extends Fragment {
@@ -182,10 +183,13 @@ public class Chase extends Fragment {
     }
 
     static class Dance extends Fragment {
-	Chase chase;
+	final Chase chase;
+	final Parameter ghost;
 	public Dance(Chase chase, int width, int height) {
 	    super(width, height);
 	    this.chase = chase;
+
+	    this.ghost = newParameter("ghost", 0.5f, 0, 1);
 	    noRateKnob();
 	}
 
@@ -193,7 +197,15 @@ public class Chase extends Fragment {
 	    area.translate(width / 2, height / 2);
  	    area.scale(width / PacmanSprite.SPRITE_SIZE);
 	    area.translate(-PacmanBoard.BLOCK_PIXELS, -PacmanBoard.BLOCK_PIXELS);
+
+	    area.tint(255, 255 * (1-ghost.value()));
+	    area.pushMatrix();
 	    chase.game.drawPacSprite(area);
+	    area.popMatrix();
+
+	    area.pushMatrix();
+	    chase.game.drawGhostSprite(area, chase.game.ghosts[0], (int)(255f * ghost.value()));
+	    area.popMatrix();
 	}
     };
 }

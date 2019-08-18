@@ -91,14 +91,25 @@ public class PacmanGame {
 	drawReady(this.buffer);
 	drawPac(this.buffer);
 	for (GhostSprite ghost : this.ghosts) {
-	    String []sprite = GhostSprite.GHOST_A;
-	    if (ghost.ticks > 0) {
-		int gi = (int)(ghost.ticks * ghost.period() / GhostSprite.FEATHER_PERIOD);
-		sprite = (gi % 2) == 0 ? GhostSprite.GHOST_A : GhostSprite.GHOST_B;
-	    }
-	    ghost.drawGhost(this.buffer, sprite);
+	    drawGhost(this.buffer, ghost);
 	}
 	this.buffer.endDraw();
+    }
+
+    public void drawGhost(PGraphics pg, GhostSprite ghost) {
+	pg.pushMatrix();
+	ghost.pos.translate(pg);
+	drawGhostSprite(pg, ghost, 255);
+	pg.popMatrix();
+    }
+
+    public void drawGhostSprite(PGraphics pg, GhostSprite ghost, int alpha) {
+	String []sprite = GhostSprite.GHOST_A;
+	if (ghost.ticks > 0) {
+	    int gi = (int)(ghost.ticks * ghost.period() / GhostSprite.FEATHER_PERIOD);
+	    sprite = (gi % 2) == 0 ? GhostSprite.GHOST_A : GhostSprite.GHOST_B;
+	}
+	ghost.drawGhost(pg, sprite, alpha);
     }
 
     public PImage get() {
