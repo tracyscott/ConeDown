@@ -47,16 +47,19 @@ public class Spiral extends Fragment {
     
     protected Spiral(LX lx, int width, int height) {
 	super(width, height);
-	this.triples = newParameter("triples", 4, 1, 10);
+	this.triples = newParameter("triples", 4, 1, 20);
 	this.angle = newParameter("angle", PI / 8, -PI / 2, PI / 2);
 	this.fill = newParameter("fill", 1, 0, 1);
 	this.gradients = new Gradient[maxCount+1];
 
-	this.notifyChange();
+	this.update();
     }
 
-    public void notifyChange() {
-	int count = (int)triples.value() * 3;
+    int colorCount() {
+	return Math.max((int)triples.value() * 3, 3);
+    }
+    public void update() {
+	int count = colorCount();
 
 	boolean right = angle.value() > 0;
 	double theta = Math.abs(angle.value());
@@ -94,8 +97,9 @@ public class Spiral extends Fragment {
 
     @Override
     public void drawFragment() {
-	notifyChange();
-	int count = (int)triples.value() * 3;
+	this.update();
+
+	int count = colorCount();
 
 	// Spin is the offset of the 0th color index into the area
 	float spin = ((elapsed() / period) + width) % width;
@@ -103,7 +107,7 @@ public class Spiral extends Fragment {
 	area.strokeWeight(strokeWidth);
 
 	int colorIdx = 0;
-	
+
 	for (float x = spin; x < width + stepX + (right ? 0 : leastX); x += stepX) {
 	    area.stroke(gradients[count].index(colorIdx++));
 
