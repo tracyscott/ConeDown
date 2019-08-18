@@ -15,6 +15,7 @@ public class AutodioUI extends UICollapsibleSection {
     public UIKnob bestLow;
     public UIKnob bestMid;
     public UIKnob bestHigh;
+    public UIKnob damper;
 
   public AutodioUI(LXStudio.UI ui, LX lx, Autodio aa) {
     super (ui,0, 0, ui.leftPane.global.getContentWidth(), 200);
@@ -30,5 +31,7 @@ public class AutodioUI extends UICollapsibleSection {
     bestMid.addToContainer(knobsContainer);
     bestHigh = new UIKnob(aa.bestHigh);
     bestHigh.addToContainer(knobsContainer);
+    damper = new UIKnob(aa.damper);
+    damper.addToContainer(knobsContainer);
   }
 }

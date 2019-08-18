@@ -68,8 +68,6 @@ abstract public class Fragment {
 
     public void setup() {}
 
-    public void notifyChange() {}
-
     public void preDrawFragment(float vdelta) {
 	elapsed += vdelta * rate.value();
     }
