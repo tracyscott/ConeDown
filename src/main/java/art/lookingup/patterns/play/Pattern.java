@@ -94,9 +94,9 @@ abstract public class Pattern extends LXPattern {
 
 	frag.image.loadPixels();
 
-	if (counter++ % 100 == 0) {
-	    frag.image.save(String.format("/Users/jmacd/Desktop/dump/canvas-%s.png", counter++));
-	}
+	// if (counter++ % 100 == 0) {
+	//     frag.image.save(String.format("/Users/jmacd/Desktop/dump/canvas-%s.png", counter++));
+	// }
 
 	for (LXPoint p : lx.getModel().points) {
 	    CXPoint cxp = (CXPoint)p;

@@ -42,8 +42,8 @@ public class PacmanGame {
     PGraphics buffer;
     PApplet app;
     PacmanBoard board;
-    PacmanSprite pac;
-    GhostSprite ghosts[];
+    public PacmanSprite pac;
+    public GhostSprite ghosts[];
     BitSet dotsTaken;
     Heading lastInput;
     Heading turning;
@@ -91,14 +91,25 @@ public class PacmanGame {
 	drawReady(this.buffer);
 	drawPac(this.buffer);
 	for (GhostSprite ghost : this.ghosts) {
-	    String []sprite = GhostSprite.GHOST_A;
-	    if (ghost.ticks > 0) {
-		int gi = (int)(ghost.ticks * ghost.period() / GhostSprite.FEATHER_PERIOD);
-		sprite = (gi % 2) == 0 ? GhostSprite.GHOST_A : GhostSprite.GHOST_B;
-	    }
-	    ghost.drawGhost(this.buffer, sprite);
+	    drawGhost(this.buffer, ghost);
 	}
 	this.buffer.endDraw();
+    }
+
+    public void drawGhost(PGraphics pg, GhostSprite ghost) {
+	pg.pushMatrix();
+	ghost.pos.translate(pg);
+	drawGhostSprite(pg, ghost, 255);
+	pg.popMatrix();
+    }
+
+    public void drawGhostSprite(PGraphics pg, GhostSprite ghost, int alpha) {
+	String []sprite = GhostSprite.GHOST_A;
+	if (ghost.ticks > 0) {
+	    int gi = (int)(ghost.ticks * ghost.period() / GhostSprite.FEATHER_PERIOD);
+	    sprite = (gi % 2) == 0 ? GhostSprite.GHOST_A : GhostSprite.GHOST_B;
+	}
+	ghost.drawGhost(pg, sprite, alpha);
     }
 
     public PImage get() {
@@ -380,11 +391,14 @@ public class PacmanGame {
 
     void drawPac(PGraphics pg) {
 	pg.pushMatrix();
+	board.pacpos.translate(pg);
+	drawPacSprite(pg);
+	pg.popMatrix();
+    }
 
+    public void drawPacSprite(PGraphics pg) {
 	Heading heading = board.pacpos.heading;
 	float angle = heading.theta();
-
-	board.pacpos.translate(pg);
 
 	// Fast turns
 	if (turning != null) {
@@ -452,8 +466,6 @@ public class PacmanGame {
 	pg.translate(-BLOCK_PIXELS, -BLOCK_PIXELS);
 
  	pg.image(pacFrame(), 0, 0);
-
-	pg.popMatrix();
     }
 
     PImage pacFrame() {
@@ -490,7 +502,8 @@ public class PacmanGame {
 		case SPECIALDOT:
 		    pg.noStroke();
 		    pg.fill(200, 150, 0);
-		    pg.ellipse(x, y, BLOCK_PIXELS/4, BLOCK_PIXELS/4);
+		    // NOTE! ConeDown change 3 vs 2.
+		    pg.ellipse(x, y, BLOCK_PIXELS/3f, BLOCK_PIXELS/3f);
 		    break;
 		case POWERUP:
 		    int ei = (int)(gameTimestamp / ENERGIZER_PERIOD);

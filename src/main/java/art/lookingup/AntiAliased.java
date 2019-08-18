@@ -146,7 +146,7 @@ public class AntiAliased implements Projection {
 	// for (LXPoint lxp : model.points) {
 	//     buildWeights(lxp);
 	// }
-			System.out.format("*** Initialized AntiAliased(%s) in %s\n", superSampling, stopwatch);
+	System.out.format("*** Initialized AntiAliased(%s) in %s\n", superSampling, stopwatch);
     }
 
     public CXPoint lookupPoint(float x, float y) {
@@ -178,10 +178,15 @@ public class AntiAliased implements Projection {
       int subx = subpos % ssWide;
       int suby = subpos / ssWide;
 
-      subx += xoffset;
-      suby += yoffset;
-
-      int s = img.get(subx, suby);
+      int s;
+      if (xoffset == 0 && yoffset == 0) {
+	  s = img.pixels[suby * img.width + subx];
+      } else {
+	  subx += xoffset;
+	  suby += yoffset;
+	  
+	  s = img.get(subx, suby);
+      }
 
       // float w = subweights[off];
       r += w * (float) red(s);

@@ -4,7 +4,7 @@ import processing.core.PGraphics;
 
 import art.lookingup.colors.Colors;
 
-abstract class GhostSprite {
+public abstract class GhostSprite {
 
     public static final int BLOCK_PIXELS = PacmanBoard.BLOCK_PIXELS;
     public static final int HALF_BLOCK = BLOCK_PIXELS / 2;
@@ -180,7 +180,7 @@ abstract class GhostSprite {
 	}
     }
 
-    void drawGhost(PGraphics pg, String []pixels) {
+    public void drawGhost(PGraphics pg, String []pixels, int alpha) {
 	int eyeX = 0, eyeY = 0;
 	int pupX = 0, pupY = 0;
 	int offX = 0;
@@ -213,10 +213,7 @@ abstract class GhostSprite {
 	    break;
 	}
 
-	pg.pushMatrix();
-	pos.translate(pg);
-
-	pg.fill(color());
+	pg.fill(color(), alpha);
 	float onesixteenth = 2 * BLOCK_PIXELS / 16;
 	for (int j = 0; j < 16; j++) {
 	    for (int i = 0; i < 16; i++) {
@@ -227,7 +224,7 @@ abstract class GhostSprite {
 	}
 	final int eyeOffset = 6;
 	for (int eye = 0; eye < 2; eye++) {
-	    pg.fill(Colors.WHITE);
+	    pg.fill(Colors.WHITE, alpha);
 	    for (int j = 0; j < 5; j++) {
 		for (int i = 0; i < 4; i++) {
 		    if (EYE_WHITE[j].charAt(i) == 'c') {
@@ -236,7 +233,7 @@ abstract class GhostSprite {
 		    }
 		}
 	    }
-	    pg.fill(Colors.BLUE);
+	    pg.fill(Colors.BLUE, alpha);
 	    for (int j = 0; j < 2; j++) {
 		for (int i = 0; i < 2; i++) {
 		    pg.rect((offX + eyeX + pupX + i + eyeOffset * eye) * onesixteenth,
@@ -244,7 +241,6 @@ abstract class GhostSprite {
 		}
 	    }
 	}	
-	pg.popMatrix();
     }
 
     public static final String []GHOST_A = {
