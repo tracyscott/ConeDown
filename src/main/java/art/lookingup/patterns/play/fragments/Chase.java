@@ -3,6 +3,7 @@ package art.lookingup.patterns.play.fragments;
 import static processing.core.PConstants.CLAMP;
 
 import heronarts.lx.LX;
+import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.pacman.PacmanBoard;
 import art.lookingup.patterns.pacman.PacmanGame;
 import art.lookingup.patterns.pacman.PacmanSprite;
@@ -18,8 +19,6 @@ import heronarts.lx.LX;
 
 import processing.core.PGraphics;
 
-/**
- */
 public class Chase extends Fragment {
     public static final int BLOCK_PIXELS = PacmanBoard.BLOCK_PIXELS;
     public static final int BOARD_HEIGHT = PacmanBoard.BOARD_HEIGHT;
@@ -48,10 +47,20 @@ public class Chase extends Fragment {
     float rainbowLROffset;
 
     static public class Factory implements FragmentFactory {
-	public Factory() { }
-
 	public Fragment create(LX lx, int width, int height) {
 	    return new Chase(width, height);
+	}
+    };
+
+    static public class DanceFactory implements FragmentFactory {
+	public Fragment create(LX lx, int width, int height) {
+	    int factor = width / ConeDownModel.POINTS_WIDE;
+	    Chase chase = new Chase(factor * ConeDownModel.scoopPointsWide,
+				    factor * (ConeDownModel.conePointsHigh + ConeDownModel.scoopPointsHigh));
+	    return new ConeScoop(lx, width, height, chase,
+				 new Dance(chase,
+					   factor * ConeDownModel.dancePointsWide,
+					   factor * ConeDownModel.dancePointsHigh));
 	}
     };
 
@@ -74,8 +83,8 @@ public class Chase extends Fragment {
     void setControlPoints(float aX, float aY, float bX, float bY, float D) {
 	float dFraction = D / PacmanBoard.MAX_DISTANCE;
 
-	float minSpread = width / 5f;
-	float maxSpread = width / 2f;
+	float minSpread = width / 7f;
+	float maxSpread = width / 1.75f;
 
 	float spread = minSpread + (maxSpread - minSpread) * dFraction;
 	float halfw = width / 2f;
@@ -92,7 +101,7 @@ public class Chase extends Fragment {
     public void preDrawFragment(float deltaMs) {
 	super.preDrawFragment(deltaMs);
 
-	float e = elapsed() * 1000;
+	float e = elapsed() * 2500;
 	
         if (game.finished() || e > MAX_GAME_MILLIS) {
             this.board.reset();
@@ -171,4 +180,20 @@ public class Chase extends Fragment {
 	    area.copy(gboard, 0, 0, PacmanBoard.BOARD_WIDTH, PacmanBoard.BOARD_HEIGHT, 0, 0, PacmanBoard.BOARD_WIDTH, PacmanBoard.BOARD_HEIGHT);
         }
     }
+
+    static class Dance extends Fragment {
+	Chase chase;
+	public Dance(Chase chase, int width, int height) {
+	    super(width, height);
+	    this.chase = chase;
+	    noRateKnob();
+	}
+
+	public void drawFragment() {
+	    area.translate(width / 2, height / 2);
+ 	    area.scale(width / PacmanSprite.SPRITE_SIZE);
+	    area.translate(-PacmanBoard.BLOCK_PIXELS, -PacmanBoard.BLOCK_PIXELS);
+	    chase.game.drawPacSprite(area);
+	}
+    };
 }
