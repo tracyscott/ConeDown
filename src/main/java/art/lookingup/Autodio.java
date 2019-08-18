@@ -9,7 +9,7 @@ import heronarts.lx.parameter.CompoundParameter;
 
 import java.util.logging.Logger;
 
-import org.apache.commons.math3.stat.descriptive.moment.Variance;
+import org.apache.commons.math3.stat.StatUtils;
 
 public class Autodio extends LXComponent {
 
@@ -27,8 +27,6 @@ public class Autodio extends LXComponent {
 
     double[][] window;
     int next;
-
-    static Variance variance = new Variance(false);
 
     public Autodio(LXStudio lxs) {
 	super(lxs, "autodio");
@@ -69,17 +67,17 @@ public class Autodio extends LXComponent {
 
     double getBest(int from, int to) {
 	double maxV = 0;
-	double maxB = 0;
+	int maxI = 0;
 
  	for (int i = from; i < to; i++) {
-	    double v = variance.evaluate(window[i]);
+	    double v = StatUtils.variance(window[i]);
 	    bandVar[i] = v;
 
 	    if (v > maxV) {
 		maxV = v;
-		maxB = eq.bands[i].getValue();
+		maxI = Math.max(i, maxI);
 	    }
 	}
-	return maxB;
+	return eq.bands[maxI].getValue() / StatUtils.max(window[maxI]);
     }
 }
