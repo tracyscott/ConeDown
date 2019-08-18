@@ -97,7 +97,9 @@ abstract public class Fragment {
 	area.popMatrix();
 	area.endDraw();
 	area.loadPixels();
-	    
+
+	// TODO Looks like this image copy can be avoided if we use the P2D renderer.  Why?
+	// See e.g., how PacmanGame's P2D PGraphics doesn't need a copy.
 	image.copy(area, 0, 0, width, height, 0, 0, width, height);
 	image.loadPixels();
     }

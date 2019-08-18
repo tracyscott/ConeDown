@@ -115,9 +115,9 @@ public class Chase extends Fragment {
     static int counter;
 
     public void drawFragment() {
-	if (counter++ % 100 == 0) {
-	    gboard.save(String.format("/Users/jmacd/Desktop/dump/board-%s.png", counter++));
-	}
+	// if (counter++ % 100 == 0) {
+	//     gboard.save(String.format("/Users/jmacd/Desktop/dump/board-%s.png", counter++));
+	// }
 
         boolean pacIsRight = false;
 
