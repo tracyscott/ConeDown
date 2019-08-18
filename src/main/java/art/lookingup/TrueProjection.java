@@ -71,6 +71,9 @@ public class TrueProjection implements Projection {
 	int idx = mapping[p.index];
 	int x = idx % POINTS_WIDE;
 	int y = idx / POINTS_WIDE;
+	if (xoffset == 0 && yoffset == 0) {
+	    return img.pixels[y * img.width + x];
+	}
 	return img.get(x + xoffset, y + yoffset);
     }
 
