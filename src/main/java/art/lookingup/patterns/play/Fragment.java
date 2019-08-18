@@ -25,6 +25,7 @@ abstract public class Fragment {
     public final int height;
     public final int num;
 
+    public Pattern pattern;
     float elapsed;
 
     static int nextNum;
@@ -76,6 +77,7 @@ abstract public class Fragment {
     public abstract void drawFragment();
 
     public void create(Pattern p) {
+	this.pattern = p;
 	this.area = p.createGraphics(p.app, width, height);
     }
 

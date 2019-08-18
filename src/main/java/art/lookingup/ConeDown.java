@@ -116,7 +116,7 @@ public class ConeDown extends PApplet {
     /** Blocks until the requested projection is ready */
     BLOCKING
   }
-  private static final ProjectionMode PROJECTION_MODE = ProjectionMode.BLOCKING;
+  private static final ProjectionMode PROJECTION_MODE = ProjectionMode.BEST_AVAILABLE;
   private static final Set<Integer> LEVELS_TO_COMPUTE = ImmutableSet.of(0, 1, 2, 4);
   public static int DEFAULT_SUPER_SAMPLING = 1;
   public static int MIN_SUPER_SAMPLING = Ordering.natural().min(LEVELS_TO_COMPUTE);
