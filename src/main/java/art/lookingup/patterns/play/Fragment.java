@@ -30,6 +30,8 @@ abstract public class Fragment {
 
     static int nextNum;
 
+    public boolean inverted;
+
     protected Fragment(int width, int height) {
 	this.width = width;
 	this.height = height;
@@ -41,6 +43,7 @@ abstract public class Fragment {
 	//   this.rate.setValue(0.2f);
 
 	this.rate = newParameter("rate", 0.2f, -1, 1);
+	this.inverted = false;
     }
 
     protected Parameter newParameter(String name, float init, float min, float max) {
@@ -91,6 +94,10 @@ abstract public class Fragment {
 	area.beginDraw();
 	area.pushMatrix();
 	area.background(0, 0, 0, 255);
+	if (inverted) {
+	    area.translate(width, height);
+	    area.scale(-1, -1);
+	}
 	drawFragment();
 	area.popMatrix();
 	area.endDraw();

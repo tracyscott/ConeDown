@@ -19,6 +19,6 @@ public class Spiral extends Pattern {
 
     public Spiral(LX lx, PApplet app, int width, int height) {
 	super(lx, app, width, height);
-	this.setFragment(new art.lookingup.patterns.play.fragments.Spiral.Factory());
+	this.setFragment(new art.lookingup.patterns.play.fragments.Spiral.InvertedFactory());
     }
 };

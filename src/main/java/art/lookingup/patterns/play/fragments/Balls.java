@@ -37,10 +37,15 @@ public class Balls extends Fragment {
     }
 
     static public class Factory implements FragmentFactory {
-	public Factory() { }
-
 	public Fragment create(LX lx, int width, int height) {
 	    return new Balls(lx, width, height);
+	}
+    };
+    static public class InvertedFactory implements FragmentFactory {
+	public Fragment create(LX lx, int width, int height) {
+	    Balls b = new Balls(lx, width, height);
+	    b.inverted = true;
+	    return b;
 	}
     };
 
@@ -119,6 +124,7 @@ public class Balls extends Fragment {
 
 	float x = b.getX();
 	float y = (height - 1 - b.getY());
+	float scale = getProjection().xScale(0, y);
 
 	area.pushMatrix();
 	area.translate(x, y);
@@ -127,11 +133,15 @@ public class Balls extends Fragment {
 	area.fill(b.color);
 
 	float d = (float)(b.dp * sizeParam.value());
+	float r = d / 2;
 
-	area.scale(getProjection().xScale(0, y), 1);
+	area.ellipse(0, 0, scale*d, d);
 
-	// TODO @@@ fix the seam, double draw near borders
-	area.ellipse(0, 0, d, d);
+	if (x >= (width - r)) {
+	    area.ellipse(-width, 0, scale*d, d);
+	} else if (x <= r) {
+	    area.ellipse(+width, 0, scale*d, d);
+	}
 
 	area.popMatrix();
     }
