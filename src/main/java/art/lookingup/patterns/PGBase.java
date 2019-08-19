@@ -203,6 +203,8 @@ abstract class PGBase extends RPattern {
   }
 
   protected int getSuperSampling() {
-      return (int) superSampling.getValue();
+      return Math.max(ConeDown.MIN_SUPER_SAMPLING,
+		      Math.min(ConeDown.MAX_SUPER_SAMPLING,
+			       (int) superSampling.getValue()));
   }
 }
