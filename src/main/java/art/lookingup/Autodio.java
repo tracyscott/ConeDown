@@ -74,8 +74,16 @@ public class Autodio extends LXComponent {
 		maxI = Math.max(i, maxI);
 	    }
 	}
-	double result = eq.bands[maxI].getValue() / StatUtils.max(window[maxI]);
+	double value = eq.bands[maxI].getValue();
+	double maxv = StatUtils.max(window[maxI]);
 	double last = lastVal[maxI];
+	double result;
+
+	if (maxv == 0) {
+	    result = 0;
+	} else {
+	    result = value / maxv;
+	}
 
 	lastVal[maxI] = (result + last * damper.getValue()) / (1 + damper.getValue());
 	return lastVal[maxI];

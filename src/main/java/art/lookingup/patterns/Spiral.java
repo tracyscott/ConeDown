@@ -5,10 +5,12 @@ import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.play.Pattern;
 
 import heronarts.lx.LX;
+import heronarts.lx.LXCategory;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
+@LXCategory(LXCategory.FORM)
 public class Spiral extends Pattern {
 
     public Spiral(LX lx) {
@@ -17,6 +19,6 @@ public class Spiral extends Pattern {
 
     public Spiral(LX lx, PApplet app, int width, int height) {
 	super(lx, app, width, height);
-	this.setFragment(new art.lookingup.patterns.play.fragments.Spiral.Factory());
+	this.setFragment(new art.lookingup.patterns.play.fragments.Spiral.InvertedFactory());
     }
 };

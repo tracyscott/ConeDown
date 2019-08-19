@@ -38,10 +38,16 @@ public class Spiral extends Fragment {
     float lengthY;
     
     static public class Factory implements FragmentFactory {
-	public Factory() { }
-
 	public Fragment create(LX lx, int width, int height) {
 	    return new Spiral(lx, width, height);
+	}
+    };
+
+    static public class InvertedFactory implements FragmentFactory {
+	public Fragment create(LX lx, int width, int height) {
+	    Spiral s = new Spiral(lx, width, height);
+	    s.inverted = true;
+	    return s;
 	}
     };
     
