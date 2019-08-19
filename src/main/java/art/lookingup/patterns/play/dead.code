@@ -1,0 +1,5 @@
+    
+	// if (counter++ % 100 == 0) {
+	//     frag.image.save(String.format("/Users/jmacd/Desktop/dump/canvas-%s.png", counter++));
+	// }
+    static int counter;
