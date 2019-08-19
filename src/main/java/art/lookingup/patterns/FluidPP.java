@@ -197,7 +197,8 @@ public class FluidPP extends PGPixelPerfect {
     pg_obstacles.strokeWeight(1);
     pg_obstacles.stroke(100);
     pg_obstacles.noFill();
-    pg_obstacles.rect(0, 0, pg_obstacles.width, pg_obstacles.height);
+    //pg_obstacles.rect(0, 0, pg_obstacles.width, pg_obstacles.height);
+    pg_obstacles.line(0, 0, pg.width, 0);
     pg_obstacles.endDraw();
   }
 
