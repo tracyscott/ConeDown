@@ -17,6 +17,13 @@ public class Interior extends RPattern {
   public final CompoundParameter tailKnob =
       new CompoundParameter("Tail", 85.0, 0.0, 1051.0)
           .setDescription("Length of tail");
+  public final CompoundParameter hueKnob =
+      new CompoundParameter("Hue", 0f, 0f, 360f);
+  public final CompoundParameter satKnob =
+      new CompoundParameter("Sat", 100f, 0f, 100f);
+  public final CompoundParameter brightKnob =
+      new CompoundParameter("Bright", 100f, 0f, 100f);
+
 
   protected int pos = 0;
   protected int tailLength = 3;
@@ -28,6 +35,9 @@ public class Interior extends RPattern {
     super(lx);
     addParameter(fpsKnob);
     addParameter(tailKnob);
+    addParameter(hueKnob);
+    addParameter(satKnob);
+    addParameter(brightKnob);
   }
 
   public void render(double deltaMs) {
@@ -51,7 +61,7 @@ public class Interior extends RPattern {
 
   public void renderInterior(double deltaMs) {
     for (LXPoint p  : ConeDownModel.interiorPoints) {
-      colors[p.index] = Colors.RED;
+      colors[p.index] = LXColor.hsb(hueKnob.getValuef(), satKnob.getValuef(), brightKnob.getValuef());
     }
   }
 }

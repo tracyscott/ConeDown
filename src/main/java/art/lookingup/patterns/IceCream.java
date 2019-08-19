@@ -3,13 +3,12 @@ package art.lookingup.patterns;
 import art.lookingup.ConeDownModel;
 import art.lookingup.colors.Colors;
 import heronarts.lx.LX;
+import heronarts.lx.LXCategory;
 import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXPoint;
-import heronarts.lx.parameter.DiscreteParameter;
-import heronarts.lx.parameter.LXParameter;
-import heronarts.lx.parameter.LXParameterListener;
-import heronarts.lx.parameter.StringParameter;
+import heronarts.lx.parameter.*;
 
+@LXCategory(LXCategory.FORM)
 public class IceCream extends PGPixelPerfect {
   public enum Flavor {
     VANILLA,
@@ -37,24 +36,50 @@ public class IceCream extends PGPixelPerfect {
     public Point(int x, int y) { this.x = x; this.y = y; }
     int x;
     int y;
+    int color;
+    boolean vertical;
   }
 
   public Point[] chipPoints;
+  public Point[] sprinklePoints;
 
   DiscreteParameter flavor = new DiscreteParameter("Flavor", 0, 0, flavors.length)
       .setDescription("Flavor selector");
+  BooleanParameter randomSprinkles = new BooleanParameter("SRand", true)
+      .setDescription("Randomly enable sprinkles");
+  BooleanParameter sprinkles = new BooleanParameter("Sprinkles", false);
+  CompoundParameter numSprinkles = new CompoundParameter("NumSprkls", 10f, 0f, 400f);
 
   DiscreteParameter chips = new DiscreteParameter("NumChips", 10, 0, 50);
   DiscreteParameter chipSize = new DiscreteParameter("ChipSz", 2, 1, 10);
+
+  DiscreteParameter sprinkleSize = new DiscreteParameter("SpkleSz", 2, 1, 10);
+  BooleanParameter sparkle = new BooleanParameter("sparkle", false);
 
   public IceCream(LX lx) {
     super(lx, "");
     addParameter(flavor);
     addParameter(chips);
     addParameter(chipSize);
+    addParameter(randomSprinkles);
+    addParameter(sprinkleSize);
+    addParameter(sprinkles);
+    addParameter(numSprinkles);
+    addParameter(hue);
+    addParameter(saturation);
+    addParameter(bright);
+    addParameter(randomPaletteKnob);
+    addParameter(paletteKnob);
+    addParameter(sparkle);
+
     chips.addListener((LXParameter parameter)-> {
       updateParams();
     });
+
+    numSprinkles.addListener((LXParameter parameter) -> {
+      updateParams();
+    });
+
     renderTarget.setValue(0);  // Target scoop + dance floor
     renderFullSize = true;
     updateParams();
@@ -63,6 +88,7 @@ public class IceCream extends PGPixelPerfect {
   protected void updateParams() {
     super.updateParams();
     resetChipPoints();
+    resetSprinkles();
     scoopDancePointsWide = ConeDownModel.scoopPointsWide * getSuperSampling();
     scoopDancePointsHigh = (ConeDownModel.scoopPointsHigh + ConeDownModel.dancePointsHigh) * getSuperSampling();
     conePointsHigh = ConeDownModel.conePointsHigh * getSuperSampling();
@@ -71,6 +97,16 @@ public class IceCream extends PGPixelPerfect {
   @Override
   public void onActive() {
     resetChipPoints();
+  }
+
+  public void resetSprinkles() {
+    sprinklePoints = new Point[(int)numSprinkles.getValue()];
+    for (int i = 0; i < sprinklePoints.length; i++) {
+      sprinklePoints[i] = new Point((int)(Math.random() * renderWidth),
+          conePointsHigh + (int)(Math.random() * scoopDancePointsHigh));
+      sprinklePoints[i].color = getNewRGB();
+      sprinklePoints[i].vertical = Math.random() > 0.5f ? true : false;
+    }
   }
 
   public void resetChipPoints() {
@@ -143,6 +179,21 @@ public class IceCream extends PGPixelPerfect {
     chips(false);
   }
 
+  public void renderSprinkles() {
+    if (sprinklePoints == null) return;
+    for (int i = 0; i < sprinklePoints.length; i++) {
+      int color = sprinklePoints[i].color;
+      if (sparkle.getValueb())
+        color = getNewRGB();
+      pg.fill(color);
+      float dimensions = sprinkleSize.getValuei() + getSuperSampling();
+      pg.rect(sprinklePoints[i].x,
+          sprinklePoints[i].y,
+          sprinklePoints[i].vertical?dimensions/2:dimensions,
+          sprinklePoints[i].vertical?dimensions:dimensions/2);
+    }
+  }
+
   public void renderCone() {
     //pg.fill(68, 61, 49);
     //pg.fill(68, 58, 29);
@@ -166,6 +217,8 @@ public class IceCream extends PGPixelPerfect {
 
   public void draw(double deltaMs) {
     renderFlavor(Flavor.values()[flavor.getValuei()]);
+    if (sprinkles.getValueb())
+      renderSprinkles();
     renderCone();
   }
 }

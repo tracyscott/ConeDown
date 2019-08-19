@@ -1,32 +1,20 @@
 package art.lookingup.patterns;
 
-import art.lookingup.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.LXChannel;
 import heronarts.lx.LXEffect;
-import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXPoint;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.DiscreteParameter;
-import heronarts.lx.parameter.LXParameter;
 import processing.core.PConstants;
-import processing.core.PImage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
-
-import static java.lang.Math.ceil;
-import static processing.core.PConstants.BLEND;
-import static processing.core.PConstants.HSB;
-import static processing.core.PConstants.RGB;
 
 public class RTracers extends PGPixelPerfect {
   private static final Logger logger = Logger.getLogger(RTracers.class.getName());
 
-  public DiscreteParameter paletteKnob = new DiscreteParameter("palette", 0, 0, Colors.ALL_PALETTES.length + 1);
   public CompoundParameter blurKnob = new CompoundParameter("blur", 0f, 0.0, 255f);
   public CompoundParameter bgAlpha = new CompoundParameter("bgalpha", 0.0, 0.0, 1.0);
   // Probability of a new triangle show up each frame.  Should we allow multiple triangles per frame?  nah,
@@ -40,17 +28,12 @@ public class RTracers extends PGPixelPerfect {
   public CompoundParameter maxOffScreen = new CompoundParameter("off", 0.0, 0.0, 30.0);
 
   public CompoundParameter fillAlpha = new CompoundParameter("falpha", 0.75, 0.0, 1.0);
-  public CompoundParameter saturation = new CompoundParameter("sat", 0.5, 0.0, 1.0);
-  public CompoundParameter bright = new CompoundParameter("bright", 1.0, 0.0, 1.0);
   public CompoundParameter sizeMultiKnob =new CompoundParameter("sizeMult", 1.0f, 1.0f, 20.0f)
       .setDescription("Dynamic size multiplier (map from bass)");
   public CompoundParameter vertOff = new CompoundParameter("vertOff", 0.0f, 0.0f, 30.0f)
       .setDescription("Dynamic y offset. (map from mid/high freq");
   public BooleanParameter outlinedKnob = new BooleanParameter("outline", true)
       .setDescription("Include black outlines");
-
-  public final BooleanParameter randomPaletteKnob =
-      new BooleanParameter("RandomPlt", true);
 
   protected boolean originalBlurEnabled = false;
   protected float originalBlurAmount = 0.0f;
@@ -66,8 +49,6 @@ public class RTracers extends PGPixelPerfect {
   };
 
   List<Tracer> tracers = new ArrayList<Tracer>();
-  public int[] palette;
-  public int randomPalette = 0;
 
   public RTracers(LX lx) {
     super(lx, "");
@@ -81,7 +62,9 @@ public class RTracers extends PGPixelPerfect {
     addParameter(maxVelocity);
     addParameter(maxOffScreen);
     addParameter(fillAlpha);
+    addParameter(hue);
     addParameter(saturation);
+    addParameter(bright);
     addParameter(sizeMultiKnob);
     addParameter(vertOff);
     addParameter(randomPaletteKnob);
@@ -176,24 +159,6 @@ public class RTracers extends PGPixelPerfect {
     }
   }
 
-  public void getNewHSB(float[] hsb) {
-    int whichPalette = paletteKnob.getValuei();
-    if (randomPaletteKnob.getValueb())
-      whichPalette = randomPalette;
-
-    if (whichPalette == 0) {
-      hsb[0] = (float) Math.random();
-      hsb[1] = saturation.getValuef();
-      hsb[2] = bright.getValuef();
-    } else {
-      int[] palette = Colors.ALL_PALETTES[whichPalette - 1];
-      int index = (int) ceil(Math.random() * (palette.length)) - 1;
-      if (index < 0) index = 0;
-      int color = palette[index];
-      Colors.RGBtoHSB(color, hsb);
-    }
-  }
-
   /**
    * Update tracer positions.
    */
@@ -261,6 +226,7 @@ public class RTracers extends PGPixelPerfect {
 
   @Override
   public void onActive() {
+    super.onActive();
     // Reset the guard that prevents the next text item from starting to show
     // while we are performing our fade transition to the next pattern.
 
@@ -275,14 +241,6 @@ public class RTracers extends PGPixelPerfect {
       }
       effect.enable();
 
-    }
-
-    if (randomPaletteKnob.getValueb()) {
-      int paletteNumber = ThreadLocalRandom.current().nextInt(0, Colors.ALL_PALETTES.length);
-      palette = Colors.ALL_PALETTES[paletteNumber];
-      randomPalette = paletteNumber;
-    } else {
-      palette = Colors.ALL_PALETTES[paletteKnob.getValuei()];
     }
   }
 
