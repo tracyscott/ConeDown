@@ -32,12 +32,14 @@ public class Chase extends Fragment {
     public final static float FULL_WIDTH = BOARD_WIDTH;
 
     public final static float MAX_GAME_MILLIS = 1000000;
+    public final static float MAX_D_FRACTION = 0.2f;
 
     PacmanBoard board;
     PacmanGame game;
     PacmanSprite pac;
     PImage gboard;
     PImage ctexture;
+    float yfactor;
 
     float rainbowLX;
     float rainbowLY;
@@ -46,18 +48,23 @@ public class Chase extends Fragment {
 
     float rainbowYOffset;
     float rainbowLROffset;
+    float dFraction;
+    boolean focus;
 
     static public class Factory implements FragmentFactory {
 	public Fragment create(LX lx, int width, int height) {
-	    return new Chase(width, height);
+	    float yfact = 2f;
+	    return new Chase(width, height, yfact);
 	}
     };
 
     static public class DanceFactory implements FragmentFactory {
 	public Fragment create(LX lx, int width, int height) {
+	    float yfact = 1.5f;
 	    int factor = width / ConeDownModel.POINTS_WIDE;
 	    Chase chase = new Chase(factor * ConeDownModel.scoopPointsWide,
-				    factor * (ConeDownModel.conePointsHigh + ConeDownModel.scoopPointsHigh));
+				    factor * (ConeDownModel.conePointsHigh + ConeDownModel.scoopPointsHigh),
+				    yfact);
 	    return new ConeScoop(lx, width, height, chase,
 				 new Dance(chase,
 					   factor * ConeDownModel.dancePointsWide,
@@ -65,8 +72,9 @@ public class Chase extends Fragment {
 	}
     };
 
-    public Chase(int width, int height) {
+    public Chase(int width, int height, float yfactor) {
         super(width, height);
+	this.yfactor = yfactor;
     }
 
     public void create(Pattern p) {
@@ -82,7 +90,13 @@ public class Chase extends Fragment {
     }
 
     void setControlPoints(float aX, float aY, float bX, float bY, float D) {
-	float dFraction = D / PacmanBoard.MAX_DISTANCE;
+	dFraction = D / PacmanBoard.MAX_DISTANCE;
+
+	if (focus) {
+	    focus = dFraction > MAX_D_FRACTION;
+	} else {
+	    focus = dFraction > (MAX_D_FRACTION * 1.1);
+	}
 
 	float minSpread = width / 7f;
 	float maxSpread = width / 1.75f;
@@ -93,8 +107,8 @@ public class Chase extends Fragment {
 
 	rainbowLX = halfw - halfs;
 	rainbowRX = halfw + halfs;
-	rainbowLY = height / 1.5f;
-	rainbowRY = height / 1.5f;
+	rainbowLY = height / (float)yfactor;
+	rainbowRY = height / (float)yfactor;
 	rainbowLROffset = (float) rainbowRX - rainbowLX;
     }
 
@@ -112,13 +126,7 @@ public class Chase extends Fragment {
         gboard = game.get();
     }
 
-    static int counter;
-
     public void drawFragment() {
-	// if (counter++ % 100 == 0) {
-	//     gboard.save(String.format("/Users/jmacd/Desktop/dump/board-%s.png", counter++));
-	// }
-
         boolean pacIsRight = false;
 
         float aX = game.pacX();
@@ -149,33 +157,45 @@ public class Chase extends Fragment {
         float dRatio = rainbowLROffset / dAB;
 
         setControlPoints(aX, aY, bX, bY, dAB);
+	
+	area.translate(rainbowLX, rainbowLY);
+	    
+	// Note: this determines whether Pac is on the right or the left side.
+	if (!pacIsRight) {
+	    float xoffset = (rainbowRX - rainbowLX) / 2;
+	    area.translate(xoffset, 0);
+	    area.rotate((float) -Math.PI);
+	    area.translate(-xoffset, 0);
+	}
 
-        area.translate(rainbowLX, rainbowLY);
+	float rr;
+	if (dX == 0) {
+	    rr = (float) Math.PI * 3 / 2;
+	} else {
+	    rr = (float) Math.atan(dY / dX);
+	}
 
-        // Note: this determines whether Pac is on the right or the left side.
-        if (!pacIsRight) {
-            float xoffset = (rainbowRX - rainbowLX) / 2;
-            area.translate(xoffset, 0);
-            area.rotate((float) -Math.PI);
-            area.translate(-xoffset, 0);
-        }
+	area.rotate((float) Math.PI * 2f - rr);
 
-        float rr;
-        if (dX == 0) {
-            rr = (float) Math.PI * 3 / 2;
-        } else {
-            rr = (float) Math.atan(dY / dX);
-        }
+	if (focus) {
+	    float extraScale = 2;
+	    float scaleBy = extraScale * dFraction / MAX_D_FRACTION;
+	    float xoffset = (rainbowRX - rainbowLX) / 2;
+	    float tratio = (dFraction - MAX_D_FRACTION) / (1 - MAX_D_FRACTION);
 
-        area.rotate((float)Math.PI * 2f - rr);
+	    tratio = Math.min(tratio * 5, 1);
 
-        area.scale(dRatio, dRatio);
+	    area.translate(xoffset * tratio, 0);
 
-        area.translate(-aX, -aY);
+	    area.scale(scaleBy, scaleBy);
+	} 
 
-        if (game.collision()) {
-            area.scale(((float)gboard.width / (float)ctexture.width),
-                     ((float)gboard.height / (float)ctexture.height));
+	area.scale(dRatio, dRatio);
+	area.translate(-aX, -aY);
+
+	if (game.collision()) {
+	    area.scale(((float)gboard.width / (float)ctexture.width),
+		       ((float)gboard.height / (float)ctexture.height));
             area.image(ctexture, 0, 0);
         } else {
 	    area.copy(gboard, 0, 0, PacmanBoard.BOARD_WIDTH, PacmanBoard.BOARD_HEIGHT, 0, 0, PacmanBoard.BOARD_WIDTH, PacmanBoard.BOARD_HEIGHT);
