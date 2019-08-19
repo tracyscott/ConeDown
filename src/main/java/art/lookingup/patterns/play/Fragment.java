@@ -3,109 +3,116 @@ package art.lookingup.patterns.play;
 import static processing.core.PConstants.ARGB;
 
 import art.lookingup.ConeDown;
-
-import java.util.Arrays;
+import art.lookingup.Projection;
 import java.util.ArrayList;
 import java.util.List;
-
-import art.lookingup.Projection;
-
 import processing.core.PGraphics;
 import processing.core.PImage;
 
-abstract public class Fragment {
-    public final PImage image;
+public abstract class Fragment {
+  public static final float rotatePeriod = 0.001f;
 
-    public PGraphics area;
+  public final PImage image;
 
-    public final List<Parameter> params = new ArrayList<>();
-    public final Parameter rate;
+  public PGraphics area;
 
-    public final int width;
-    public final int height;
-    public final int num;
+  public final List<Parameter> params = new ArrayList<>();
+  public final Parameter rate;
+  public final Parameter rotate;
 
-    public Pattern pattern;
-    float elapsed;
+  public final int width;
+  public final int height;
+  public final int num;
 
-    static int nextNum;
+  public Pattern pattern;
+  float elapsed;
+  float rotation;
 
-    public boolean inverted;
+  static int nextNum;
 
-    protected Fragment(int width, int height) {
-	this.width = width;
-	this.height = height;
-	this.elapsed = 0;  // Note: updated by Pattern.preDraw()
-	this.image = new PImage(this.width, this.height, ARGB);
-	
-	this.num = nextNum++;
-	// Note, to change this from the default in a Fragment, use
-	//   this.rate.setValue(0.2f);
+  public boolean inverted;
 
-	this.rate = newParameter("rate", 0.2f, -1, 1);
-	this.inverted = false;
+  protected Fragment(int width, int height) {
+    this.width = width;
+    this.height = height;
+    this.elapsed = 0; // Note: updated by Pattern.preDraw()
+    this.image = new PImage(this.width, this.height, ARGB);
+
+    this.num = nextNum++;
+    // Note, to change this from the default in a Fragment, use
+    //   this.rate.setValue(0.2f);
+
+    this.rate = newParameter("rate", 0.2f, -1, 1);
+    this.rotate = newParameter("rotate", 0f, -1, 1);
+    this.inverted = false;
+  }
+
+  protected Parameter newParameter(String name, float init, float min, float max) {
+    name = String.format("%s-%s", name, this.num);
+    Parameter p = new Parameter(this, name, init, min, max);
+    params.add(p);
+    return p;
+  }
+
+  protected void noRateKnob() {
+    params.remove(rate);
+  }
+
+  public float elapsed() {
+    return elapsed;
+  }
+
+  public PGraphics area() {
+    return this.area;
+  }
+
+  protected Projection getProjection() {
+    return ConeDown.getProjection(Pattern.superSampling);
+  }
+
+  public void setup() {}
+
+  public void preDrawFragment(float vdelta) {
+    elapsed += vdelta * rate.value();
+    rotation += (vdelta * rotate.value()) / rotatePeriod;
+  }
+
+  public abstract void drawFragment();
+
+  public void create(Pattern p) {
+    this.pattern = p;
+    this.area = p.createGraphics(p.app, width, height);
+  }
+
+  public void registerParameters(Parameter.Adder adder) {
+    for (Parameter p : params) {
+      adder.registerParameter(p);
     }
+  }
 
-    protected Parameter newParameter(String name, float init, float min, float max) {
-	name = String.format("%s-%s", name, this.num);
-	Parameter p = new Parameter(this, name, init, min, max);
-	params.add(p);
-	return p;
+  public void render(float vdelta) {
+    preDrawFragment(vdelta);
+
+    area.beginDraw();
+    area.pushMatrix();
+    area.background(0, 0, 0, 255);
+    if (inverted) {
+      area.translate(width, height);
+      area.scale(-1, -1);
     }
+    drawFragment();
+    area.popMatrix();
+    area.endDraw();
+    area.loadPixels();
 
-    protected void noRateKnob() {
-	params.remove(rate);	
-    }
+    // TODO Looks like this image copy can be avoided if we use the P2D renderer.  Why?
+    // See e.g., how PacmanGame's P2D PGraphics doesn't need a copy.
 
-    public float elapsed() {
-	return elapsed;
-    }
+    int roffset = (int) rotation % width;
 
-    public PGraphics area() {
-	return this.area;
-    }
+    image.copy(area, roffset, 0, width - roffset, height, 0, 0, width - roffset, height);
+    image.copy(area, 0, 0, roffset, height, width - roffset, 0, roffset, height);
 
-    protected Projection getProjection() {
-	return ConeDown.getProjection(Pattern.superSampling);
-    }
-
-    public void setup() {}
-
-    public void preDrawFragment(float vdelta) {
-	elapsed += vdelta * rate.value();
-    }
-
-    public abstract void drawFragment();
-
-    public void create(Pattern p) {
-	this.pattern = p;
-	this.area = p.createGraphics(p.app, width, height);
-    }
-
-    public void registerParameters(Parameter.Adder adder) {
-	for (Parameter p : params) {
-	    adder.registerParameter(p);
-	}
-    }
-
-    public void render(float vdelta) {
-	preDrawFragment(vdelta);
-	
-	area.beginDraw();
-	area.pushMatrix();
-	area.background(0, 0, 0, 255);
-	if (inverted) {
-	    area.translate(width, height);
-	    area.scale(-1, -1);
-	}
-	drawFragment();
-	area.popMatrix();
-	area.endDraw();
-	area.loadPixels();
-
-	// TODO Looks like this image copy can be avoided if we use the P2D renderer.  Why?
-	// See e.g., how PacmanGame's P2D PGraphics doesn't need a copy.
-	image.copy(area, 0, 0, width, height, 0, 0, width, height);
-	image.loadPixels();
-    }
+    image.loadPixels();
+  }
 };
