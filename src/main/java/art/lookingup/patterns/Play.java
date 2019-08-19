@@ -14,6 +14,7 @@ import art.lookingup.patterns.play.fragments.Cone;
 import art.lookingup.patterns.play.fragments.ConeScoop;
 import art.lookingup.patterns.play.fragments.Solid;
 import art.lookingup.patterns.play.fragments.Spiral;
+import art.lookingup.patterns.play.fragments.Strange;
 
 import heronarts.lx.LX;
 
@@ -50,7 +51,8 @@ public class Play extends Pattern {
 	
 	// this.setFragment(new Spiral.Factory());
 	// this.setFragment(new Solid.Factory());
-	 //this.setFragment(new Balls.Factory());
-	this.setFragment(new ConeScoop.Factory(new Chase.Factory(), new Spiral.Factory()));
+	//this.setFragment(new Balls.Factory());
+	// this.setFragment(new ConeScoop.Factory(new Chase.Factory(), new Spiral.Factory()));
+	this.setFragment(new Strange.Factory());
     }
 };
