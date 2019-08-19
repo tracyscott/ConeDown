@@ -72,7 +72,10 @@ public class TrueProjection implements Projection {
 	int x = idx % POINTS_WIDE;
 	int y = idx / POINTS_WIDE;
 	if (xoffset == 0 && yoffset == 0) {
-	    return img.pixels[y * img.width + x];
+	    int sidx = y * img.width + x;
+	    if (sidx < img.pixels.length) {
+		return img.pixels[sidx];
+	    }
 	}
 	return img.get(x + xoffset, y + yoffset);
     }

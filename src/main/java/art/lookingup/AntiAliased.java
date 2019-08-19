@@ -179,8 +179,9 @@ public class AntiAliased implements Projection {
       int suby = subpos / ssWide;
 
       int s;
-      if (xoffset == 0 && yoffset == 0) {
-	  s = img.pixels[suby * img.width + subx];
+      int idx = suby * img.width + subx;
+      if (xoffset == 0 && yoffset == 0 && idx < img.pixels.length) {
+	  s = img.pixels[idx];
       } else {
 	  subx += xoffset;
 	  suby += yoffset;
