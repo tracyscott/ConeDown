@@ -28,6 +28,7 @@ public class Scanner extends PGPixelPerfect {
 
   public void draw(double drawDeltaMs) {
     //pg.background((int)(bgKnob.getValue()*255f));
+    pg.noStroke();
     pg.fill((int)(bgKnob.getValue()*255f), 255 - 255 * blurKnob.getValuef());
     pg.rect(0, 0, pg.width, pg.height);
     //pos = (int)posKnob.getValue();

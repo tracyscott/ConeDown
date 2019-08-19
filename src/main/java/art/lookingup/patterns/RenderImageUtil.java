@@ -102,7 +102,7 @@ public class RenderImageUtil {
         break;
     case 3: // cone
         yTexCoordOffset = 0;
-        pointsWide = ConeDownModel.conePointsWide;
+        pointsWide = ConeDownModel.scoopPointsWide;  // Note: full width render
         pointsHigh = ConeDownModel.conePointsHigh;
         break;
     case 4:  // scoop + cone
