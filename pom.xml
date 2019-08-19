@@ -63,6 +63,7 @@
                             <goal>single</goal>
                         </goals>
                     </execution>
+	    
                 </executions>
             </plugin>
 
@@ -77,16 +78,30 @@
                         <goals>
                             <goal>java</goal>
                         </goals>
+			<configuration>
+			  <mainClass>art.lookingup.ConeDown</mainClass>
+			  <arguments>
+			  </arguments>
+			  <stopUnresponsiveDaemonThreads>true</stopUnresponsiveDaemonThreads>
+			  <systemProperties>
+			  </systemProperties>
+			</configuration>
+                    </execution>
+                    <execution>
+                        <id>PacMan</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+			<configuration>
+			  <mainClass>art.lookingup.patterns.pacman.App</mainClass>
+			  <arguments>
+			  </arguments>
+			  <stopUnresponsiveDaemonThreads>true</stopUnresponsiveDaemonThreads>
+			  <systemProperties>
+			  </systemProperties>
+			</configuration>
                     </execution>
                 </executions>
-			     <configuration>
-			         <mainClass>art.lookingup.ConeDown</mainClass>
-			         <arguments>
-			         </arguments>
-			         <stopUnresponsiveDaemonThreads>true</stopUnresponsiveDaemonThreads>
-			         <systemProperties>
-			         </systemProperties>
-			     </configuration>
             </plugin>
         </plugins>
     </build>

@@ -11,6 +11,7 @@ import art.lookingup.ui.UIModeSelector;
 import art.lookingup.ui.UIPixliteConfig;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 import com.google.common.reflect.ClassPath;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -38,7 +39,6 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-import java.util.stream.IntStream;
 import processing.core.PApplet;
 
 public class ConeDown extends PApplet {
@@ -108,15 +108,21 @@ public class ConeDown extends PApplet {
   public static UIFirmata firmataPortUI;
   public static UIGalacticJungle galacticJungle;
 
-  // The standard projections provide anti-aliasing at levels from
-  // some (2) to plenty (4).
-  public static int MIN_SUPER_SAMPLING = 1;
-  public static int DEFAULT_SUPER_SAMPLING = 1;
-  public static int MAX_SUPER_SAMPLING = 4;
-  private static final Set<Integer> LEVELS_TO_COMPUTE = ImmutableSet.of(0, 1, 2, 4);
-  private static int currentSample = 0;
+  // The standard projections provide anti-aliasing at levels from some (2) to plenty (4).
+  private enum ProjectionMode {
+    /** Takes the best available projection */
+    BEST_AVAILABLE,
 
+    /** Blocks until the requested projection is ready */
+    BLOCKING
+  }
+  private static final ProjectionMode PROJECTION_MODE = ProjectionMode.BEST_AVAILABLE;
+  private static final Set<Integer> LEVELS_TO_COMPUTE = ImmutableSet.of(0, 1, 2, 4);
+  public static int DEFAULT_SUPER_SAMPLING = 1;
+  public static int MIN_SUPER_SAMPLING = Ordering.natural().min(LEVELS_TO_COMPUTE);
+  public static int MAX_SUPER_SAMPLING = Ordering.natural().max(LEVELS_TO_COMPUTE);
   private static final Map<Integer, Future<? extends Projection>> projectionMap = Maps.newConcurrentMap();
+
 
   public static Autodio autoAudio;
   public static AutodioUI autoAudioUI;
@@ -126,10 +132,20 @@ public class ConeDown extends PApplet {
     size(1600, 800, P3D);
   }
 
-  public static Projection getProjection(int ss) {
-    ss = Math.max(Math.min(ss, MAX_SUPER_SAMPLING), MIN_SUPER_SAMPLING);
+  // Returns the best currently available projection falling back to MIN if non are ready
+  public static Projection getProjection(int requested) {
+    int constrained = Math.max(Math.min(requested, MAX_SUPER_SAMPLING), MIN_SUPER_SAMPLING);
     try {
-      return projectionMap.get(ss).get();
+      return PROJECTION_MODE == ProjectionMode.BLOCKING
+          ? projectionMap.get(constrained).get()
+          : LEVELS_TO_COMPUTE.stream()
+              .sorted(Ordering.natural().reversed())
+              .filter(l -> l <= constrained)
+              .<Future<? extends Projection>>map(projectionMap::get)
+              .filter(Future::isDone)
+              .findFirst()
+              .orElse(projectionMap.get(MIN_SUPER_SAMPLING))
+              .get();
     } catch (ExecutionException | InterruptedException e) {
       throw new RuntimeException("Error initializing projection:", e);
     }
@@ -200,8 +216,7 @@ public class ConeDown extends PApplet {
         MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(LEVELS_TO_COMPUTE.size()));
     ListenableFuture<TrueProjection> trueProjection =
         executor.submit(() -> new TrueProjection(model));
-    IntStream.range(0, MAX_SUPER_SAMPLING + 1)
-        .mapToObj(Integer::valueOf)
+    LEVELS_TO_COMPUTE.stream()
         .filter(i -> LEVELS_TO_COMPUTE.contains(i))
         .peek(i -> logger.info("Computing " + i + "x projection asynchronously"))
         .forEach(i -> projectionMap.put(i, i <= 1
@@ -224,6 +239,7 @@ public class ConeDown extends PApplet {
     lx = new LXStudio(this, flags, model);
 
     lx.ui.setResizable(true);
+    DEFAULT_ZOOM.ifPresent(lx.ui.preview::setRadius);
 
     // Put this here because it needs to be after file loads in order to find appropriate channels.
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
@@ -253,7 +269,7 @@ public class ConeDown extends PApplet {
     //modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     //modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     oscSensorUI = (OSCSensorUI) new OSCSensorUI(lx.ui, lx, oscSensor).setExpanded(false).addToContainer(lx.ui.leftPane.global);
-    
+
     autoAudio = new Autodio(lx);
     lx.engine.registerComponent("autoAudio", autoAudio);
     autoAudioUI = (AutodioUI) new AutodioUI(lx.ui, lx, autoAudio).setExpanded(false).addToContainer(lx.ui.leftPane.global);

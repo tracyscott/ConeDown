@@ -9,6 +9,7 @@ import art.lookingup.patterns.play.Pattern;
 import art.lookingup.patterns.play.fragments.Balls;
 import art.lookingup.patterns.play.fragments.Beacon;
 import art.lookingup.patterns.play.fragments.Blend;
+import art.lookingup.patterns.play.fragments.Chase;
 import art.lookingup.patterns.play.fragments.Cone;
 import art.lookingup.patterns.play.fragments.ConeScoop;
 import art.lookingup.patterns.play.fragments.Solid;
@@ -28,11 +29,11 @@ public class Play extends Pattern {
     public Play(LX lx, PApplet app, int width, int height) {
 	super(lx, app, width, height);
 
-	this.setFragment(new ConeScoop.Factory(new Beacon.Factory(new Balls.Factory(),
-								  new Spiral.Factory()),
-					       new Blend.Factory(ADD,
-								 new Spiral.Factory(),
-								 new Spiral.Factory())));
+	// this.setFragment(new ConeScoop.Factory(new Beacon.Factory(new Balls.Factory(),
+	// 							  new Spiral.Factory()),
+	// 				       new Blend.Factory(ADD,
+	// 							 new Spiral.Factory(),
+	// 							 new Spiral.Factory())));
 
 	// this.setFragment(new Cone.Factory(new Solid.Factory(),
 	// 				  new Spiral.Factory(),
@@ -50,5 +51,6 @@ public class Play extends Pattern {
 	// this.setFragment(new Spiral.Factory());
 	// this.setFragment(new Solid.Factory());
 	 //this.setFragment(new Balls.Factory());
+	this.setFragment(new ConeScoop.Factory(new Chase.Factory(), new Spiral.Factory()));
     }
 };

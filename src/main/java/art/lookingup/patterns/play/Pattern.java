@@ -111,7 +111,7 @@ abstract public class Pattern extends LXPattern {
 	elapsed = current;
     }
     
-    // static int counter;
+    static int counter;
 
     public void setup() {
     }

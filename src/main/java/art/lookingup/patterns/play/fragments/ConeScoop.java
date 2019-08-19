@@ -30,9 +30,9 @@ public class ConeScoop extends Multi {
 			    conescoop.create(lx,
 					     factor * ConeDownModel.scoopPointsWide,
 					     factor * (ConeDownModel.conePointsHigh + ConeDownModel.scoopPointsHigh)),
-			    dance.create(lx,
-					factor * ConeDownModel.dancePointsWide,
-					factor * ConeDownModel.dancePointsHigh));
+				 dance.create(lx,
+					      factor * ConeDownModel.dancePointsWide,
+					      factor * ConeDownModel.dancePointsHigh));
 	}
     };
     
