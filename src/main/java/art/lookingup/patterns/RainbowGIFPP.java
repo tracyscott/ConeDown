@@ -45,7 +45,7 @@ public class RainbowGIFPP extends RainbowGIFBase {
             imageHeight = ConeDownModel.scoopPointsHigh;
             break;
           case 3:
-            imageWidth = ConeDownModel.conePointsWide;
+	    imageWidth = ConeDownModel.scoopPointsWide;  // Note: full width render
             imageHeight = ConeDownModel.conePointsHigh;
             break;
           case 4:  // Scoop + cone

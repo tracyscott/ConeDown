@@ -94,7 +94,7 @@ abstract class PGBase extends RPattern {
 	  renderHeight = ConeDownModel.scoopPointsHigh;
 	  break;
       case 3:
-	  renderWidth = ConeDownModel.conePointsWide;
+	  renderWidth = ConeDownModel.scoopPointsWide;  // Note: full width render
 	  renderHeight = ConeDownModel.conePointsHigh;
 	  break;
       case 4:  // Scoop + cone
