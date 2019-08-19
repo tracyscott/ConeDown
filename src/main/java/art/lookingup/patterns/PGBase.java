@@ -25,7 +25,7 @@ abstract class PGBase extends RPattern {
   public final DiscreteParameter renderTarget =
       new DiscreteParameter("Tgt", 0, 0, 6);
   public final DiscreteParameter superSampling =
-      new DiscreteParameter("Super", 0, 0, 3);
+      new DiscreteParameter("Super", 0, 0, ConeDown.MAX_SUPER_SAMPLING + 1);
 
   protected PGraphics pg;
 
@@ -203,6 +203,6 @@ abstract class PGBase extends RPattern {
   }
 
   protected int getSuperSampling() {
-      return 1 << (int) superSampling.getValue();
+      return (int) superSampling.getValue();
   }
 }
