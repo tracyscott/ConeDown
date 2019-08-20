@@ -51,7 +51,7 @@ public class Cone extends Multi {
       Fragment dance) {
     super(fragName, lx, width, height, cone, scoop, dance);
     this.factor = width / ConeDownModel.POINTS_WIDE;
-    noRateKnob();
+    noDefaultKnobs();
   }
 
   public void drawFragment() {

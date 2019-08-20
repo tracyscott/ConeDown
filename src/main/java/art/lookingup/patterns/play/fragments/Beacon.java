@@ -8,50 +8,49 @@ import art.lookingup.patterns.play.Pattern;
 import heronarts.lx.LX;
 
 public class Beacon extends Multi {
-  static final float period = 0.1f / Pattern.superSampling;
-
-  final int halfWidth;
+  static final float period = 0.01f / Pattern.superSampling;
 
   public static class Factory extends BaseFactory {
-    FragmentFactory ff0;
-    FragmentFactory ff1;
+    FragmentFactory[] ffs;
 
-    public Factory(String fragName, FragmentFactory ff0, FragmentFactory ff1) {
-      super(fragName, ff0, ff1);
-      this.ff0 = ff0;
-      this.ff1 = ff1;
+    public Factory(String fragName, FragmentFactory... ffs) {
+      super(fragName, ffs);
+      this.ffs = ffs;
     }
 
     public Fragment create(LX lx, int width, int height) {
-      return new Beacon(
-          toString(),
-          lx,
-          width,
-          height,
-          ff0.create(lx, width, height),
-          ff1.create(lx, width, height));
+      Fragment[] fl = new Fragment[ffs.length];
+      for (int i = 0; i < ffs.length; i++) {
+        fl[i] = ffs[i].create(lx, width, height);
+      }
+      return new Beacon(toString(), lx, width, height, fl);
     }
   };
 
-  public Beacon(String fragName, LX lx, int width, int height, Fragment f0, Fragment f1) {
-    super(fragName, lx, width, height, f0, f1);
-    this.halfWidth = width / 2;
+  public Beacon(String fragName, LX lx, int width, int height, Fragment[] fs) {
+    super(fragName, lx, width, height, fs);
+    this.removeRotateKnob();
   }
 
   @Override
   public void drawFragment() {
-    int f0pos = (int) (elapsed() / period);
+    int partWidth = width / fragments.length;
+    int pos = (int) (elapsed() / period);
 
-    drawHalf(f0pos, fragments[0]);
-    drawHalf(f0pos + halfWidth, fragments[1]);
+    for (int i = 0; i < fragments.length; i++) {
+      int take =
+          (i < fragments.length - 1) ? partWidth : width - (fragments.length - 1) * partWidth;
+      drawPart(pos, fragments[i], take);
+      pos += take;
+    }
   }
 
-  void drawHalf(int pos, Fragment f) {
+  void drawPart(int pos, Fragment f, int drawWidth) {
     int drawn = 0;
-    while (drawn < halfWidth) {
+    while (drawn < drawWidth) {
       pos %= width;
 
-      int take = Math.min(width - pos, halfWidth - drawn);
+      int take = Math.min(width - pos, drawWidth - drawn);
 
       area.copy(f.image, pos, 0, take, height, pos, 0, take, height);
 

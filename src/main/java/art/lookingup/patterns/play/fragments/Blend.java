@@ -44,7 +44,7 @@ public class Blend extends Multi {
     super(fragName, lx, width, height, a, b);
     this.mode = newParameter("mode", 1 /* ADD */, 0, modeLookup.length - 1);
 
-    noRateKnob();
+    noDefaultKnobs();
   }
 
   public void drawFragment() {

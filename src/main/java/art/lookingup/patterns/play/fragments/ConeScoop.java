@@ -42,7 +42,7 @@ public class ConeScoop extends Multi {
       String fragName, LX lx, int width, int height, Fragment conescoop, Fragment dance) {
     super(fragName, lx, width, height, conescoop, dance);
     this.factor = width / ConeDownModel.POINTS_WIDE;
-    noRateKnob();
+    noDefaultKnobs();
   }
 
   public void drawFragment() {
