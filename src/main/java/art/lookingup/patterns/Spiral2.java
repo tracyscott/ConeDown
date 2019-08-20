@@ -1,7 +1,5 @@
 package art.lookingup.patterns;
 
-import static processing.core.PConstants.ADD;
-
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.play.Pattern;
@@ -24,7 +22,7 @@ public class Spiral2 extends Pattern {
     super(lx, app, width, height);
     this.setFragment(
         new ConeScoop.Factory(
-            new Blend.Factory(ADD, new Spiral.Factory(), new Spiral.InvertedFactory()),
+            new Blend.Factory(new Spiral.Factory(), new Spiral.InvertedFactory()),
             new Strange.Factory()));
   }
 };
