@@ -8,13 +8,13 @@ import heronarts.lx.LXCategory;
 import processing.core.PApplet;
 
 @LXCategory(LXCategory.FORM)
-public class Cubes extends Pattern {
+public class CubesFull extends Pattern {
 
-  public Cubes(LX lx) {
+  public CubesFull(LX lx) {
     this(lx, ConeDown.pApplet, ConeDownModel.POINTS_WIDE, ConeDownModel.POINTS_HIGH);
   }
 
-  public Cubes(LX lx, PApplet app, int width, int height) {
+  public CubesFull(LX lx, PApplet app, int width, int height) {
     super(lx, app, width, height);
 
     this.setFragment(new art.lookingup.patterns.play.fragments.Cubes.Factory("c"));
