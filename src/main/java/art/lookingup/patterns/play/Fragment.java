@@ -54,7 +54,7 @@ public abstract class Fragment {
   }
 
   protected Parameter newParameter(String name, float init, float min, float max) {
-    name = String.format("%s.%s", this.fragName, name);
+    name = (fragName != "" ? fragName + "." : "") + name;
     Parameter p = new Parameter(this, name, init, min, max);
     params.add(p);
     return p;

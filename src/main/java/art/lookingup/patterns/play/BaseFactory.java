@@ -17,12 +17,14 @@ public abstract class BaseFactory implements FragmentFactory {
 
   public String toString() {
     if (this.parent == null) {
-      return fragName;
+      // The parent is unique, so it's name doesn't matter.
+      return "";
     }
-    if (this.fragName == "") {
-      return parent.toString();
+    String ps = parent.toString();
+    if (ps != "") {
+      return ps + "." + fragName;
     }
-    return parent.toString() + "." + fragName;
+    return fragName;
   }
 
   @Override
