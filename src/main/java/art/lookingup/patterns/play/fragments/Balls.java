@@ -57,6 +57,18 @@ public class Balls extends Fragment {
     }
   };
 
+  public static class NobgFactory extends BaseFactory {
+    public NobgFactory(String fragName) {
+      super(fragName);
+    }
+
+    public Fragment create(LX lx, int width, int height) {
+      Balls b = new Balls(toString(), lx, width, height);
+      b.clearBackground = false;
+      return b;
+    }
+  };
+
   public class Ball {
     float dp;
     float xcurrent;
