@@ -35,7 +35,7 @@ public class Dance extends Multi {
   protected Dance(String fragName, LX lx, int width, int height, Fragment dance) {
     super(fragName, lx, width, height, dance);
     this.factor = width / ConeDownModel.POINTS_WIDE;
-    noRateKnob();
+    noDefaultKnobs();
   }
 
   public void drawFragment() {

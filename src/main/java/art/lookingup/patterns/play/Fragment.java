@@ -60,9 +60,17 @@ public abstract class Fragment {
     return p;
   }
 
-  protected void noRateKnob() {
+  protected void removeRateKnob() {
     params.remove(rate);
+  }
+
+  protected void removeRotateKnob() {
     params.remove(rotate);
+  }
+
+  protected void noDefaultKnobs() {
+    removeRateKnob();
+    removeRotateKnob();
   }
 
   public void onActive() {}

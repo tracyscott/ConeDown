@@ -63,6 +63,7 @@ public class Spiral extends Fragment {
     this.fill = newParameter("fill", 1, 0, 1);
     this.gradients = new Gradient[maxCount + 1];
 
+    this.removeRotateKnob();
     this.update();
   }
 
