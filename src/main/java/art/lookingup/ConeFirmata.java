@@ -1,5 +1,7 @@
 package art.lookingup;
 
+import art.lookingup.ui.UISensorOverride;
+import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
 import org.firmata4j.IODevice;
 import org.firmata4j.IODeviceEventListener;
@@ -23,7 +25,6 @@ public class ConeFirmata {
   public static long[] pinData;
   public static int numPins;
   public static int startPinNum;
-  public static List<CompoundParameter> pinParams;
 
   public static void reloadFirmata(String portName, int numberPins, int startPin, List<CompoundParameter> pinParameters) {
     // construct a Firmata device instance
@@ -36,7 +37,6 @@ public class ConeFirmata {
     numPins = numberPins;
     pinData = new long[numPins];
     startPinNum = startPin;
-    pinParams = pinParameters;
 
     device = new FirmataDevice(portName); // using the name of a port
     // IODevice device = new FirmataDevice(new NetworkTransport("192.168.1.18:4334")); // using a network address
@@ -80,10 +80,23 @@ public class ConeFirmata {
             // Set dance floor tile parameter.   If any of the 4 sensors are active then set it to 1.
             int pinBlock = sensorIndex/4;  // This will determine which block of 4 sensors to check.
             // If any sensor is on, then leave it on.  If all sensors are off, turn it off.
-            if (pinData[pinBlock*4] > 0 || pinData[pinBlock*4+1] > 0 || pinData[pinBlock*4+2] > 0 || pinData[pinBlock*4+3] > 0) {
-              pinParams.get(pinBlock).setValue(1);
-            } else {
-              pinParams.get(pinBlock).setValue(0);
+            // TODO(tracy): Check the sensor override map to see if we have disabled this sensor because it has broken
+            // in a failed on state.  pinBlock will be 0..9.  X = pinBlock % 3, y = pinBlock / 3  Actual sensor number
+            // per dance tile is sensorIndex % 4;
+            int danceTileX = pinBlock % 3;
+            int danceTileY = pinBlock / 3;
+            int sensorIndexPerDanceTile = sensorIndex % 4;
+            BooleanParameter bp = ConeDown.sensorOverrideUI.getBooleanParameter(
+                UISensorOverride.getParameterName(danceTileX, danceTileY, sensorIndexPerDanceTile));
+            // logger.info("Checking enabled button: " + UISensorOverride.getParameterName(danceTileX, danceTileY,
+            //    sensorIndexPerDanceTile));
+            CompoundParameter cp = ConeDown.firmataPortUI.getPinParameter(danceTileX, danceTileY);
+            if (bp.getValueb()) {
+              if (pinData[pinBlock * 4] > 0 || pinData[pinBlock * 4 + 1] > 0 || pinData[pinBlock * 4 + 2] > 0 || pinData[pinBlock * 4 + 3] > 0) {
+                cp.setValue(1);
+              } else {
+                cp.setValue(0);
+              }
             }
           }
         }

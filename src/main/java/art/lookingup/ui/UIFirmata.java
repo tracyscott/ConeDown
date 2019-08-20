@@ -42,6 +42,14 @@ public class UIFirmata extends UIConfig {
     buildUI(ui, 3);
   }
 
+  public CompoundParameter getPinParameter(int danceTileX, int danceTileY) {
+    // The parameters in the UI are created from top down, or max y to min y, so we need to recreate that
+    // in order to retrieve the proper tile knob.
+    int rowNum = 2 - danceTileY;  // invert Y danceTileY = 0 should be 2
+    int parameterNumber = rowNum * 3 + danceTileX;
+    return getPinParameters().get(parameterNumber);
+  }
+
   /**
    * @return A list of compound parameters, one for each pin.
    */

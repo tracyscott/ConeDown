@@ -1,14 +1,6 @@
 package art.lookingup;
 
-import art.lookingup.ui.AutodioUI;
-import art.lookingup.ui.OSCSensorUI;
-import art.lookingup.ui.UIAudioMonitorLevels;
-import art.lookingup.ui.UIFirmata;
-import art.lookingup.ui.UIGalacticJungle;
-import art.lookingup.ui.UIGammaSelector;
-import art.lookingup.ui.UIMidiControl;
-import art.lookingup.ui.UIModeSelector;
-import art.lookingup.ui.UIPixliteConfig;
+import art.lookingup.ui.*;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
@@ -105,6 +97,7 @@ public class ConeDown extends PApplet {
   public static UIMidiControl uiMidiControl;
   public static com.giantrainbow.OSCSensor oscSensor;
   public static OSCSensorUI oscSensorUI;
+  public static UISensorOverride sensorOverrideUI;
   public static UIFirmata firmataPortUI;
   public static UIGalacticJungle galacticJungle;
 
@@ -261,6 +254,7 @@ public class ConeDown extends PApplet {
   }
 
   public void onUIReady(LXStudio lx, LXStudio.UI ui) {
+    sensorOverrideUI = (UISensorOverride) new UISensorOverride(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     firmataPortUI = (UIFirmata) new UIFirmata(lx.ui, lx).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     ConeFirmata.reloadFirmata(firmataPortUI.getStringParameter(UIFirmata.FIRMATA_PORT).getString(), firmataPortUI.numTiles,
         firmataPortUI.getDiscreteParameter(UIFirmata.START_PIN).getValuei(), firmataPortUI.getPinParameters());
