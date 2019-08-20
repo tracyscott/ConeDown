@@ -23,12 +23,18 @@ public class CubeLineup extends Fragment {
   public final float ROLL_RATE = 4;
   public final float MSHZ = 1f;
 
-  public final Vector3f DEFAULT_EYE = new Vector3f(0, Space3D.MIN_Y + 6, 60);
+  public final Vector3f DEFAULT_EYE = new Vector3f(0, Space3D.MIN_Y + 2.5f, 25f);
 
   public final Parameter rollKnob;
   public final Parameter countKnob;
   public final Parameter paletteKnob;
   public final Parameter randomPaletteKnob;
+  public final Parameter eyex;
+  public final Parameter eyey;
+  public final Parameter eyez;
+  public final Parameter camx;
+  public final Parameter camy;
+  public final Parameter camz;
 
   public int[] palette;
 
@@ -46,10 +52,16 @@ public class CubeLineup extends Fragment {
     super(fragName, width, height, P3D);
     this.palette = Colors.RAINBOW_PALETTE;
 
-    this.rollKnob = newParameter("Roll", -0.15f, -1, 1);
-    this.countKnob = newParameter("Count", 25, 10, MAX_CUBES);
-    this.paletteKnob = newParameter("Palette", 0, 0, Colors.ALL_PALETTES.length);
-    this.randomPaletteKnob = newParameter("RandomPlt", 1, 0, 1);
+    this.rollKnob = newParameter("roll", -0.15f, -1, 1);
+    this.countKnob = newParameter("count", 25, 10, MAX_CUBES);
+    this.paletteKnob = newParameter("palette", 0, 0, Colors.ALL_PALETTES.length - 1);
+    this.randomPaletteKnob = newParameter("randpal", 0, 0, 1);
+    this.eyex = newParameter("eyex", width / 2, -width, width);
+    this.eyey = newParameter("eyey", height / 2, -height, height);
+    this.eyez = newParameter("eyez", 10, -100, 100);
+    this.camx = newParameter("camx", width / 4, -width, width);
+    this.camy = newParameter("camy", height / 4, -height, height);
+    this.camz = newParameter("camz", 5, -100, 100);
 
     space = new Space3D(DEFAULT_EYE);
     boxes = new Box[MAX_CUBES];
@@ -145,7 +157,7 @@ public class CubeLineup extends Fragment {
     void draw() {
       area.pushMatrix();
 
-      area.rotate((float) (elapsed() / 10000), R.x, R.y, R.z);
+      area.rotate((float) (elapsed()), R.x, R.y, R.z);
 
       draw3Sides();
 
@@ -155,7 +167,7 @@ public class CubeLineup extends Fragment {
 
   public void onActive() {
     super.onActive();
-    if (randomPaletteKnob.value() == 1) {
+    if (randomPaletteKnob.value() > 0.99f) {
       int paletteNumber = ThreadLocalRandom.current().nextInt(0, Colors.ALL_PALETTES.length);
       palette = Colors.ALL_PALETTES[paletteNumber];
     } else {
@@ -166,6 +178,7 @@ public class CubeLineup extends Fragment {
   @Override
   public void preDrawFragment(float vdelta) {
     super.preDrawFragment(vdelta);
+
     relapsed += vdelta * rollKnob.value();
   }
 
@@ -183,18 +196,22 @@ public class CubeLineup extends Fragment {
     // }
     // speed *= direction * SPEED_RATE;
 
+    if (randomPaletteKnob.value() <= 0.99f) {
+      palette = Colors.ALL_PALETTES[(int) paletteKnob.value()];
+    }
+
     area.noStroke();
     area.background(0);
 
     float theta = ((float) relapsed) * ROLL_RATE * MSHZ;
 
     area.camera(
-        eye.x,
-        eye.y,
-        eye.z,
-        center.x,
-        center.y,
-        center.z,
+        eye.x + eyex.value(),
+        eye.y + eyey.value(),
+        eye.z + eyez.value(),
+        center.x + camx.value(),
+        center.y + camx.value(),
+        center.z + camx.value(),
         (float) Math.sin(theta),
         (float) Math.cos(theta),
         0);
