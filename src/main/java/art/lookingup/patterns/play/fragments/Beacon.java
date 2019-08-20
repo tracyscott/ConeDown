@@ -24,12 +24,17 @@ public class Beacon extends Multi {
 
     public Fragment create(LX lx, int width, int height) {
       return new Beacon(
-          lx, width, height, ff0.create(lx, width, height), ff1.create(lx, width, height));
+          toString(),
+          lx,
+          width,
+          height,
+          ff0.create(lx, width, height),
+          ff1.create(lx, width, height));
     }
   };
 
-  public Beacon(LX lx, int width, int height, Fragment f0, Fragment f1) {
-    super("Beacon", lx, width, height, f0, f1);
+  public Beacon(String fragName, LX lx, int width, int height, Fragment f0, Fragment f1) {
+    super(fragName, lx, width, height, f0, f1);
     this.halfWidth = width / 2;
   }
 

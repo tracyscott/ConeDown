@@ -3,7 +3,6 @@ package art.lookingup.patterns;
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.play.Pattern;
-import art.lookingup.patterns.play.fragments.Cubes;
 import heronarts.lx.LX;
 import processing.core.PApplet;
 
@@ -37,8 +36,8 @@ public class Play extends Pattern {
 
     // this.setFragment(new Spiral.Factory());
     // this.setFragment(new Solid.Factory());
-    // this.setFragment(new Balls.Factory());
+    this.setFragment(new art.lookingup.patterns.play.fragments.Balls.Factory("b"));
     // this.setFragment(new ConeScoop.Factory(new Chase.Factory(), new Spiral.Factory()));
-    this.setFragment(new Cubes.Factory("c"));
+    // this.setFragment(new Cubes.Factory("c"));
   }
 };

@@ -28,6 +28,7 @@ public abstract class Fragment {
   public Pattern pattern;
   float elapsed;
   float rotation;
+  public boolean clearBackground;
 
   public boolean inverted;
 
@@ -42,6 +43,7 @@ public abstract class Fragment {
     this.graphics = graphics;
     this.elapsed = 0; // Note: updated by Pattern.preDraw()
     this.image = new PImage(this.width, this.height, ARGB);
+    this.clearBackground = true;
 
     // Note, to change this from the default in a Fragment, use
     //   this.rate.setValue(0.2f);
@@ -102,7 +104,9 @@ public abstract class Fragment {
 
     area.beginDraw();
     area.pushMatrix();
-    area.background(0, 0, 0, 255);
+    if (clearBackground) {
+      area.background(0, 0, 0, 255);
+    }
     if (inverted) {
       area.translate(width, height);
       area.scale(-1, -1);
