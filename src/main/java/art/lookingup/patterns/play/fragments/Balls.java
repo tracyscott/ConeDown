@@ -30,7 +30,7 @@ public class Balls extends Fragment {
     this.sizeParam = newParameter("size", 10 * Pattern.superSampling, 0, maxSize);
     this.countParam = newParameter("count", 20, 1, maxCount);
     this.brightParam = newParameter("bright", 1, 0, 1);
-    this.rollParam = newParameter("roll", 0.5f, -1, 1);
+    this.rollParam = newParameter("roll", 0.5f, -4, 4);
 
     this.balls = new Ball[maxCount];
   }
@@ -144,7 +144,10 @@ public class Balls extends Fragment {
 
       float x = b.getX();
       float y = (height - 1 - b.getY());
-      float scale = getProjection().xScale(0, y);
+
+      // TODO there's no `xScale` call here.
+      // float scale = getProjection().xScale(0, y);
+      float scale = 1;
 
       area.noStroke();
 
@@ -156,8 +159,6 @@ public class Balls extends Fragment {
 
       PImage texture = discs.getTexture();
 
-      // System.err.println(
-      //     "El " + elapsed() + " relapsed " + relapsed + " x=" + x + " y=" + y + " s=" + scale);
       drawHere(texture, 0, 0, scale * radius, radius);
 
       if (x >= (width - radius)) {
