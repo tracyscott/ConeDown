@@ -10,8 +10,6 @@ import heronarts.lx.LX;
 public class Beacon extends Multi {
   static final float period = 0.01f / Pattern.superSampling;
 
-  final int halfWidth;
-
   public static class Factory extends BaseFactory {
     FragmentFactory[] ffs;
 
@@ -31,24 +29,28 @@ public class Beacon extends Multi {
 
   public Beacon(String fragName, LX lx, int width, int height, Fragment[] fs) {
     super(fragName, lx, width, height, fs);
-    this.halfWidth = width / 2;
     this.removeRotateKnob();
   }
 
   @Override
   public void drawFragment() {
-    int f0pos = (int) (elapsed() / period);
+    int partWidth = width / fragments.length;
+    int pos = (int) (elapsed() / period);
 
-    drawHalf(f0pos, fragments[0]);
-    drawHalf(f0pos + halfWidth, fragments[1]);
+    for (int i = 0; i < fragments.length; i++) {
+      int take =
+          (i < fragments.length - 1) ? partWidth : width - (fragments.length - 1) * partWidth;
+      drawPart(pos, fragments[i], take);
+      pos += take;
+    }
   }
 
-  void drawHalf(int pos, Fragment f) {
+  void drawPart(int pos, Fragment f, int drawWidth) {
     int drawn = 0;
-    while (drawn < halfWidth) {
+    while (drawn < drawWidth) {
       pos %= width;
 
-      int take = Math.min(width - pos, halfWidth - drawn);
+      int take = Math.min(width - pos, drawWidth - drawn);
 
       area.copy(f.image, pos, 0, take, height, pos, 0, take, height);
 
