@@ -27,6 +27,14 @@ public abstract class Multi extends Fragment {
   }
 
   @Override
+  public void onActive() {
+    super.onActive();
+    for (Fragment f : fragments) {
+      f.onActive();
+    }
+  }
+
+  @Override
   public void setup() {
     super.setup();
     for (Fragment f : fragments) {

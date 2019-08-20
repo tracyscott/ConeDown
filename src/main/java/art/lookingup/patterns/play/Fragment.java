@@ -16,6 +16,7 @@ public abstract class Fragment {
 
   public PGraphics area;
 
+  public final String graphics;
   public final String fragName;
   public final List<Parameter> params = new ArrayList<>();
   public final Parameter rate;
@@ -31,9 +32,14 @@ public abstract class Fragment {
   public boolean inverted;
 
   protected Fragment(String fragName, int width, int height) {
+    this(fragName, width, height, Pattern.defaultGraphics);
+  }
+
+  protected Fragment(String fragName, int width, int height, String graphics) {
     this.fragName = fragName;
     this.width = width;
     this.height = height;
+    this.graphics = graphics;
     this.elapsed = 0; // Note: updated by Pattern.preDraw()
     this.image = new PImage(this.width, this.height, ARGB);
 
@@ -54,7 +60,10 @@ public abstract class Fragment {
 
   protected void noRateKnob() {
     params.remove(rate);
+    params.remove(rotate);
   }
+
+  public void onActive() {}
 
   public float elapsed() {
     return elapsed;
@@ -79,7 +88,7 @@ public abstract class Fragment {
 
   public void create(Pattern p) {
     this.pattern = p;
-    this.area = p.createGraphics(p.app, width, height);
+    this.area = p.createGraphics(p.app, width, height, graphics);
   }
 
   public void registerParameters(Parameter.Adder adder) {
