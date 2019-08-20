@@ -111,7 +111,9 @@ public abstract class Fragment {
     int roffset = (int) rotation % width;
 
     image.copy(area, roffset, 0, width - roffset, height, 0, 0, width - roffset, height);
-    image.copy(area, 0, 0, roffset, height, width - roffset, 0, roffset, height);
+    if (roffset != 0) {
+      image.copy(area, 0, 0, roffset, height, width - roffset, 0, roffset, height);
+    }
 
     image.loadPixels();
   }
