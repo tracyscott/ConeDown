@@ -16,6 +16,7 @@ public abstract class Fragment {
 
   public PGraphics area;
 
+  public final String graphics;
   public final List<Parameter> params = new ArrayList<>();
   public final Parameter rate;
   public final Parameter rotate;
@@ -33,6 +34,11 @@ public abstract class Fragment {
   public boolean inverted;
 
   protected Fragment(int width, int height) {
+    this(width, height, Pattern.defaultGraphics);
+  }
+
+  protected Fragment(int width, int height, String graphics) {
+    this.graphics = graphics;
     this.width = width;
     this.height = height;
     this.elapsed = 0; // Note: updated by Pattern.preDraw()
@@ -81,7 +87,7 @@ public abstract class Fragment {
 
   public void create(Pattern p) {
     this.pattern = p;
-    this.area = p.createGraphics(p.app, width, height);
+    this.area = p.createGraphics(p.app, width, height, graphics);
   }
 
   public void registerParameters(Parameter.Adder adder) {
