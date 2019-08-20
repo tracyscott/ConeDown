@@ -13,10 +13,16 @@ audiomonitor.json
 gamma.json
 midictrl.json
 pixliteconfig.json
+modeselector.json
+firmataconfig.json
+galacticjungle.json
+sensoroverride.json
 lxpoints.ply
 panel.svg
 jmacd.lxp
 points_panel_*.csv
 wiring_panel_*.txt
 shaders/*
+sixteenth_*.html
+
 

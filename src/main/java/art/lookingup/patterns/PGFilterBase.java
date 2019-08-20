@@ -40,10 +40,10 @@ public class PGFilterBase extends PGPixelPerfect {
     int matrixsize = gFilter.length;
     PImage img = pg;
     img.loadPixels();
-    for(int x = 0; x < pg.width; x++)
-      for(int y = 0; y < pg.height; y++) { // for(int y = 0; y < img.width; y++) {
+    for(int x = 0; x < renderWidth; x++)
+      for(int y = 0; y < renderHeight; y++) { // for(int y = 0; y < img.width; y++) {
         int c = convolution(x, y, blur, matrixsize, img);
-        int loc = x + y * pg.width;
+        int loc = x + y * renderWidth;
         img.pixels[loc] = c;
       }
     img.updatePixels();
@@ -58,7 +58,7 @@ public class PGFilterBase extends PGPixelPerfect {
       for(int j = 0; j < matrixsize; j++) {
         int xloc = x + i - offset;
         int yloc = y + j - offset;
-        int loc = xloc + yloc * pg.width;
+        int loc = xloc + yloc * renderWidth;
         int newloc = constrain(loc, 0, img.pixels.length - 1);
         if (loc != newloc) continue;
         else loc = newloc;

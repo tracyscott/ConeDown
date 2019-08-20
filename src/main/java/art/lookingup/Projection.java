@@ -1,32 +1,14 @@
 package art.lookingup;
 
-import com.github.davidmoten.rtree.Entry;
-import com.github.davidmoten.rtree.RTree;
-import com.github.davidmoten.rtree.geometry.Geometries;
-import com.github.davidmoten.rtree.geometry.Point;
+import processing.core.PImage;
 
-import heronarts.lx.model.LXModel;
-import heronarts.lx.model.LXPoint;
+public interface Projection {
 
-// Blah blah equirectangular coordinates
+    public int computePoint(CXPoint p, PImage img, int xoffset, int yoffset);
 
-public class Projection {
-    RTree<CXPoint, Point> tree = RTree.create();
+    public CXPoint lookupPoint(float x, float y);
 
-    public Projection(LXModel model) {
-	for (LXPoint lxp : model.points) {
-	    int []coords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) lxp, ConeDownModel.POINTS_WIDE,
-          ConeDownModel.POINTS_HIGH,0);
+    public float xScale(float x, float y);
 
-	    tree = tree.add((CXPoint) lxp, Geometries.point(coords[0], coords[1]));
-	}
-    }
-
-    public float xScale(float x, float y) {
-        for (Entry<CXPoint, Point> point :
-            tree.nearest(Geometries.point(x, y), 100, 1).toBlocking().toIterable()) {
-	    return ConeDownModel.xScale(point.value(), ConeDownModel.POINTS_WIDE);
-        }
-	return 1;
-    }
+    public int factor();
 }

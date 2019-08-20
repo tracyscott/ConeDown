@@ -1,32 +1,21 @@
 package art.lookingup.patterns;
 
-import art.lookingup.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.LXChannel;
 import heronarts.lx.LXEffect;
-import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXPoint;
 import heronarts.lx.parameter.BooleanParameter;
 import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.DiscreteParameter;
-import heronarts.lx.parameter.LXParameter;
 import processing.core.PConstants;
-import processing.core.PImage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
-
-import static java.lang.Math.ceil;
-import static processing.core.PConstants.BLEND;
-import static processing.core.PConstants.HSB;
 
 public class RTracers extends PGPixelPerfect {
   private static final Logger logger = Logger.getLogger(RTracers.class.getName());
 
-  public DiscreteParameter paletteKnob = new DiscreteParameter("palette", 0, 0, Colors.ALL_PALETTES.length + 1);
-  public CompoundParameter blurKnob = new CompoundParameter("blur", 0.25, 0.0, 1.0);
+  public CompoundParameter blurKnob = new CompoundParameter("blur", 0f, 0.0, 255f);
   public CompoundParameter bgAlpha = new CompoundParameter("bgalpha", 0.0, 0.0, 1.0);
   // Probability of a new triangle show up each frame.  Should we allow multiple triangles per frame?  nah,
   // probably not.
@@ -39,10 +28,12 @@ public class RTracers extends PGPixelPerfect {
   public CompoundParameter maxOffScreen = new CompoundParameter("off", 0.0, 0.0, 30.0);
 
   public CompoundParameter fillAlpha = new CompoundParameter("falpha", 0.75, 0.0, 1.0);
-  public CompoundParameter saturation = new CompoundParameter("sat", 0.5, 0.0, 1.0);
-  public CompoundParameter bright = new CompoundParameter("bright", 1.0, 0.0, 1.0);
-  public final BooleanParameter randomPaletteKnob =
-      new BooleanParameter("RandomPlt", true);
+  public CompoundParameter sizeMultiKnob =new CompoundParameter("sizeMult", 1.0f, 1.0f, 20.0f)
+      .setDescription("Dynamic size multiplier (map from bass)");
+  public CompoundParameter vertOff = new CompoundParameter("vertOff", 0.0f, 0.0f, 30.0f)
+      .setDescription("Dynamic y offset. (map from mid/high freq");
+  public BooleanParameter outlinedKnob = new BooleanParameter("outline", true)
+      .setDescription("Include black outlines");
 
   protected boolean originalBlurEnabled = false;
   protected float originalBlurAmount = 0.0f;
@@ -58,8 +49,6 @@ public class RTracers extends PGPixelPerfect {
   };
 
   List<Tracer> tracers = new ArrayList<Tracer>();
-  public int[] palette;
-  public int randomPalette = 0;
 
   public RTracers(LX lx) {
     super(lx, "");
@@ -73,8 +62,13 @@ public class RTracers extends PGPixelPerfect {
     addParameter(maxVelocity);
     addParameter(maxOffScreen);
     addParameter(fillAlpha);
+    addParameter(hue);
     addParameter(saturation);
+    addParameter(bright);
+    addParameter(sizeMultiKnob);
+    addParameter(vertOff);
     addParameter(randomPaletteKnob);
+    addParameter(outlinedKnob);
   }
 
   /*
@@ -86,8 +80,14 @@ public class RTracers extends PGPixelPerfect {
   * checked?  Or if palette dropdown has a selected palette so can be both rainbow and redbull.
    */
   public void draw(double drawDeltaMs) {
-    pg.colorMode(HSB, 1.0f);
-    pg.background(0.0f, 0.0f, 0.0f, bgAlpha.getValuef());
+    // pg.colorMode(HSB, 255.0f);
+    pg.colorMode(PConstants.HSB, 1.0f, 1.0f, 1.0f, 255.0f);
+    pg.fill(0, 255 - (int)blurKnob.getValuef());
+    pg.rect(0, 0, pg.width, pg.height);
+    pg.fill(255);
+
+    pg.smooth();
+    //pg.background(0.0f, 0.0f, 0.0f, bgAlpha.getValuef());
 
     updateTracers();
     processTracers();
@@ -100,7 +100,7 @@ public class RTracers extends PGPixelPerfect {
    * Check if tracer is in the render window.
    */
   public boolean isTracerVisible(Tracer t) {
-    if (t.pos.x >= 0 && t.pos.x < pg.width && t.pos.y >= 0 && t.pos.y < pg.height) {
+    if (t.pos.x >= 0 && t.pos.x < renderWidth && t.pos.y >= 0 && t.pos.y < renderHeight) {
       return true;
     }
     return false;
@@ -122,8 +122,8 @@ public class RTracers extends PGPixelPerfect {
    */
   public void resetTracer(Tracer tracer) {
     // Reset the tracer based on our parameter knobs.
-    tracer.pos.y = pg.height + 10.0f + 20.0f * (float)Math.random();
-    tracer.pos.x = (int)(Math.random() * pg.width);
+    tracer.pos.y = renderHeight + 10.0f + 20.0f * (float)Math.random();
+    tracer.pos.x = (int)(Math.random() * renderWidth);
     tracer.velocityY = (float)(Math.random() * -0.5 * maxVelocity.getValue());
     tracer.velocityX = (float)(Math.random() * 2.0 * maxVelocity.getValue() - maxVelocity.getValue());
     tracer.hasBeenShown = false;
@@ -145,35 +145,17 @@ public class RTracers extends PGPixelPerfect {
       tracer.pos.x += tracer.velocityX;
       // TODO(Tracy): Now that we are mapping to a cylinder, we would like to horizontally wrap the tracer.
       // It also requires us to draw it twice on the left and right edges.
-      if (tracer.pos.x > pg.width) {
-        tracer.pos.x -= pg.width;
+      if (tracer.pos.x > renderWidth) {
+        tracer.pos.x -= renderWidth;
       }
       if (tracer.pos.x < 0) {
-        tracer.pos.x += pg.width;
+        tracer.pos.x += renderWidth;
       }
       tracer.pos.y += tracer.velocityY;
       if (tracerNeedsReset(tracer)) {
         //logger.info("resetting tracer");
         resetTracer(tracer);
       }
-    }
-  }
-
-  public void getNewHSB(float[] hsb) {
-    int whichPalette = paletteKnob.getValuei();
-    if (randomPaletteKnob.getValueb())
-      whichPalette = randomPalette;
-
-    if (whichPalette == 0) {
-      hsb[0] = (float) Math.random();
-      hsb[1] = saturation.getValuef();
-      hsb[2] = bright.getValuef();
-    } else {
-      int[] palette = Colors.ALL_PALETTES[whichPalette - 1];
-      int index = (int) ceil(Math.random() * (palette.length)) - 1;
-      if (index < 0) index = 0;
-      int color = palette[index];
-      Colors.RGBtoHSB(color, hsb);
     }
   }
 
@@ -201,8 +183,8 @@ public class RTracers extends PGPixelPerfect {
 
   public void drawTracer(Tracer tracer) {
     /*
-    float centerX = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float centerY = ((float)Math.random() * pg.height + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float centerX = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float centerY = ((float)Math.random() * renderHeight + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
     float pt1XDelta = ((float)Math.random() * 2.0f * maxTriSize.getValuef()) - maxTriSize.getValuef();
     float pt1YDelta = ((float)Math.random() * maxTriSize.getValuef());
     float pt2XDelta = ((float)Math.random() * maxTriSize.getValuef());
@@ -211,33 +193,40 @@ public class RTracers extends PGPixelPerfect {
     float pt3YDelta = ((float)Math.random() * -1.0f * maxTriSize.getValuef());
     */
     /*
-    float pt1X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt1Y = (float)Math.random() * pg.height;
-    float pt2X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt2Y = (float)Math.random() * pg.height;
-    float pt3X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt3Y = (float)Math.random() * pg.height;
+    float pt1X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt1Y = (float)Math.random() * renderHeight;
+    float pt2X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt2Y = (float)Math.random() * renderHeight;
+    float pt3X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt3Y = (float)Math.random() * renderHeight;
     */
 
 
-
-    pg.fill(tracer.hsb[0], tracer.hsb[1], tracer.hsb[2], fillAlpha.getValuef());
-    //pg.triangle(pt1X, pt1Y, pt2X, pt2Y, pt3X, pt3Y);
-    // If rightOverlap = pg.width - (pos.x + tracer.size/2f) < 0 then we need to redraw the ellipse at
-    // rightOverlap.
-    pg.ellipse(tracer.pos.x, tracer.pos.y, tracer.size, tracer.size);
-    float rightOverlap = (float)pg.width - ((float)tracer.pos.x + tracer.size/2f);
-    if (rightOverlap < 0) {
-      pg.ellipse(-rightOverlap - tracer.size/2f, tracer.pos.y, tracer.size, tracer.size);
+    if (outlinedKnob.getValueb()) {
+      pg.strokeWeight(1f);
+    } else {
+      pg.strokeWeight(0f);
     }
-    float leftEdge = (float)tracer.pos.x - ((float)tracer.size)/2f;
+    pg.fill(tracer.hsb[0], tracer.hsb[1], tracer.hsb[2]); //, fillAlpha.getValuef());
+    //pg.triangle(pt1X, pt1Y, pt2X, pt2Y, pt3X, pt3Y);
+    // If rightOverlap = renderWidth - (pos.x + tracer.size/2f) < 0 then we need to redraw the ellipse at
+    // rightOverlap.
+    float multipliedSize = tracer.size * sizeMultiKnob.getValuef();
+    float offsetY = tracer.pos.y - vertOff.getValuef();
+    pg.ellipse(tracer.pos.x, offsetY, multipliedSize, multipliedSize);
+    float rightOverlap = (float)renderWidth - ((float)tracer.pos.x + multipliedSize/2f);
+    if (rightOverlap < 0) {
+      pg.ellipse(-rightOverlap - multipliedSize/2f, offsetY, multipliedSize, multipliedSize);
+    }
+    float leftEdge = (float)tracer.pos.x - ((float)multipliedSize)/2f;
     if (leftEdge < 0f) {
-      pg.ellipse(pg.width + leftEdge + tracer.size/2f, tracer.pos.y, tracer.size, tracer.size);
+      pg.ellipse(renderWidth + leftEdge + multipliedSize/2f, offsetY, multipliedSize, multipliedSize);
     }
   }
 
   @Override
   public void onActive() {
+    super.onActive();
     // Reset the guard that prevents the next text item from starting to show
     // while we are performing our fade transition to the next pattern.
 
@@ -248,18 +237,10 @@ public class RTracers extends PGPixelPerfect {
       CompoundParameter amount = (CompoundParameter) effect.getParameters().toArray()[2];
       if (amount != null) {
         originalBlurAmount = amount.getValuef();
-        amount.setValue(blurKnob.getValue());
+        //amount.setValue(blurKnob.getValue());
       }
       effect.enable();
 
-    }
-
-    if (randomPaletteKnob.getValueb()) {
-      int paletteNumber = ThreadLocalRandom.current().nextInt(0, Colors.ALL_PALETTES.length);
-      palette = Colors.ALL_PALETTES[paletteNumber];
-      randomPalette = paletteNumber;
-    } else {
-      palette = Colors.ALL_PALETTES[paletteKnob.getValuei()];
     }
   }
 

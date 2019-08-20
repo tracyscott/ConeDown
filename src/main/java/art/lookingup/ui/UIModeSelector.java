@@ -1,18 +1,20 @@
 package art.lookingup.ui;
 
+import art.lookingup.ConeDown;
+import art.lookingup.ParameterFile;
+import art.lookingup.PropertyFile;
 import art.lookingup.patterns.UninterruptiblePattern;
 import com.giantrainbow.UtilsForLX;
 import heronarts.lx.*;
-import heronarts.lx.parameter.BooleanParameter;
-import heronarts.lx.parameter.BoundedParameter;
+import heronarts.lx.parameter.*;
 import heronarts.lx.studio.LXStudio;
 import heronarts.p3lx.ui.UI2dContainer;
 import heronarts.p3lx.ui.component.UIButton;
 import heronarts.p3lx.ui.component.UICollapsibleSection;
 import heronarts.p3lx.ui.component.UIKnob;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class UIModeSelector extends UICollapsibleSection {
@@ -24,19 +26,23 @@ public class UIModeSelector extends UICollapsibleSection {
   public final UIButton interactiveMode;
   public final UIButton instrumentMode;
   protected LX lx;
-  public BooleanParameter autoAudioModeP = new BooleanParameter("autoaudio", false);
-  public BooleanParameter audioModeP = new BooleanParameter("audio", false);
-  public BooleanParameter standardModeP = new BooleanParameter("standard", false);
-  public BooleanParameter interactiveModeP = new BooleanParameter("interactive", false);
-  public BooleanParameter instrumentModeP = new BooleanParameter("instrument", false);
 
-  static public BoundedParameter timePerChannelP = new BoundedParameter("MultiT", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP2 = new BoundedParameter("GifT", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP3 = new BoundedParameter("StdT", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP4 = new BoundedParameter("IceT", 60000.0, 2000.0, 360000.0);
-  static public BoundedParameter timePerChannelP5 = new BoundedParameter("TPerCh5", 60000.0, 2000.0, 360000.0);
+  static public BooleanParameter audioModeP = new BooleanParameter("audio", false);
+  static public BooleanParameter standardModeP = new BooleanParameter("standard", false);
+  static public BooleanParameter interactiveModeP = new BooleanParameter("interactive", false);
+  static public BooleanParameter instrumentModeP = new BooleanParameter("instrument", false);
+
+  static public BooleanParameter autoAudioModeP;
+  static public DiscreteParameter autoOffStart;
+  static DiscreteParameter autoOffEnd;
+  static public CompoundParameter timePerChannelP;
+  static public CompoundParameter timePerChannelP2;
+  static public CompoundParameter timePerChannelP3;
+  static public CompoundParameter timePerChannelP4;
+  static public CompoundParameter timePerChannelP5;
 
   static public BoundedParameter fadeTimeP = new BoundedParameter("FadeT", 1000.0, 0.000, 10000.0);
+
   public final UIKnob timePerChannel;
   public final UIKnob timePerChannel2;
   public final UIKnob timePerChannel3;
@@ -49,6 +55,11 @@ public class UIModeSelector extends UICollapsibleSection {
   public int previousPlayingChannel = 0;
   public UIAudioMonitorLevels audioMonitorLevels;
 
+  public ParameterFile paramFile;
+  public List<LXParameter> parameters = new ArrayList<LXParameter>();
+  public Map<String, LXParameter> paramLookup = new HashMap<String, LXParameter>();
+  static public final String filename = "modeselector.json";
+
   public UIModeSelector(final LXStudio.UI ui, LX lx, UIAudioMonitorLevels audioMonitor) {
     super(ui, 0, 0, ui.leftPane.global.getContentWidth(), 200);
     setTitle("MODE");
@@ -56,13 +67,54 @@ public class UIModeSelector extends UICollapsibleSection {
     setChildMargin(2);
     this.lx = lx;
 
+    load();
+    autoAudioModeP = registerBooleanParameter("autoaudio", false);
+    timePerChannelP = registerCompoundParameter("MultiT", 60000.0, 2000.0, 360000.0);
+    timePerChannelP2 = registerCompoundParameter("GifT", 60000.0, 2000.0, 360000.0);
+    timePerChannelP3 = registerCompoundParameter("StdT", 60000.0, 2000.0, 360000.0);
+    timePerChannelP4 = registerCompoundParameter("IceT", 60000.0, 2000.0, 360000.0);
+    timePerChannelP5 = registerCompoundParameter("TPerCh5", 60000.0, 2000.0, 360000.0);
+    autoOffStart = registerDiscreteParameter("offSt", 8, 0, 25);
+    autoOffEnd = registerDiscreteParameter("offEnd", 15, 0, 25);
+    save();
+
+
     audioMonitorLevels = audioMonitor;
     // When enabled, audio monitoring can trigger automatic channel switching.
     autoMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18)
     .setParameter(autoAudioModeP)
     .setLabel("Auto Audio Detect")
-    .setActive(false)
     .addToContainer(this);
+
+    UI2dContainer knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(0, 0, 0, 0);
+    timePerChannel = new UIKnob(timePerChannelP);
+    timePerChannel.addToContainer(knobsContainer);
+    timePerChannel2 = new UIKnob(timePerChannelP2);
+    timePerChannel2.addToContainer(knobsContainer);
+    timePerChannel3 = new UIKnob(timePerChannelP3);
+    timePerChannel3.addToContainer(knobsContainer);
+    // Button saving config.
+    new UIButton(10, 7, 40, 20) {
+      @Override
+      public void onToggle(boolean on) {
+        if (on) {
+          save();
+        }
+      }
+    }.setLabel("\u21BA").setMomentary(true).addToContainer(knobsContainer);
+    knobsContainer.addToContainer(this);
+    knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
+    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
+    knobsContainer.setPadding(0, 0, 0, 0);
+    timePerChannel4 = new UIKnob(timePerChannelP4);
+    timePerChannel4.addToContainer(knobsContainer);
+    fadeTime = new UIKnob(fadeTimeP);
+    fadeTime.addToContainer(knobsContainer);
+    new UIKnob(autoOffStart).addToContainer(knobsContainer);
+    new UIKnob(autoOffEnd).addToContainer(knobsContainer);
+    knobsContainer.addToContainer(this);
 
     audioMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
       public void onToggle(boolean on) {
@@ -78,11 +130,7 @@ public class UIModeSelector extends UICollapsibleSection {
           audioModeP.setValue(false);
         }
       }
-    }
-    .setParameter(audioModeP)
-    .setLabel("Audio")
-    .setActive(false)
-    .addToContainer(this);
+    }.setParameter(audioModeP).setLabel("Audio").setActive(false).addToContainer(this);
 
     for (String channelName: standardModeChannelNames) {
       LXChannelBus ch = UtilsForLX.getChannelByLabel(lx, channelName);
@@ -105,31 +153,7 @@ public class UIModeSelector extends UICollapsibleSection {
           setStandardChannelsEnabled(false);
         }
       }
-    }
-    .setParameter(standardModeP)
-    .setLabel("Standard")
-    .setActive(false)
-    .addToContainer(this);
-
-    UI2dContainer knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
-    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    knobsContainer.setPadding(0, 0, 0, 0);
-    timePerChannel = new UIKnob(timePerChannelP);
-    timePerChannel.addToContainer(knobsContainer);
-    timePerChannel2 = new UIKnob(timePerChannelP2);
-    timePerChannel2.addToContainer(knobsContainer);
-    timePerChannel3 = new UIKnob(timePerChannelP3);
-    timePerChannel3.addToContainer(knobsContainer);
-    knobsContainer.addToContainer(this);
-    knobsContainer = new UI2dContainer(0, 30, getContentWidth(), 45);
-    knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
-    knobsContainer.setPadding(0, 0, 0, 0);
-    timePerChannel4 = new UIKnob(timePerChannelP4);
-    timePerChannel4.addToContainer(knobsContainer);
-    fadeTime = new UIKnob(fadeTimeP);
-    fadeTime.addToContainer(knobsContainer);
-    knobsContainer.addToContainer(this);
-
+    }.setParameter(standardModeP).setLabel("Standard").setActive(false).addToContainer(this);
 
     interactiveMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
       public void onToggle(boolean on) {
@@ -144,11 +168,7 @@ public class UIModeSelector extends UICollapsibleSection {
           setInteractiveChannelEnabled(false);
         }
       }
-    }
-    .setParameter(interactiveModeP)
-    .setLabel("Interactive")
-    .setActive(false)
-    .addToContainer(this);
+    }.setParameter(interactiveModeP).setLabel("Interactive").setActive(false).addToContainer(this);
 
     instrumentMode = (UIButton) new UIButton(0, 0, getContentWidth(), 18) {
       public void onToggle(boolean on) {
@@ -163,11 +183,7 @@ public class UIModeSelector extends UICollapsibleSection {
           setInstrumentChannelsEnabled(false);
         }
       }
-    }
-    .setParameter(instrumentModeP)
-    .setLabel("Instrument")
-    .setActive(false)
-    .addToContainer(this);
+    }.setParameter(instrumentModeP).setLabel("Instrument").setActive(false).addToContainer(this);
 
     if (lx.engine.audio.input != null) {
       if (lx.engine.audio.input.device.getObject().isAvailable()) {
@@ -181,6 +197,53 @@ public class UIModeSelector extends UICollapsibleSection {
     }
 
     lx.engine.addLoopTask(new StandardModeCycle());
+  }
+
+  public void load() {
+    paramFile = new ParameterFile(filename);
+    try {
+      paramFile.load();
+    } catch (PropertyFile.NotFound nfex) {
+      System.out.println(filename + ", property not found.");
+    } catch (IOException ioex) {
+      System.err.println(filename + " not found, will be created.");
+    }
+  }
+
+  public void save() {
+    try {
+      paramFile.save();
+    } catch (IOException ioex) {
+      System.err.println("Error saving " + filename + " " + ioex.getMessage());
+    }
+  }
+
+  public StringParameter registerStringParameter(String label, String value) {
+    StringParameter sp = paramFile.getStringParameter(label, value);
+    parameters.add(sp);
+    paramLookup.put(label, sp);
+    return sp;
+  }
+
+  public CompoundParameter registerCompoundParameter(String label, double value, double base, double range) {
+    CompoundParameter cp = paramFile.getCompoundParameter(label, value, base, range);
+    parameters.add(cp);
+    paramLookup.put(label, cp);
+    return cp;
+  }
+
+  public DiscreteParameter registerDiscreteParameter(String label, int value, int min, int max) {
+    DiscreteParameter dp = paramFile.getDiscreteParameter(label, value, min, max);
+    parameters.add(dp);
+    paramLookup.put(label, dp);
+    return dp;
+  }
+
+  public BooleanParameter registerBooleanParameter(String label, boolean value) {
+    BooleanParameter bp = paramFile.getBooleanParameter(label, value);
+    parameters.add(bp);
+    paramLookup.put(label, bp);
+    return bp;
   }
 
   public void switchToMode(String mode) {
@@ -307,6 +370,16 @@ public class UIModeSelector extends UICollapsibleSection {
     // or else we could end up in a three-way fader situation.
 
     public void loop(double deltaMs) {
+      //Date date =
+      Calendar cal = Calendar.getInstance();
+      //cal.setTime(date);
+      int hour = cal.get(Calendar.HOUR_OF_DAY);
+      int minutes = cal.get(Calendar.MINUTE);
+      if (hour > autoOffStart.getValuei() && hour < autoOffEnd.getValuei()) {
+        // Set master fader to 0
+        lx.engine.output.brightness.setValue(0f);
+      }
+
       if (!UIModeSelector.this.standardModeP.getValueb())
         return;
 
@@ -408,6 +481,8 @@ public class UIModeSelector extends UICollapsibleSection {
     public double avgTimeRemaining;
 
     public void loop(double deltaMs) {
+      ConeDown.autoAudio.update();
+
       // TODO(tracy): We need a number of samples over time and then decide if we should switch
       // based on that.
       if (!autoAudioModeP.isOn()) return;

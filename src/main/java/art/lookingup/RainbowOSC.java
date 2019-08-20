@@ -4,6 +4,7 @@ import heronarts.lx.LX;
 import heronarts.lx.osc.LXOscEngine;
 import heronarts.lx.osc.LXOscListener;
 import heronarts.lx.osc.OscMessage;
+import heronarts.lx.parameter.BooleanParameter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -127,6 +128,13 @@ public class RainbowOSC implements LXOscListener {
             logger.info("changing mode to " + message.getString(0));
 
             ConeDown.modeSelector.switchToMode(message.getString(0));
+          }
+          if ("galactic".equals(path[2])) {
+            BooleanParameter enabledParam = ConeDown.galacticJungle.getBooleanParameter("enabled");
+            if (enabledParam != null) {
+              enabledParam.setValue(!enabledParam.getValueb());
+              logger.info("Galactic output is " + enabledParam.getValueb());
+            }
           }
           // TODO(tracy): Maybe change this to mobilesensor or something?
           if ("mobile".equals(path[2])) {

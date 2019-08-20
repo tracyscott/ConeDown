@@ -3,6 +3,7 @@ package art.lookingup.patterns;
 import art.lookingup.CXPoint;
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
+import art.lookingup.Projection;
 
 import heronarts.lx.color.LXColor;
 import heronarts.lx.model.LXModel;
@@ -47,15 +48,13 @@ public class RenderImageUtil {
     return rainbow;
   }
 
-  public static void imageToPointsPixelPerfect(LXModel model, PImage image, int[] colors) {
-    imageToPointsPixelPerfect(model, image, colors, 0, 0);
+  public static void imageToPointsPixelPerfect(Projection proj, PImage image, int[] colors) {
+      sampleRenderTarget(proj, 0, image, colors, 0, 0, true);
   }
 
   /**
    * Render an image to the installation pixel-perfect.  This effectively treats the
-   * installation as a 112x58 image.
-   * TODO(tracy): We need to anti-alias in the X dimension because there are fewer LEDs
-   * per row near the top where the diameter is smaller.
+   * installation as a 112x87 image.
    * <p>
    * Since we constructed our LXModel from points parsed from the cnc .svg file, our
    * points are in column-normal form so we need to transpose x,y.  Also, There are
@@ -63,36 +62,8 @@ public class RenderImageUtil {
    * <p>
    * Note that point (0,0) is at the bottom left in {@code colors}.</p>
    */
-  public static void imageToPointsPixelPerfectOld(LXModel lxModel, PImage image, int[] colors, int xOffset, int yOffset) {
-    // (0, 0) is at the bottom left in the colors array
-
-    image.loadPixels();
-    for (int cindex = 0; cindex < colors.length; cindex++) {
-      CXPoint p = (CXPoint) lxModel.points[cindex];
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder(p, ConeDownModel.POINTS_WIDE,
-          ConeDownModel.POINTS_HIGH,0); //ConeDownModel.pointToImageCoordinates(p);
-      colors[cindex] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
-    }
-
-  }
-
-  public static void imageToPointsPixelPerfect(LXModel lxModel, PImage image, int[] colors, int xOffset, int yOffset) {
-    image.loadPixels();
-    for (LXPoint p : ConeDownModel.conePoints) {
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p, ConeDownModel.POINTS_WIDE,
-          ConeDownModel.POINTS_HIGH, 0);
-      colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
-    }
-    for (LXPoint p : ConeDownModel.scoopPoints) {
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p, ConeDownModel.POINTS_WIDE,
-          ConeDownModel.POINTS_HIGH, 0);
-      colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
-    }
-    for (LXPoint p : ConeDownModel.dancePoints) {
-      int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint)p, ConeDownModel.POINTS_WIDE,
-          ConeDownModel.POINTS_HIGH, 0);
-      colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
-    }
+  public static void imageToPointsPixelPerfect(Projection proj, PImage image, int[] colors, int xOffset, int yOffset) {
+      sampleRenderTarget(proj, 0, image, colors, xOffset, yOffset, true);
   }
 
   /**
@@ -105,60 +76,112 @@ public class RenderImageUtil {
    * @param image
    * @param colors
    */
-  public static void sampleRenderTarget(int renderTarget, PImage image, int[] colors, int xOffset, int yOffset) {
+  public static void sampleRenderTarget(Projection proj, int renderTarget, PImage image, int[] colors, int xOffset, int yOffset, boolean targetScaling) {
+    Projection projection = proj;
+
     // Dance floor is easy, since there is no texture coordinate offsets.
     image.loadPixels();
     int yTexCoordOffset = 0;
     int pointsWide = ConeDownModel.POINTS_WIDE;
     int pointsHigh = ConeDownModel.POINTS_HIGH;
     switch (renderTarget) {
-      case 0:
+    case 0:  // whole thing w/ dance floor centered (missing pixels bottom left/right)
         yTexCoordOffset = 0;
         pointsWide = ConeDownModel.POINTS_WIDE;
         pointsHigh = ConeDownModel.POINTS_HIGH;
         break;
-      case 1:
-        yTexCoordOffset = 0;
+    case 1: // dance floor
+        yTexCoordOffset = ConeDownModel.scoopPointsHigh + ConeDownModel.conePointsHigh;
         pointsWide = ConeDownModel.dancePointsWide;
         pointsHigh = ConeDownModel.dancePointsHigh;
         break;
-      case 2:
-        yTexCoordOffset = ConeDownModel.dancePointsHigh;
+    case 2: // scoop
+        yTexCoordOffset = ConeDownModel.conePointsHigh;
         pointsWide = ConeDownModel.scoopPointsWide;
         pointsHigh = ConeDownModel.scoopPointsHigh;
         break;
-      case 3:
-        yTexCoordOffset = ConeDownModel.dancePointsHigh + ConeDownModel.scoopPointsHigh;
-        pointsWide = ConeDownModel.conePointsWide;
+    case 3: // cone
+        yTexCoordOffset = 0;
+        pointsWide = ConeDownModel.scoopPointsWide;  // Note: full width render
         pointsHigh = ConeDownModel.conePointsHigh;
+        break;
+    case 4:  // scoop + cone
+        yTexCoordOffset = 0;
+        pointsWide = ConeDownModel.scoopPointsWide;
+        pointsHigh = ConeDownModel.scoopPointsHigh + ConeDownModel.conePointsHigh;
+        break;
+    case 5:  // dance + scoop
+        yTexCoordOffset = ConeDownModel.conePointsHigh;
+        pointsWide = ConeDownModel.scoopPointsWide;
+        pointsHigh = ConeDownModel.dancePointsHigh + ConeDownModel.scoopPointsHigh;
         break;
     }
 
+    // Note: Assume that 'xOffset' and 'yOffset' are pre-scaled b/c
+    // the pattern is dealing in super-sampled coordinates.  The three
+    // coordinates set in the switch above are not scaled yet.
+    pointsWide *= projection.factor();
+    pointsHigh *= projection.factor();
+    yTexCoordOffset *= projection.factor();
+
     for (LXPoint p : ConeDownModel.conePoints) {
-      if (renderTarget == 0 || renderTarget == 3) {
-        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
-        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      if (renderTarget == 0 || renderTarget == 3 || renderTarget == 4) {
+	colors[p.index] = getRenderColor((CXPoint) p, projection, image,
+					 pointsWide, pointsHigh, yTexCoordOffset,
+					 xOffset, yOffset, targetScaling);
       } else {
         colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
     }
 
     for (LXPoint p : ConeDownModel.scoopPoints) {
-      if (renderTarget == 0 || renderTarget == 2) {
-        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
-        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      if (renderTarget == 0 || renderTarget == 2 || renderTarget == 5 || renderTarget == 4) {
+	colors[p.index] = getRenderColor((CXPoint) p, projection, image,
+					 pointsWide, pointsHigh, yTexCoordOffset,
+					 xOffset, yOffset, targetScaling);
       } else {
         colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
     }
 
     for (LXPoint p : ConeDownModel.dancePoints) {
-      if (renderTarget == 0 || renderTarget == 1) {
-        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
-        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      if (renderTarget == 0 || renderTarget == 1 || renderTarget == 5) {
+	colors[p.index] = getRenderColor((CXPoint) p, projection, image,
+					 pointsWide, pointsHigh, yTexCoordOffset,
+					 xOffset, yOffset, targetScaling);
       } else {
         colors[p.index] = LXColor.rgba(0, 0, 0, 0);
       }
     }
   }
+
+  // `cxp` is the physical point being rendered,
+  // `image` is the source data,
+  // `pointsHigh` are the height of the logical image we are mapping from,
+  // `xOffset` and `yOffset` are additional offsets into the image being rendered.
+  static int getRenderColor(CXPoint cxp,
+			    Projection projection,
+			    PImage image,
+			    int pointsWide,
+			    int pointsHigh,
+			    int yTexCoordOffset,
+			    int xOffset,
+			    int yOffset,
+			    boolean targetScaling) {
+      if (targetScaling) {
+	  // TODO There's an off-by-one pixel error somewhere around here, probably in
+	  // both X and Y dimensions.
+
+	  // The texture begins at yTexCoordOffset.  Subtract by combining w/ yOffset.
+	  yOffset -= yTexCoordOffset;
+
+	  // When rendering only the dance floor, these are different.  In
+	  // that case, apply an offset.
+	  int fullWidth = projection.factor() * ConeDownModel.POINTS_WIDE;
+	  if (pointsWide != fullWidth) {
+	      xOffset -= (fullWidth - pointsWide) / 2;
+	  }
+      }
+      return projection.computePoint(cxp, image, xOffset, yOffset);
+    }
 }

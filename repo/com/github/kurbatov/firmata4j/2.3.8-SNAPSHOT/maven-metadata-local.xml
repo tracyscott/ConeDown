@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>com.github.kurbatov</groupId>
+  <artifactId>firmata4j</artifactId>
+  <version>2.3.8-SNAPSHOT</version>
+  <versioning>
+    <snapshot>
+      <localCopy>true</localCopy>
+    </snapshot>
+    <lastUpdated>20190808174611</lastUpdated>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>2.3.8-SNAPSHOT</value>
+        <updated>20190808174611</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>2.3.8-SNAPSHOT</value>
+        <updated>20190808174611</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+</metadata>

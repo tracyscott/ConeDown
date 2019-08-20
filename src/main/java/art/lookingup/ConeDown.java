@@ -1,12 +1,17 @@
 package art.lookingup;
 
 import art.lookingup.ui.*;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
 import com.google.common.reflect.ClassPath;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import heronarts.lx.LXEffect;
 import heronarts.lx.LXPattern;
 import heronarts.lx.model.LXModel;
 import heronarts.lx.studio.LXStudio;
-
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
@@ -15,23 +20,28 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-
 import processing.core.PApplet;
 
 public class ConeDown extends PApplet {
-	
-	static {
+
+  static {
     System.setProperty(
         "java.util.logging.SimpleFormatter.format",
         "%3$s: %1$tc [%4$s] %5$s%6$s%n");
   }
 
-    /**
+  /**
    * Set the main logging level here.
    *
    * @param level the new logging level
@@ -73,7 +83,10 @@ public class ConeDown extends PApplet {
   private heronarts.lx.studio.LXStudio lx;
 
   public static PApplet pApplet;
-  public static final int GLOBAL_FRAME_RATE = 40;
+  public static final int GLOBAL_FRAME_RATE = 33;
+
+  //public static final Optional<Float> DEFAULT_ZOOM = Optional.empty();
+  public static final Optional<Float> DEFAULT_ZOOM = Optional.of(10f);
 
   public static RainbowOSC rainbowOSC;
 
@@ -84,12 +97,51 @@ public class ConeDown extends PApplet {
   public static UIMidiControl uiMidiControl;
   public static com.giantrainbow.OSCSensor oscSensor;
   public static OSCSensorUI oscSensorUI;
+  public static UISensorOverride sensorOverrideUI;
   public static UIFirmata firmataPortUI;
+  public static UIGalacticJungle galacticJungle;
 
+  // The standard projections provide anti-aliasing at levels from some (2) to plenty (4).
+  private enum ProjectionMode {
+    /** Takes the best available projection */
+    BEST_AVAILABLE,
+
+    /** Blocks until the requested projection is ready */
+    BLOCKING
+  }
+  private static final ProjectionMode PROJECTION_MODE = ProjectionMode.BEST_AVAILABLE;
+  private static final Set<Integer> LEVELS_TO_COMPUTE = ImmutableSet.of(1, 2, 4);
+  public static int DEFAULT_SUPER_SAMPLING = 1;
+  public static int MIN_SUPER_SAMPLING = Ordering.natural().min(LEVELS_TO_COMPUTE);
+  public static int MAX_SUPER_SAMPLING = Ordering.natural().max(LEVELS_TO_COMPUTE);
+  private static final Map<Integer, Future<? extends Projection>> projectionMap = Maps.newConcurrentMap();
+
+
+  public static Autodio autoAudio;
+  public static AutodioUI autoAudioUI;
 
   @Override
   public void settings() {
-    size(1400, 678, P3D);
+    size(1600, 800, P3D);
+  }
+
+  // Returns the best currently available projection falling back to MIN if non are ready
+  public static Projection getProjection(int requested) {
+    int constrained = Math.max(Math.min(requested, MAX_SUPER_SAMPLING), MIN_SUPER_SAMPLING);
+    try {
+      return PROJECTION_MODE == ProjectionMode.BLOCKING
+          ? projectionMap.get(constrained).get()
+          : LEVELS_TO_COMPUTE.stream()
+              .sorted(Ordering.natural().reversed())
+              .filter(l -> l <= constrained)
+              .<Future<? extends Projection>>map(projectionMap::get)
+              .filter(Future::isDone)
+              .findFirst()
+              .orElse(projectionMap.get(MIN_SUPER_SAMPLING))
+              .get();
+    } catch (ExecutionException | InterruptedException e) {
+      throw new RuntimeException("Error initializing projection:", e);
+    }
   }
 
   /**
@@ -153,6 +205,17 @@ public class ConeDown extends PApplet {
 
     LXModel model = ConeDownModel.createModel();
 
+    ListeningExecutorService executor =
+        MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(LEVELS_TO_COMPUTE.size()));
+    ListenableFuture<TrueProjection> trueProjection =
+        executor.submit(() -> new TrueProjection(model));
+    LEVELS_TO_COMPUTE.stream()
+        .filter(i -> LEVELS_TO_COMPUTE.contains(i))
+        .peek(i -> logger.info("Computing " + i + "x projection asynchronously"))
+        .forEach(i -> projectionMap.put(i, i <= 1
+            ? trueProjection
+            : executor.submit(() -> new AntiAliased(model, i))));
+
     LXStudio.Flags flags = new LXStudio.Flags();
     //flags.showFramerate = false;
     //flags.isP3LX = true;
@@ -169,11 +232,12 @@ public class ConeDown extends PApplet {
     lx = new LXStudio(this, flags, model);
 
     lx.ui.setResizable(true);
+    DEFAULT_ZOOM.ifPresent(lx.ui.preview::setRadius);
 
     // Put this here because it needs to be after file loads in order to find appropriate channels.
     modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     modeSelector.standardMode.setActive(true);
-    //frameRate(GLOBAL_FRAME_RATE);
+    frameRate(GLOBAL_FRAME_RATE);
   }
 
 
@@ -182,7 +246,7 @@ public class ConeDown extends PApplet {
     // Register settings
     // lx.engine.registerComponent("yomigaeSettings", new Settings(lx, ui));
 
-    // Common components
+    // Common componentaConeDows
     // registry = new Registry(this, lx);
 
     // Register any patterns and effects LX doesn't recognize
@@ -190,6 +254,7 @@ public class ConeDown extends PApplet {
   }
 
   public void onUIReady(LXStudio lx, LXStudio.UI ui) {
+    sensorOverrideUI = (UISensorOverride) new UISensorOverride(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     firmataPortUI = (UIFirmata) new UIFirmata(lx.ui, lx).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     ConeFirmata.reloadFirmata(firmataPortUI.getStringParameter(UIFirmata.FIRMATA_PORT).getString(), firmataPortUI.numTiles,
         firmataPortUI.getDiscreteParameter(UIFirmata.START_PIN).getValuei(), firmataPortUI.getPinParameters());
@@ -199,14 +264,23 @@ public class ConeDown extends PApplet {
     //modeSelector = (UIModeSelector) new UIModeSelector(lx.ui, lx, audioMonitorLevels).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     oscSensorUI = (OSCSensorUI) new OSCSensorUI(lx.ui, lx, oscSensor).setExpanded(false).addToContainer(lx.ui.leftPane.global);
 
+    autoAudio = new Autodio(lx);
+    lx.engine.registerComponent("autoAudio", autoAudio);
+    autoAudioUI = (AutodioUI) new AutodioUI(lx.ui, lx, autoAudio).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+
     audioMonitorLevels = (UIAudioMonitorLevels) new UIAudioMonitorLevels(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     gammaControls = (UIGammaSelector) new UIGammaSelector(lx.ui).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     uiMidiControl = (UIMidiControl) new UIMidiControl(lx.ui, lx, modeSelector).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     pixliteConfig = (UIPixliteConfig) new UIPixliteConfig(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+    galacticJungle = (UIGalacticJungle) new UIGalacticJungle(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
+
     lx.engine.midi.addListener(uiMidiControl);
     if (enableOutput) {
-      //Output.configurePixliteOutput(lx);
+      Output.configurePixliteOutput(lx);
       Output.configureUnityArtNet(lx);
+      // By default the output in Galactic Jungle is disabled.
+      //Output.outputGalacticBrightnessDown(lx);
+      //Output.outputGalactic(lx);
     }
     if (disableOutputOnStart)
       lx.engine.output.enabled.setValue(false);
@@ -223,8 +297,8 @@ public class ConeDown extends PApplet {
 
   // Configuration flags
   private final static boolean MULTITHREADED = false;  // Disabled for anything GL
-                                                       // Enable at your own risk!
-                                                       // Could cause VM crashes.
+  // Enable at your own risk!
+  // Could cause VM crashes.
   private final static boolean RESIZABLE = true;
 
   // Helpful global constants

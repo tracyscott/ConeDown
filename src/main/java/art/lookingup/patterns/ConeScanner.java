@@ -33,19 +33,19 @@ public class ConeScanner extends PGPixelPerfect {
   public void draw(double drawDeltaMs) {
 
     if (manualKnob.getValueb()) {
-      pos = (int)(posKnob.getValuef() * pg.width);
+      pos = (int)(posKnob.getValuef() * renderWidth);
     }
     pg.background((int)(bgKnob.getValue()*255f));
     int width = (int) widthKnob.getValue();
     pg.stroke(Colors.WHITE);
     pg.fill(Colors.WHITE);
 
-    pg.rect(pos,0, (int)(widthKnob.getValue()-1f), pg.height);
-    if (pos + width > pg.width) {
-      pg.rect(0, 0, (pos + width) - pg.width, pg.height);
+    pg.rect(pos,0, (int)(widthKnob.getValue()-1f), renderHeight);
+    if (pos + width > renderWidth) {
+      pg.rect(0, 0, (pos + width) - renderWidth, renderHeight);
       if (!manualKnob.getValueb()) {
         pos++;
-        if (pos > pg.width) {
+        if (pos > renderWidth) {
           pos = 1;
         }
       }

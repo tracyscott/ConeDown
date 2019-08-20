@@ -46,6 +46,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   public final StringParameter textureNameKnob = new StringParameter("tex", "tunneltex.png");
   public DiscreteParameter textureKnob;
   public final BooleanParameter audioKnob = new BooleanParameter("Audio", true);
+  public final CompoundParameter blurKnob = new CompoundParameter("Blur", 0f, 0f, 255f);
   public final CompoundParameter knob1 =
       new CompoundParameter("K1", 0, 1)
           .setDescription("Mapped to iMouse.x");
@@ -72,7 +73,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   PGraphics toyGraphics;
   PImage textureImage;
 
-  private static final int CONTROLS_MIN_WIDTH = 200;
+  private static final int CONTROLS_MIN_WIDTH = 300;
 
   private static final String SHADER_DATA_DIR = "";
   private static final String LOCAL_SHADER_DIR = "shaders/";
@@ -85,6 +86,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     addParameter(knob2);
     addParameter(knob3);
     addParameter(knob4);
+    addParameter(blurKnob);
     addParameter(shaderFileKnob);
     addParameter(textureNameKnob);
 
@@ -173,7 +175,7 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
   @Override
   protected void createPGraphics() {
     super.createPGraphics();
-    toyGraphics = ConeDown.pApplet.createGraphics(pg.width, pg.height, P2D);
+    toyGraphics = ConeDown.pApplet.createGraphics(renderWidth, renderHeight, P2D);
   }
 
   /**
@@ -276,7 +278,10 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
       toy.set_iChannel(2, texNoise);
       toy.set_iChannel(1, texImage);
     }
-    pg.background(0);
+    //pg.background(0);
+    pg.colorMode(PConstants.RGB, 255, 255, 255, 255);
+    pg.fill(0, 255 - (int)blurKnob.getValuef());
+    pg.rect(0, 0, pg.width, pg.height);
     if (toy == null) {
       return;
     }
@@ -284,7 +289,8 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     toy.apply(toyGraphics);
     toyGraphics.loadPixels();
     toyGraphics.updatePixels();
-    pg.image(toyGraphics, 0, 0);
+    //pg.image(toyGraphics, 0, 0);
+    pg.blend(toyGraphics, 0, 0, pg.width, pg.height, 0, 0, pg.width, pg.height, PConstants.ADD);
     texAudio.release();
   }
 
@@ -304,6 +310,8 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
     UI2dContainer knobsContainer = new UI2dContainer(0, 30, device.getWidth(), 45);
     knobsContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);
     knobsContainer.setPadding(0, 0, 0, 0);
+    new UIKnob(fpsKnob).addToContainer(knobsContainer);
+    new UIKnob(blurKnob).addToContainer(knobsContainer);
     new UIKnob(renderTarget).addToContainer(knobsContainer);
     new UIKnob(knob1).addToContainer(knobsContainer);
     new UIKnob(knob2).addToContainer(knobsContainer);

@@ -80,6 +80,13 @@ public class UIConfig extends UICollapsibleSection implements LXParameterListene
     return dp;
   }
 
+  public BooleanParameter registerBooleanParameter(String label, boolean value) {
+    BooleanParameter bp = paramFile.getBooleanParameter(label, value);
+    parameters.add(bp);
+    paramLookup.put(label, bp);
+    return bp;
+  }
+
   public StringParameter getStringParameter(String label) {
     return (StringParameter) paramLookup.get(label);
   }
@@ -91,6 +98,8 @@ public class UIConfig extends UICollapsibleSection implements LXParameterListene
   public DiscreteParameter getDiscreteParameter(String label) {
     return (DiscreteParameter) paramLookup.get(label);
   }
+
+  public BooleanParameter getBooleanParameter(String label) { return (BooleanParameter) paramLookup.get(label); }
 
   public void save() {
     try {
@@ -116,7 +125,7 @@ public class UIConfig extends UICollapsibleSection implements LXParameterListene
       oscMessage.add(oscFloat);
     }
 
-    ConeDown.rainbowOSC.sendOscMessage(oscMessage);
+    // ConeDown.rainbowOSC.sendOscMessage(oscMessage);
   }
 
   public void buildUI(LXStudio.UI ui) {
@@ -130,7 +139,14 @@ public class UIConfig extends UICollapsibleSection implements LXParameterListene
     setChildMargin(2);
     UI2dContainer horizContainer = null;
     for (LXParameter p : parameters) {
-      if (p instanceof LXListenableNormalizedParameter) {
+      if (p instanceof BooleanParameter) {
+        UIButton button = (UIButton) new UIButton(0, 0, getContentWidth(), 18)
+            .setParameter((BooleanParameter)p)
+            .setLabel(p.getLabel())
+            .addToContainer(this);
+        ((LXListenableParameter)p).addListener(this);
+      }
+       else if (p instanceof LXListenableNormalizedParameter) {
         if (knobCountThisRow == 0) {
           horizContainer = new UI2dContainer(0, 30, ui.leftPane.global.getContentWidth(), 45);
           horizContainer.setLayout(UI2dContainer.Layout.HORIZONTAL);

@@ -1,10 +1,7 @@
 package art.lookingup;
 
 import com.google.gson.JsonObject;
-import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.DiscreteParameter;
-import heronarts.lx.parameter.LXParameter;
-import heronarts.lx.parameter.StringParameter;
+import heronarts.lx.parameter.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,6 +24,7 @@ public class ParameterFile {
   public static final int TYPE_INT = 1;
   public static final int TYPE_FLOAT = 2;
   public static final int TYPE_DOUBLE = 3;
+  public static final int TYPE_BOOLEAN = 4;
 
   public ParameterFile(String filename) {
     props = new PropertyFile(filename);
@@ -68,6 +66,10 @@ public class ParameterFile {
         // System.out.println("Loading " + key + " double: " + v + " base: " + base + " range:" + range);
         CompoundParameter p = new CompoundParameter(key, v, base, range);
         params.put(key, p);
+      } else if (type == PropertyFile.TYPE_BOOLEAN) {
+        boolean v = param.get("v").getAsBoolean();
+        BooleanParameter p = new BooleanParameter(key, v);
+        params.put(key, p);
       }
     }
   }
@@ -97,6 +99,12 @@ public class ParameterFile {
         obj.addProperty("base", cp.range.v0);
         obj.addProperty("range", cp.range.v1);
         props.setObj(cp.getLabel(), obj);
+      } else if (p instanceof BooleanParameter) {
+        BooleanParameter bp = (BooleanParameter)p;
+        JsonObject obj = new JsonObject();
+        obj.addProperty("v", bp.getValueb());
+        obj.addProperty("t", PropertyFile.TYPE_BOOLEAN);
+        props.setObj(bp.getLabel(), obj);
       }
     }
     props.save();
@@ -199,6 +207,20 @@ public class ParameterFile {
       //System.out.println("Founding existing compound parameter");
     }
     return cp;
+  }
+
+  public BooleanParameter newBooleanParameter(String name, boolean value) {
+    BooleanParameter bp = new BooleanParameter(name, value);
+    params.put(name, bp);
+    return bp;
+  }
+
+  public BooleanParameter getBooleanParameter(String name, boolean value) {
+    BooleanParameter bp = (BooleanParameter) params.get(name);
+    if (bp == null) {
+      bp = newBooleanParameter(name, value);
+    }
+    return bp;
   }
 
 }

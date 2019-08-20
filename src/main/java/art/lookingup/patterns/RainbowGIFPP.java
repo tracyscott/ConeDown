@@ -2,6 +2,8 @@ package art.lookingup.patterns;
 
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
+import art.lookingup.Projection;
+
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import heronarts.lx.parameter.DiscreteParameter;
@@ -18,11 +20,15 @@ import static processing.core.PConstants.P3D;
 @LXCategory(LXCategory.FORM)
 public class RainbowGIFPP extends RainbowGIFBase {
 
+  Projection projection;
+
   public RainbowGIFPP(LX lx) {
     super(lx, ConeDownModel.POINTS_WIDE, ConeDownModel.POINTS_HIGH,
         "gifpp/",
         "life2",
         false);
+
+    projection = ConeDown.getProjection(ConeDown.DEFAULT_SUPER_SAMPLING);
 
     addParameter(renderTarget);
     renderTarget.addListener(new LXParameterListener() {
@@ -45,10 +51,20 @@ public class RainbowGIFPP extends RainbowGIFBase {
             imageHeight = ConeDownModel.scoopPointsHigh;
             break;
           case 3:
-            imageWidth = ConeDownModel.conePointsWide;
+	    imageWidth = ConeDownModel.scoopPointsWide;  // Note: full width render
             imageHeight = ConeDownModel.conePointsHigh;
             break;
+          case 4:  // Scoop + cone
+            imageWidth = Math.max(ConeDownModel.conePointsWide, ConeDownModel.scoopPointsWide);
+            imageHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.conePointsHigh;
+            break;
+          case 5:  // Dancefloor + scoop
+            imageWidth = ConeDownModel.scoopPointsWide;
+            imageHeight = ConeDownModel.scoopPointsHigh + ConeDownModel.dancePointsHigh;
+            break;
         }
+	imageWidth *= projection.factor();
+	imageHeight *= projection.factor();
         // Reload the GIF with new dimensions.
         loadGif(gifKnob.getString());
       }
@@ -63,10 +79,6 @@ public class RainbowGIFPP extends RainbowGIFBase {
       xOffset = images[(int)currentFrame].width - 47;
     if (yOffset >= images[(int)currentFrame].height - 46)
       yOffset = images[(int)currentFrame].height - 47;
-    RenderImageUtil.sampleRenderTarget(renderTarget.getValuei(), images[(int)currentFrame], colors, xOffset ,yOffset);
-    /*
-    RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), images[(int)currentFrame], colors,
-        xOffset, yOffset);
-        */
+    RenderImageUtil.sampleRenderTarget(ConeDown.getProjection(ConeDown.DEFAULT_SUPER_SAMPLING), renderTarget.getValuei(), images[(int)currentFrame], colors, xOffset, yOffset, true);
   }
 }

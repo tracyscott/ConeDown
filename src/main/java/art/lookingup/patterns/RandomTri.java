@@ -85,8 +85,8 @@ public class RandomTri extends PGFilterBase {
 
 
   public void drawRandomTriangle() {
-    float centerX = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float centerY = ((float)Math.random() * pg.height + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float centerX = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float centerY = ((float)Math.random() * renderHeight + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
     float pt1XDelta = ((float)Math.random() * 2.0f * maxTriSize.getValuef()) - maxTriSize.getValuef();
     float pt1YDelta = ((float)Math.random() * maxTriSize.getValuef());
     float pt2XDelta = ((float)Math.random() * maxTriSize.getValuef());
@@ -94,12 +94,12 @@ public class RandomTri extends PGFilterBase {
     float pt3XDelta = ((float)Math.random() * 2.0f * maxTriSize.getValuef()) - maxTriSize.getValuef();
     float pt3YDelta = ((float)Math.random() * -1.0f * maxTriSize.getValuef());
     /*
-    float pt1X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt1Y = (float)Math.random() * pg.height;
-    float pt2X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt2Y = (float)Math.random() * pg.height;
-    float pt3X = ((float)Math.random() * pg.width + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
-    float pt3Y = (float)Math.random() * pg.height;
+    float pt1X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt1Y = (float)Math.random() * renderHeight;
+    float pt2X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt2Y = (float)Math.random() * renderHeight;
+    float pt3X = ((float)Math.random() * renderWidth + 2.0f * maxOffScreen.getValuef()) - maxOffScreen.getValuef();
+    float pt3Y = (float)Math.random() * renderHeight;
     */
 
     int whichPalette = paletteKnob.getValuei();

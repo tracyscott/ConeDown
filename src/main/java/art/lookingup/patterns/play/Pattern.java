@@ -1,123 +1,127 @@
 package art.lookingup.patterns.play;
 
-// import static processing.core.PConstants.P2D;
-// import static processing.core.PConstants.P3D;
-
 import art.lookingup.CXPoint;
-import art.lookingup.ConeDownModel;
-import art.lookingup.patterns.RenderImageUtil;
-
-import heronarts.lx.parameter.CompoundParameter;
-import heronarts.lx.parameter.LXParameter;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import art.lookingup.ConeDown;
+import art.lookingup.Projection;
+import art.lookingup.colors.Colors;
 import heronarts.lx.LX;
 import heronarts.lx.LXPattern;
 import heronarts.lx.model.LXPoint;
-
+import heronarts.lx.parameter.CompoundParameter;
+import heronarts.lx.parameter.DiscreteParameter;
 import processing.core.PApplet;
 import processing.core.PGraphics;
-import processing.core.PImage;
 
-abstract public class Pattern extends LXPattern {
-    public static final String gtype = "";  // or P2D or P3D
-    
-    public final PApplet app;
+public abstract class Pattern extends LXPattern {
+  // "" for builtin, P2D or P3D for opengl
+  public static final String defaultGraphics = "";
 
-    public PGraphics graph;
+  public static final int superSampling = ConeDown.MAX_SUPER_SAMPLING;
 
-    public final int width;
-    public final int height;
+  public final PApplet app;
 
-    public final CompoundParameter speedKnob =
-	new CompoundParameter("GlobalSpeed", 1, 0, 2)
-        .setDescription("Varies global speed.");
+  private final int width;
+  private final int height;
 
-    boolean init;
-    float current;
-    float elapsed;
+  public final CompoundParameter speedKnob =
+      new CompoundParameter("GlobalSpeed", 1, 0, 4).setDescription("Varies global speed.");
 
-    List<Fragment> frags = new ArrayList<>();
+  public final DiscreteParameter saturateKnob =
+      new DiscreteParameter("Saturation", 100, 0, 101).setDescription("Saturates.");
 
-    public void addFragment(Fragment f) {
-	frags.add(f);
-	f.registerParameters((LXParameter cp)->{
-		addParameter(cp);
-	    });
+  boolean init;
+  float current;
+  float elapsed;
+  Fragment frag;
+  float[] rgb2hsb;
+  String graphics;
+
+  public void setFragment(FragmentFactory ff) {
+    this.frag = ff.create(lx, width * superSampling, height * superSampling);
+    this.frag.registerParameters(
+        (Parameter p) -> {
+          addParameter(p.lxp);
+        });
+  }
+
+  public Pattern(LX lx, PApplet app, int width, int height) {
+    this(lx, app, width, height, defaultGraphics);
+  }
+
+  public Pattern(LX lx, PApplet app, int width, int height, String graphics) {
+    super(lx);
+
+    this.app = app;
+    this.width = width;
+    this.height = height;
+    this.rgb2hsb = new float[3];
+    this.graphics = graphics;
+
+    addParameter(speedKnob);
+    addParameter(saturateKnob);
+  }
+
+  @Override
+  public void run(double deltaMs) {
+    render(deltaMs);
+  }
+
+  static PGraphics createGraphics(PApplet app, int w, int h, String graphics) {
+    if (graphics == "") {
+      return app.createGraphics(w, h);
+    }
+    return app.createGraphics(w, h, graphics);
+  }
+
+  @Override
+  public void onActive() {
+    this.frag.onActive();
+  }
+
+  void render(double deltaMs) {
+    current += (float) (speedKnob.getValue() * (deltaMs / 1e3));
+
+    if (!init) {
+      init = true;
+
+      frag.create(this);
+
+      setup();
+
+      frag.setup();
     }
 
-    public Pattern(LX lx, PApplet app, int width, int height) {
-	super(lx);
+    preDraw(current - elapsed);
 
-	this.app = app;
-	this.width = width;
-	this.height = height;
+    frag.image.loadPixels();
 
-	addParameter(speedKnob);
+    Projection projection = ConeDown.getProjection(superSampling);
+    int sat = (int) saturateKnob.getValue();
+
+    for (LXPoint p : lx.getModel().points) {
+      CXPoint cxp = (CXPoint) p;
+      if (cxp.panel == null) {
+        // TODO the interior lights!
+        continue;
+      }
+      colors[p.index] = projection.computePoint(cxp, frag.image, 0, 0);
+
+      if (sat < 100) {
+        int c = colors[p.index];
+        Colors.RGBtoHSB(c, rgb2hsb);
+        int a = Colors.alpha(c);
+        rgb2hsb[1] = Math.min(sat / 100f, rgb2hsb[1]);
+        c = Colors.HSBtoRGB(rgb2hsb);
+        colors[p.index] = Colors.rgba(Colors.red(c), Colors.green(c), Colors.blue(c), a);
+      }
     }
 
-    @Override
-    public void run(double deltaMs) {
-	render(deltaMs);
-    }
+    elapsed = current;
+  }
 
-    @Override
-    public void onActive() {
-	// Hmmm
-    }
-    
-    @Override
-    public void onInactive() {
-	// Hmm
-    }
+  public void setup() {}
 
-    PGraphics createGraphics(int width, int height) {
-	if (gtype == "") {
-	    return app.createGraphics(width, height);
-	}
-	return app.createGraphics(width, height, gtype);
-    }
-
-    void render(double deltaMs) {
-	current += (float)(speedKnob.getValue() * (deltaMs / 1e3));
-
-	if (!init) {
-	    init = true;
-
-	    this.graph = createGraphics(width, height);
-
-	    for (Fragment f : frags) {
-		f.create(this);
-	    }
-		
-	    setup();
-
-	    for (Fragment f : frags) {
-		f.setup();
-	    }
-	}
-
-	preDraw(current - elapsed);
-
-	graph.beginDraw();
-	graph.background(0);
-	graph.copy(frags.get(frags.size()-1).image, 0, 0, width, height, 0, 0, width, height);
-	graph.endDraw();
-	graph.loadPixels();
-
-	RenderImageUtil.imageToPointsPixelPerfect(lx.getModel(), graph, colors);	
-
-	elapsed = current;
-    }
-
-    public void setup() {
-    }
-
-    void preDraw(float vdelta) {
-	for (Fragment f : frags) {
-	    f.render(vdelta);
-	}
-    }
+  void preDraw(float vdelta) {
+    frag.render(vdelta);
+  }
 }

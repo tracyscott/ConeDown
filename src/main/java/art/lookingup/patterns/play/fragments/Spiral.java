@@ -1,99 +1,150 @@
 package art.lookingup.patterns.play.fragments;
 
+import static processing.core.PConstants.PI;
+
+import art.lookingup.colors.Gradient;
+import art.lookingup.patterns.play.BaseFactory;
 import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.Parameter;
-import art.lookingup.colors.Gradient;
-import art.lookingup.Projection;
-
 import heronarts.lx.LX;
 
-import processing.core.PGraphics;
-
 public class Spiral extends Fragment {
-    static final float period = 100f;
-    
-    static final int maxCount = 99;
+  static final float period = .01f;
 
-    final Parameter triples;
-    final Parameter pitch;
-    final Parameter fill;
+  static final double epsilon = 0.05; // Very small angle special case
 
-    final Projection projection;
+  static final int maxCount = 99;
 
-    static final int numSections = 24;
+  final Parameter triples;
 
-    Gradient gradients[];
-    float strokeWidth;
-    
-    public Spiral(LX lx, int width, int height) {
-	super(width, height);
-	this.triples = newParameter("triples", 4, 1, 10);
-	this.pitch = newParameter("pitch", 640, 8, 1000);
-	this.fill = newParameter("fill", 0.1f, 0, 1);
-	this.gradients = new Gradient[maxCount+1];
-	this.projection = new Projection(lx.getModel());
+  // TODO Note that the angle changes as a result of the
+  // superSampling parameter, because the rise across `width` pixels
+  // varies with the super-width.  :shrug:
+  final Parameter angle;
+  final Parameter fill;
 
-	this.notifyChange();
+  static final int numSections = 24;
+
+  Gradient gradients[];
+  boolean right;
+  float strokeWidth;
+  float leastX;
+  float pitchY;
+  float stepX;
+  float lengthX;
+  float lengthY;
+
+  public static class Factory extends BaseFactory {
+    public Factory(String fragName) {
+      super(fragName);
     }
 
-    public void notifyChange() {
+    public Fragment create(LX lx, int width, int height) {
+      return new Spiral(toString(), lx, width, height);
+    }
+  };
 
-	int count = (int)triples.value() * 3;
-	float p = pitch.value() / count;
-	float p2 = p * p;
-	float w2 = width * width;
-
-	this.strokeWidth = fill.value() * (float) Math.sqrt(p2*w2/(p2+w2));
+  public static class InvertedFactory extends BaseFactory {
+    public InvertedFactory(String fragName) {
+      super(fragName);
     }
 
-    @Override
-    public void setup() {
-	super.setup();
+    public Fragment create(LX lx, int width, int height) {
+      Spiral s = new Spiral(toString(), lx, width, height);
+      s.inverted = true;
+      return s;
+    }
+  };
 
-	this.area.beginDraw();
-	for (int count = 3; count <= maxCount; count += 3) {
-	    this.gradients[count] = Gradient.compute(area, count);
-	}
-	this.area.endDraw();
+  protected Spiral(String fragName, LX lx, int width, int height) {
+    super(fragName, width, height);
+    this.triples = newParameter("triples", 4, 1, 20);
+    this.angle = newParameter("angle", PI / 8, -PI / 2, PI / 2);
+    this.fill = newParameter("fill", 1, 0, 1);
+    this.gradients = new Gradient[maxCount + 1];
+
+    this.update();
+  }
+
+  int colorCount() {
+    return Math.max((int) triples.value() * 3, 3);
+  }
+
+  public void update() {
+    int count = colorCount();
+
+    boolean right = angle.value() > 0;
+    double theta = Math.abs(angle.value());
+
+    if (theta < epsilon) {
+      theta = epsilon;
     }
 
-    @Override
-    public void drawFragment() {
-	int count = (int)triples.value() * 3;
-	float incr = pitch.value();
-	float spin = elapsed() / period;
+    double tanTh = Math.tan(theta);
+    double pitch = width * tanTh;
+    double least = height * Math.tan(Math.PI / 2 - theta);
+    double stepY = pitch / count;
+    double stepX = stepY / tanTh;
+    double thick = stepX * Math.sin(theta);
 
-	area.strokeWeight(strokeWidth);
+    this.right = right;
+    this.leastX = (float) least;
+    this.pitchY = (float) pitch;
+    this.stepX = (float) stepX;
+    this.lengthX = 2 * leastX;
+    this.lengthY = 2 * height;
+    this.strokeWidth = (float) (fill.value() * thick);
+  }
 
-	for (int idx = 0; idx < count; idx++) {
-	    // @@@ broken around here; the pattern *disappears*
-	    // (corksrews off screen) after a while.
-	    float base = -incr - spin * incr;
-	    float spirals = (float) count;
-	    float startY = base + ((float) idx / spirals) * incr;
-	    int c = gradients[count].index(idx);
-	    area.stroke(c);
+  @Override
+  public void setup() {
+    super.setup();
 
-	    for (float y = startY; y < height+incr; y += incr) {
-		for (float s = -1; s <= numSections; s++) {
-		    float br = s / numSections;
-		    float er = (s + 1) / numSections;
-
-		    float x0 = width * br;
-		    float x1 = width * er;
-		    float y0 = y + incr * br;
-		    float y1 = y + incr * er;
-
-		    if (s == 0) {
-			area.line(x0+width, y0, x1+width, y1);
-		    } else if (s == numSections - 1) {
-			area.line(x0-width, y0, x1-width, y1);
-		    }
-
-		    area.line(x0, y0, x1, y1);
-		}
-	    }
-	}
+    this.area.beginDraw();
+    for (int count = 3; count <= maxCount; count += 3) {
+      this.gradients[count] = Gradient.compute(area, count);
     }
+    this.area.endDraw();
+  }
+
+  @Override
+  public void drawFragment() {
+    this.update();
+
+    int count = colorCount();
+
+    // Spin is the offset of the 0th color index into the area
+    float spin = ((elapsed() / period) + width) % width;
+
+    area.strokeWeight(strokeWidth);
+
+    int colorIdx = 0;
+
+    for (float x = spin; x < width + stepX + (right ? 0 : leastX); x += stepX) {
+      area.stroke(gradients[count].index(colorIdx++));
+
+      area.line(
+          x - (right ? lengthX : -lengthX),
+          0 - lengthY,
+          x + (right ? lengthX : -lengthX),
+          0 + lengthY);
+
+      colorIdx %= count;
+    }
+
+    colorIdx = count - 1;
+
+    for (float x = spin - stepX; x >= -stepX - (right ? leastX : 0); x -= stepX) {
+      area.stroke(gradients[count].index(colorIdx--));
+
+      area.line(
+          x - (right ? lengthX : -lengthX),
+          0 - lengthY,
+          x + (right ? lengthX : -lengthX),
+          0 + lengthY);
+
+      colorIdx += count;
+      colorIdx %= count;
+    }
+  }
 }
-

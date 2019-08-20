@@ -16,6 +16,11 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
   public float radius;
   public float panelLocalX;
   public float panelLocalY;
+  public float panelLocalXUnscaled;
+  public float panelLocalYUnscaled;
+  public float horizontalSpacing;
+  public float intensityCompensation;
+  public float maxHorizontalSpacing = Float.MIN_VALUE;
 
   public static final float EPSILON = 4f;
 
@@ -33,6 +38,25 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
     this.panelLocalY = y;
   }
 
+  public void storePanelLocalXYUnscaled() {
+    this.panelLocalXUnscaled = x;
+    this.panelLocalYUnscaled = y;
+  }
+
+  public void computeHorizontalSpacing() {
+    CXPoint pt = findPointLeft(panel.points);
+    if (pt != null) {
+      horizontalSpacing = Math.abs(panelLocalX - pt.panelLocalX);
+    } else {
+      pt = findPointRight(panel.points);
+      horizontalSpacing = Math.abs(panelLocalX - pt.panelLocalX);
+    }
+    if (horizontalSpacing > maxHorizontalSpacing) {
+      maxHorizontalSpacing = horizontalSpacing;
+    }
+  }
+
+  /* Note this assumes a flat 2D plane of points in XY plane */
   public void rotX(float degrees) {
     float oldY = y;
     y = y * (float)Math.cos(Math.toRadians(degrees));
@@ -43,6 +67,12 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
     float oldX = x;
     x = (float) (x * Math.cos(Math.toRadians(degrees))) - z * (float)Math.sin(Math.toRadians(degrees));
     z = (float) (oldX * Math.sin(Math.toRadians(degrees))) + z * (float)Math.cos(Math.toRadians(degrees));
+  }
+
+  public void rot2D(float degrees) {
+    float oldX = x;
+    x = (float) (x * Math.cos(Math.toRadians(degrees))) - (float)(y * Math.sin(Math.toRadians(degrees)));
+    y = (float) (oldX * Math.sin(Math.toRadians(degrees))) + (float)(y * Math.cos(Math.toRadians(degrees)));
   }
 
   /*
@@ -82,24 +112,23 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
   }
 
   // was 0.2f * inchesPerMeter
-  static public float rowColDistThresh = 2.0f;
+  static public float rowColDistThresh = 2.0f / ConeDownModel.inchesPerMeter;
 
-  public float distanceSquaredXY(CXPoint p) {
-    return (x-p.x)*(x-p.x) + (y-p.y)*(y-p.y);
+  public float distanceSquared(CXPoint p) {
+    return (panelLocalX-p.panelLocalX)*(panelLocalX-p.panelLocalX)
+      + (panelLocalY-p.panelLocalY)*(panelLocalY-p.panelLocalY);
   }
-
-  public float distanceSquared(CXPoint p) { return (x-p.x)*(x-p.x) + (y-p.y)*(y-p.y); }
 
   public float distance(CXPoint p) {
     return (float)Math.sqrt(distanceSquared(p));
   }
 
   public float verticalDistance(CXPoint p) {
-    return Math.abs(y - p.y);
+    return Math.abs(panelLocalY - p.panelLocalY);
   }
 
   public float horizontalDistance(CXPoint p) {
-    return Math.abs(x - p.x);
+    return Math.abs(panelLocalX - p.panelLocalX);
   }
 
   CXPoint findPointAbove(List<CXPoint> points) {
@@ -113,7 +142,8 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
       }
       float dist = verticalDistance(point);
       // Must be about the same X.
-      if (dist < closestDistance && point.y - y > 0 && Math.abs(point.x - x) < rowColDistThresh ) {
+      if (dist < closestDistance && point.panelLocalY - panelLocalY > 0
+          && Math.abs(point.panelLocalX - panelLocalX) < rowColDistThresh ) {
         closestDistance = dist;
         closestPointIndex = i;
       }
@@ -134,7 +164,8 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
       }
       float dist = verticalDistance(point);
       // Must be about the same X.
-      if (dist < closestDistance && point.y - y < 0 && Math.abs(point.x - x) < rowColDistThresh) {
+      if (dist < closestDistance && point.panelLocalY - panelLocalY < 0
+          && Math.abs(point.panelLocalX - panelLocalX) < rowColDistThresh) {
         closestDistance = dist;
         closestPointIndex = i;
       }
@@ -155,7 +186,8 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
       }
       float dist = horizontalDistance(point);
       // Must be about the same X.
-      if (dist < closestDistance && point.x - x < 0 && Math.abs(point.y - y) < rowColDistThresh) {
+      if (dist < closestDistance && point.panelLocalX - panelLocalX < 0
+          && Math.abs(point.panelLocalY - panelLocalY) < rowColDistThresh) {
         closestDistance = dist;
         closestPointIndex = i;
       }
@@ -176,7 +208,8 @@ public class CXPoint extends LXPoint implements Comparable<CXPoint> {
       }
       float dist = horizontalDistance(point);
       // Must be about the same X.
-      if (dist < closestDistance && point.x - x > 0 && Math.abs(point.y - y) < rowColDistThresh ) {
+      if (dist < closestDistance && point.panelLocalX - panelLocalX > 0
+          && Math.abs(point.panelLocalY - panelLocalY) < rowColDistThresh ) {
         closestDistance = dist;
         closestPointIndex = i;
       }

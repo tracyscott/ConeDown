@@ -22,7 +22,6 @@ public class UIFirmata extends UIConfig {
   public static final int numTiles = numTilesWide * numTilesHigh;
 
   public LX lx;
-  private boolean parameterChanged = false;
 
   public UIFirmata(final LXStudio.UI ui, LX lx) {
     super(ui, title, filename);
@@ -33,13 +32,22 @@ public class UIFirmata extends UIConfig {
 
     for (int y = numTilesHigh-1; y >=0 ; y--) {
       for (int x = 0; x < numTilesWide; x++) {
-        registerCompoundParameter(NAME_BASE + x + "_" + y, 0f, 0f, 1f);
+        CompoundParameter cp = registerCompoundParameter(NAME_BASE + x + "_" + y, 0f, 0f, 1f);
+        cp.setValue(0f);  // Turn off sensor value on start up.
       }
     }
-    registerDiscreteParameter(START_PIN, 8, 0, 40);
+    registerDiscreteParameter(START_PIN, 2, 0, 40);
     save();
 
     buildUI(ui, 3);
+  }
+
+  public CompoundParameter getPinParameter(int danceTileX, int danceTileY) {
+    // The parameters in the UI are created from top down, or max y to min y, so we need to recreate that
+    // in order to retrieve the proper tile knob.
+    int rowNum = 2 - danceTileY;  // invert Y danceTileY = 0 should be 2
+    int parameterNumber = rowNum * 3 + danceTileX;
+    return getPinParameters().get(parameterNumber);
   }
 
   /**
@@ -55,19 +63,14 @@ public class UIFirmata extends UIConfig {
     return params;
   }
 
-  @Override
-  public void onParameterChanged(LXParameter p) {
-    parameterChanged = true;
-  }
-
+  /**
+   * Re-saving the config will restart Firmata.  This can be used to manually restart it without a full
+   * Cone Down restart in the event that Firmata gets wedged.
+   */
   @Override
   public void onSave() {
-    // Only reconfigure if a parameter changed.
-    if (parameterChanged) {
-      // Recreate Firmata
-      ConeFirmata.reloadFirmata(getStringParameter(UIFirmata.FIRMATA_PORT).getString(), numTiles,
+    // Recreate Firmata
+    ConeFirmata.reloadFirmata(getStringParameter(UIFirmata.FIRMATA_PORT).getString(), numTiles * 4,
           getDiscreteParameter(UIFirmata.START_PIN).getValuei(), getPinParameters());
-      parameterChanged = false;
-    }
   }
 }

@@ -14,17 +14,21 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Utility class for saving and loading of properties.
  */
 public class PropertyFile {
+  private static final Logger logger = Logger.getLogger(PropertyFile.class.getName());
+
   public String filename;
   public JsonObject obj;
   public static final int TYPE_STRING = 0;
   public static final int TYPE_INT = 1;
   public static final int TYPE_FLOAT = 2;
   public static final int TYPE_DOUBLE = 3;
+  public static final int TYPE_BOOLEAN = 4;
 
   public PropertyFile(String filename) {
     this.filename = filename;
@@ -51,9 +55,9 @@ public class PropertyFile {
       writer.setIndent("  ");
       new GsonBuilder().create().toJson(obj, writer);
       writer.close();
-      System.out.println("PropertyFile saved successfully to " + file.toString());
+      logger.info("PropertyFile saved successfully to " + file.toString());
     } catch (IOException iox) {
-      System.err.println(iox.getMessage());
+      logger.info(iox.getMessage());
       throw iox;
     }
   }
@@ -67,9 +71,9 @@ public class PropertyFile {
     try {
       fr = new FileReader(file);
       obj = new Gson().fromJson(fr, JsonObject.class);
-      System.out.println("PropertyFile loaded successfully from " + file.toString());
+      logger.info("PropertyFile loaded successfully from " + file.toString());
     } catch (IOException iox) {
-      System.err.println("Could not load property file: " + iox.getMessage());
+      logger.info("Could not load property file: " + iox.getMessage());
       throw iox;
     } finally {
       if (fr != null) {
@@ -127,6 +131,15 @@ public class PropertyFile {
   public double getDouble(String key) throws NotFound {
     if (obj.has(key))
       return obj.get(key).getAsDouble();
+    else
+      throw new NotFound();
+  }
+
+  public void setBoolean(String key, boolean value) { obj.addProperty(key, value); }
+
+  public boolean getBoolean(String key) throws NotFound {
+    if (obj.has(key))
+      return obj.get(key).getAsBoolean();
     else
       throw new NotFound();
   }

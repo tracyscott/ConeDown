@@ -23,7 +23,6 @@ public class Parabola {
     }
 
     public float Value(float x) {
-
 	if (x < -0.5) {
 	    return 0;
 	}
@@ -33,7 +32,6 @@ public class Parabola {
 	int interval = (int)((x + 0.5f) * yValues.length);
 	return yValues[interval];
     }
-	
 
     float []yValues;
 }

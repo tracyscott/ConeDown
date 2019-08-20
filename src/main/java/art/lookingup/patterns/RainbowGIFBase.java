@@ -52,7 +52,10 @@ abstract class RainbowGIFBase extends RPattern implements CustomDeviceUI {
       new StringParameter("gif", "")
           .setDescription("Animated gif");
   public final DiscreteParameter renderTarget =
-      new DiscreteParameter("Tgt", 0, 0, 4);
+      new DiscreteParameter("Tgt", 0, 0, 6);
+  public final DiscreteParameter superSampling =
+      new DiscreteParameter("Super", ConeDown.DEFAULT_SUPER_SAMPLING, ConeDown.MIN_SUPER_SAMPLING, ConeDown.MAX_SUPER_SAMPLING + 1);
+
 
   protected List<FileItem> fileItems = new ArrayList<FileItem>();
   protected UIItemList.ScrollList fileItemList;
