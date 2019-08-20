@@ -1,7 +1,7 @@
 package art.lookingup.patterns.play.fragments;
 
+import art.lookingup.patterns.play.BaseFactory;
 import art.lookingup.patterns.play.Fragment;
-import art.lookingup.patterns.play.FragmentFactory;
 import art.lookingup.patterns.play.Parameter;
 import heronarts.lx.LX;
 import processing.core.PImage;
@@ -17,16 +17,18 @@ public class Strange extends Fragment {
     {8, 1, 9, 6, 8, 6, 9, 1},
   };
 
-  public static class Factory implements FragmentFactory {
-    public Factory() {}
+  public static class Factory extends BaseFactory {
+    public Factory(String fragName) {
+      super(fragName);
+    }
 
     public Fragment create(LX lx, int width, int height) {
-      return new Strange(lx, width, height);
+      return new Strange(toString(), lx, width, height);
     }
   };
 
-  public Strange(LX lx, int width, int height) {
-    super(width, height);
+  public Strange(String fragName, LX lx, int width, int height) {
+    super(fragName, width, height);
 
     this.period = newParameter("period", 10, 1, 20);
     this.textures = new PImage[inputs.length];

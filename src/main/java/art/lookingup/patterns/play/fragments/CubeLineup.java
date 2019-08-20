@@ -33,8 +33,8 @@ public class CubeLineup extends Fragment {
 
   public int[] palette;
 
-  public CubeLineup(LX lx, int width, int height) {
-    super(width, height);
+  public CubeLineup(String fragName, LX lx, int width, int height) {
+    super(fragName, width, height);
     this.palette = Colors.RAINBOW_PALETTE;
 
     this.speedKnob = newParameter("Speed", (float) Math.sqrt(MAX_SPEED), -MAX_SPEED, MAX_SPEED);

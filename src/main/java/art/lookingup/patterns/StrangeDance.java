@@ -19,6 +19,6 @@ public class StrangeDance extends Pattern {
     super(lx, app, width, height);
 
     this.setFragment(
-        new Dance.Factory(new art.lookingup.patterns.play.fragments.Strange.Factory()));
+        new Dance.Factory(new art.lookingup.patterns.play.fragments.Strange.Factory("s")));
   }
 };
