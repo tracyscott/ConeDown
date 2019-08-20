@@ -17,6 +17,6 @@ public class Strange extends Pattern {
   public Strange(LX lx, PApplet app, int width, int height) {
     super(lx, app, width, height);
 
-    this.setFragment(new art.lookingup.patterns.play.fragments.Strange.Factory("Strange"));
+    this.setFragment(new art.lookingup.patterns.play.fragments.Strange.Factory("s"));
   }
 };
