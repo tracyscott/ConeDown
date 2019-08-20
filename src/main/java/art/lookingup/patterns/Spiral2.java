@@ -22,7 +22,7 @@ public class Spiral2 extends Pattern {
     super(lx, app, width, height);
     this.setFragment(
         new ConeScoop.Factory(
-            new Blend.Factory(new Spiral.Factory(), new Spiral.InvertedFactory()),
-            new Strange.Factory()));
+            new Blend.Factory("b", new Spiral.Factory("b"), new Spiral.InvertedFactory("t")),
+            new Strange.Factory("d")));
   }
 };
