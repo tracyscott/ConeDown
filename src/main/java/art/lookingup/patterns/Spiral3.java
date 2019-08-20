@@ -20,12 +20,9 @@ public class Spiral3 extends Pattern {
     super(lx, app, width, height);
 
     this.setFragment(
-        // 	     new Blend.Factory(
-        // "bst",
         new Blend.Factory(
             "0",
             new Blend.Factory("1", new Spiral.Factory("l"), new Spiral.Factory("r")),
             new Spiral.InvertedFactory("i")));
-    // new Strange.Factory("s")));
   }
 };

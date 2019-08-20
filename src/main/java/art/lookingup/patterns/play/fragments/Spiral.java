@@ -6,10 +6,11 @@ import art.lookingup.colors.Gradient;
 import art.lookingup.patterns.play.BaseFactory;
 import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.Parameter;
+import art.lookingup.patterns.play.Pattern;
 import heronarts.lx.LX;
 
 public class Spiral extends Fragment {
-  static final float period = .01f;
+  static final float period = .01f / Pattern.superSampling;
 
   static final double epsilon = 0.05; // Very small angle special case
 

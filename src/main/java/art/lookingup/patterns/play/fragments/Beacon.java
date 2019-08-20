@@ -8,34 +8,31 @@ import art.lookingup.patterns.play.Pattern;
 import heronarts.lx.LX;
 
 public class Beacon extends Multi {
-  static final float period = 0.1f / Pattern.superSampling;
+  static final float period = 0.01f / Pattern.superSampling;
 
   final int halfWidth;
 
   public static class Factory extends BaseFactory {
-    FragmentFactory ff0;
-    FragmentFactory ff1;
+    FragmentFactory[] ffs;
 
-    public Factory(String fragName, FragmentFactory ff0, FragmentFactory ff1) {
-      super(fragName, ff0, ff1);
-      this.ff0 = ff0;
-      this.ff1 = ff1;
+    public Factory(String fragName, FragmentFactory... ffs) {
+      super(fragName, ffs);
+      this.ffs = ffs;
     }
 
     public Fragment create(LX lx, int width, int height) {
-      return new Beacon(
-          toString(),
-          lx,
-          width,
-          height,
-          ff0.create(lx, width, height),
-          ff1.create(lx, width, height));
+      Fragment[] fl = new Fragment[ffs.length];
+      for (int i = 0; i < ffs.length; i++) {
+        fl[i] = ffs[i].create(lx, width, height);
+      }
+      return new Beacon(toString(), lx, width, height, fl);
     }
   };
 
-  public Beacon(String fragName, LX lx, int width, int height, Fragment f0, Fragment f1) {
-    super(fragName, lx, width, height, f0, f1);
+  public Beacon(String fragName, LX lx, int width, int height, Fragment[] fs) {
+    super(fragName, lx, width, height, fs);
     this.halfWidth = width / 2;
+    this.removeRotateKnob();
   }
 
   @Override
