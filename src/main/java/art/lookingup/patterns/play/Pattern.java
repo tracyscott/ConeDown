@@ -24,7 +24,7 @@ public abstract class Pattern extends LXPattern {
   private final int height;
 
   public final CompoundParameter speedKnob =
-      new CompoundParameter("GlobalSpeed", 1, 0, 2).setDescription("Varies global speed.");
+      new CompoundParameter("GlobalSpeed", 1, 0, 4).setDescription("Varies global speed.");
 
   public final DiscreteParameter saturateKnob =
       new DiscreteParameter("Saturation", 100, 0, 101).setDescription("Saturates.");
