@@ -20,7 +20,6 @@ public class SpiralStrange extends Pattern {
   public SpiralStrange(LX lx, PApplet app, int width, int height) {
     super(lx, app, width, height);
     this.setFragment(
-        new ConeScoop.Factory(
-            "SS", new Spiral.InvertedFactory("Spiral"), new Strange.Factory("Strange")));
+        new ConeScoop.Factory(new Spiral.InvertedFactory("sp"), new Strange.Factory("st")));
   }
 };

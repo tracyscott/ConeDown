@@ -16,6 +16,6 @@ public class SpiralFull extends Pattern {
 
   public SpiralFull(LX lx, PApplet app, int width, int height) {
     super(lx, app, width, height);
-    this.setFragment(new art.lookingup.patterns.play.fragments.Spiral.InvertedFactory("Spiral"));
+    this.setFragment(new art.lookingup.patterns.play.fragments.Spiral.InvertedFactory("s"));
   }
 };

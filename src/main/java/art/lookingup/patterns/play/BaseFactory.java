@@ -19,6 +19,9 @@ public abstract class BaseFactory implements FragmentFactory {
     if (this.parent == null) {
       return fragName;
     }
+    if (this.fragName == "") {
+      return parent.toString();
+    }
     return parent.toString() + "." + fragName;
   }
 

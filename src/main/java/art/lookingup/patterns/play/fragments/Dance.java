@@ -12,8 +12,8 @@ public class Dance extends Multi {
   public static class Factory extends BaseFactory {
     FragmentFactory dance;
 
-    public Factory(String fragName, FragmentFactory dance) {
-      super(fragName, dance);
+    public Factory(FragmentFactory dance) {
+      super("", dance);
       this.dance = dance;
     }
 

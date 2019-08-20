@@ -14,9 +14,8 @@ public class Cone extends Multi {
     FragmentFactory scoop;
     FragmentFactory dance;
 
-    public Factory(
-        String fragName, FragmentFactory cone, FragmentFactory scoop, FragmentFactory dance) {
-      super(fragName, cone, scoop, dance);
+    public Factory(FragmentFactory cone, FragmentFactory scoop, FragmentFactory dance) {
+      super("", cone, scoop, dance);
 
       this.cone = cone;
       this.scoop = scoop;

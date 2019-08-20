@@ -1,6 +1,5 @@
 package art.lookingup.patterns;
 
-
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.play.Pattern;
@@ -18,6 +17,6 @@ public class Chase extends Pattern {
   public Chase(LX lx, PApplet app, int width, int height) {
     super(lx, app, width, height);
 
-    this.setFragment(new art.lookingup.patterns.play.fragments.Chase.Factory("Chase"));
+    this.setFragment(new art.lookingup.patterns.play.fragments.Chase.Factory("c"));
   }
 };

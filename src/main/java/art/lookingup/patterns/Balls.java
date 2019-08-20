@@ -19,8 +19,7 @@ public class Balls extends Pattern {
     super(lx, app, width, height);
     this.setFragment(
         new ConeScoop.Factory(
-            "Balls",
-            new art.lookingup.patterns.play.fragments.Balls.Factory("CS"),
-            new art.lookingup.patterns.play.fragments.Balls.InvertedFactory("Dance")));
+            new art.lookingup.patterns.play.fragments.Balls.Factory("c"),
+            new art.lookingup.patterns.play.fragments.Balls.InvertedFactory("d")));
   }
 };

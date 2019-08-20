@@ -48,7 +48,7 @@ public class Chase extends Fragment {
     }
 
     public Fragment create(LX lx, int width, int height) {
-      float yfact = 2f;
+      float yfact = 2.1f;
       return new Chase(toString(), width, height, yfact);
     }
   };
