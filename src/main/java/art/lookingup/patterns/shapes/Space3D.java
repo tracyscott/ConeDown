@@ -1,11 +1,13 @@
 package art.lookingup.patterns.shapes;
 
+import art.lookingup.ConeDownModel;
+
 // JOML is the Java OpenGL Math Library
 // https://github.com/JOML-CI/JOML
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-// Space3D has some hard-coded parameters about the Rainbow 3D model.
+// Space3D has some hard-coded parameters about the ConeDown 3D model.
 // Ideally, it would take these parameters from the model itself, but
 // that would require a bunch of refactoring (let's prove it's useful
 // first).
@@ -14,16 +16,13 @@ import org.joml.Vector3f;
 // have positive Z values and test points should have negative
 // positions.
 public class Space3D {
-  // RainbowModel3D prints:
-  // X: -43.042877 - 43.042877
-  // Y:   6.066558 - 43.633526
-  public static final float MIN_X = -43.042877f;
-  public static final float MAX_X = 43.042877f;
+  public static final float MIN_X = -ConeDownModel.POINTS_WIDE / 2;
+  public static final float MAX_X = ConeDownModel.POINTS_WIDE / 2;
 
   // MIN_Y is treated as an offset for eye position, so the bottom of
-  // the rainbow is ground-level.
-  public static final float MIN_Y = 6.066558f;
-  public static final float MAX_Y = 43.633526f;
+  // the ConwDown is ground-level.
+  public static final float MIN_Y = -ConeDownModel.POINTS_HIGH;
+  public static final float MAX_Y = ConeDownModel.POINTS_HIGH;
 
   public static final float WIDTH = MAX_X - MIN_X;
   public static final float HEIGHT = MAX_Y - MIN_Y;

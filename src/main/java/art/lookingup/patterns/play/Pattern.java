@@ -73,6 +73,11 @@ public abstract class Pattern extends LXPattern {
     return app.createGraphics(w, h, graphics);
   }
 
+  @Override
+  public void onActive() {
+    this.frag.onActive();
+  }
+
   void render(double deltaMs) {
     current += (float) (speedKnob.getValue() * (deltaMs / 1e3));
 

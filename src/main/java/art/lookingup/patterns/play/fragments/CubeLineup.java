@@ -1,8 +1,10 @@
 package art.lookingup.patterns.play.fragments;
 
+import static processing.core.PConstants.P3D;
 import static processing.core.PConstants.PI;
 
 import art.lookingup.colors.Colors;
+import art.lookingup.patterns.play.BaseFactory;
 import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.Parameter;
 import art.lookingup.patterns.shapes.Space3D;
@@ -17,15 +19,12 @@ public class CubeLineup extends Fragment {
 
   public final int MAX_SIZE = 150;
   public final int MAX_CUBES = 200;
-  public final float MAX_SPEED = 100;
-  public final float SPEED_RATE = 4;
 
   public final float ROLL_RATE = 4;
-  public final float MSHZ = 1.f / 10000.f;
+  public final float MSHZ = 1f;
 
   public final Vector3f DEFAULT_EYE = new Vector3f(0, Space3D.MIN_Y + 6, 60);
 
-  public final Parameter speedKnob;
   public final Parameter rollKnob;
   public final Parameter countKnob;
   public final Parameter paletteKnob;
@@ -33,11 +32,20 @@ public class CubeLineup extends Fragment {
 
   public int[] palette;
 
+  public static class Factory extends BaseFactory {
+    public Factory(String fragName) {
+      super(fragName);
+    }
+
+    public Fragment create(LX lx, int width, int height) {
+      return new CubeLineup(toString(), lx, width, height);
+    }
+  };
+
   public CubeLineup(String fragName, LX lx, int width, int height) {
-    super(fragName, width, height);
+    super(fragName, width, height, P3D);
     this.palette = Colors.RAINBOW_PALETTE;
 
-    this.speedKnob = newParameter("Speed", (float) Math.sqrt(MAX_SPEED), -MAX_SPEED, MAX_SPEED);
     this.rollKnob = newParameter("Roll", -0.15f, -1, 1);
     this.countKnob = newParameter("Count", 25, 10, MAX_CUBES);
     this.paletteKnob = newParameter("Palette", 0, 0, Colors.ALL_PALETTES.length);
@@ -67,7 +75,6 @@ public class CubeLineup extends Fragment {
   }
 
   Box boxes[];
-  double elapsed;
   double relapsed;
   PImage texture;
   Space3D space;
@@ -138,7 +145,7 @@ public class CubeLineup extends Fragment {
     void draw() {
       area.pushMatrix();
 
-      area.rotate((float) (elapsed / 10000), R.x, R.y, R.z);
+      area.rotate((float) (elapsed() / 10000), R.x, R.y, R.z);
 
       draw3Sides();
 
@@ -148,30 +155,33 @@ public class CubeLineup extends Fragment {
 
   public void onActive() {
     super.onActive();
-    if (randomPaletteKnob.getValueb()) {
+    if (randomPaletteKnob.value() == 1) {
       int paletteNumber = ThreadLocalRandom.current().nextInt(0, Colors.ALL_PALETTES.length);
       palette = Colors.ALL_PALETTES[paletteNumber];
     } else {
-      palette = Colors.ALL_PALETTES[paletteKnob.getValuei()];
+      palette = Colors.ALL_PALETTES[(int) paletteKnob.value()];
     }
   }
 
   @Override
+  public void preDrawFragment(float vdelta) {
+    super.preDrawFragment(vdelta);
+    relapsed += vdelta * rollKnob.value();
+  }
+
+  @Override
   public void drawFragment() {
-    double speed = 0;
-    double knob = Math.abs(speedKnob.getValue());
-    double direction = knob < 0 ? -1. : 1.;
+    // TODO
+    // double speed = 0;
+    // double knob = Math.abs(speedKnob.value());
+    // double direction = knob < 0 ? -1. : 1.;
 
-    if (knob > 10) {
-      speed = Math.log10(knob);
-    } else {
-      speed = knob / 10;
-    }
-    speed *= direction * SPEED_RATE;
-    elapsed += deltaMs * speed;
-
-    double rollspeed = rollKnob.getValue();
-    relapsed += deltaMs * rollspeed;
+    // if (knob > 10) {
+    //   speed = Math.log10(knob);
+    // } else {
+    //   speed = knob / 10;
+    // }
+    // speed *= direction * SPEED_RATE;
 
     area.noStroke();
     area.background(0);
@@ -189,7 +199,7 @@ public class CubeLineup extends Fragment {
         (float) Math.cos(theta),
         0);
 
-    for (int i = 0; i < (int) countKnob.getValue(); i++) {
+    for (int i = 0; i < (int) countKnob.value(); i++) {
       if (i >= boxes.length) {
         break;
       }

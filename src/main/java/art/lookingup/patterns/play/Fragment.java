@@ -60,7 +60,10 @@ public abstract class Fragment {
 
   protected void noRateKnob() {
     params.remove(rate);
+    params.remove(rotate);
   }
+
+  public void onActive() {}
 
   public float elapsed() {
     return elapsed;
