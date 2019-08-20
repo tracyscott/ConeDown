@@ -1,6 +1,7 @@
 package art.lookingup.patterns.play.fragments;
 
 import art.lookingup.ConeDownModel;
+import art.lookingup.patterns.play.BaseFactory;
 import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.FragmentFactory;
 import art.lookingup.patterns.play.Multi;
@@ -8,10 +9,11 @@ import heronarts.lx.LX;
 
 public class Dance extends Multi {
 
-  public static class Factory implements FragmentFactory {
+  public static class Factory extends BaseFactory {
     FragmentFactory dance;
 
-    public Factory(FragmentFactory dance) {
+    public Factory(String fragName, FragmentFactory dance) {
+      super(fragName, dance);
       this.dance = dance;
     }
 
@@ -19,6 +21,7 @@ public class Dance extends Multi {
       int factor = width / ConeDownModel.POINTS_WIDE;
 
       return new Dance(
+          toString(),
           lx,
           width,
           height,
@@ -29,8 +32,8 @@ public class Dance extends Multi {
 
   int factor;
 
-  protected Dance(LX lx, int width, int height, Fragment dance) {
-    super(lx, width, height, dance);
+  protected Dance(String fragName, LX lx, int width, int height, Fragment dance) {
+    super(fragName, lx, width, height, dance);
     this.factor = width / ConeDownModel.POINTS_WIDE;
     noRateKnob();
   }

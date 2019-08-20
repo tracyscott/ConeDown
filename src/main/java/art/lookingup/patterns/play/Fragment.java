@@ -16,29 +16,27 @@ public abstract class Fragment {
 
   public PGraphics area;
 
+  public final String fragName;
   public final List<Parameter> params = new ArrayList<>();
   public final Parameter rate;
   public final Parameter rotate;
 
   public final int width;
   public final int height;
-  public final int num;
 
   public Pattern pattern;
   float elapsed;
   float rotation;
 
-  static int nextNum;
-
   public boolean inverted;
 
-  protected Fragment(int width, int height) {
+  protected Fragment(String fragName, int width, int height) {
+    this.fragName = fragName;
     this.width = width;
     this.height = height;
     this.elapsed = 0; // Note: updated by Pattern.preDraw()
     this.image = new PImage(this.width, this.height, ARGB);
 
-    this.num = nextNum++;
     // Note, to change this from the default in a Fragment, use
     //   this.rate.setValue(0.2f);
 
@@ -48,7 +46,7 @@ public abstract class Fragment {
   }
 
   protected Parameter newParameter(String name, float init, float min, float max) {
-    name = String.format("%s-%s", name, this.num);
+    name = String.format("%s.%s", this.fragName, name);
     Parameter p = new Parameter(this, name, init, min, max);
     params.add(p);
     return p;

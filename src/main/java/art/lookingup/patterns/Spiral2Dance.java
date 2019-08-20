@@ -21,6 +21,9 @@ public class Spiral2Dance extends Pattern {
     super(lx, app, width, height);
 
     this.setFragment(
-        new Dance.Factory(new Blend.Factory(new Spiral.Factory(), new Spiral.InvertedFactory())));
+        new Dance.Factory(
+            "Dance",
+            new Blend.Factory(
+                "Spiral2", new Spiral.Factory("Top"), new Spiral.InvertedFactory("Bottom"))));
   }
 };
