@@ -15,7 +15,7 @@ import org.joml.Vector3f;
 import processing.core.PImage;
 import processing.core.PVector;
 
-public class CubeLineup extends Fragment {
+public class Cubes extends Fragment {
 
   public final int MAX_SIZE = 150;
   public final int MAX_CUBES = 200;
@@ -44,11 +44,11 @@ public class CubeLineup extends Fragment {
     }
 
     public Fragment create(LX lx, int width, int height) {
-      return new CubeLineup(toString(), lx, width, height);
+      return new Cubes(toString(), lx, width, height);
     }
   };
 
-  public CubeLineup(String fragName, LX lx, int width, int height) {
+  public Cubes(String fragName, LX lx, int width, int height) {
     super(fragName, width, height, P3D);
     this.palette = Colors.RAINBOW_PALETTE;
 
