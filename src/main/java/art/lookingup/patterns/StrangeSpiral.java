@@ -20,6 +20,6 @@ public class StrangeSpiral extends Pattern {
         new art.lookingup.patterns.play.fragments.Blend.Factory(
             "b",
             new art.lookingup.patterns.play.fragments.Strange.Factory("st"),
-            new art.lookingup.patterns.play.fragments.Spiral.InvertedFactory("sp")));
+            new art.lookingup.patterns.play.fragments.Spiral.Factory("sp")));
   }
 };
