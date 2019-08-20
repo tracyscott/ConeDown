@@ -1,28 +1,36 @@
 package art.lookingup.patterns.play.fragments;
 
+import static processing.core.PConstants.P2D;
+
 import art.lookingup.colors.Gradient;
 import art.lookingup.patterns.play.BaseFactory;
 import art.lookingup.patterns.play.Fragment;
 import art.lookingup.patterns.play.Parameter;
 import art.lookingup.patterns.play.Pattern;
+import art.lookingup.patterns.shapes.Discs;
 import art.lookingup.patterns.shapes.Parabola;
 import heronarts.lx.LX;
 import java.util.Random;
+import processing.core.PImage;
 
 public class Balls extends Fragment {
-  static final float period = 0.1f * Pattern.superSampling;
-  static final int rateMult = 100 * Pattern.superSampling;
+  static final float ballPeriod = 10f * Pattern.superSampling;
   static final int maxSize = 100 * Pattern.superSampling;
   static final int maxCount = 100;
 
   final Parameter sizeParam;
   final Parameter countParam;
+  final Parameter brightParam;
+  final Parameter rollParam;
+  Discs discs;
 
   public Balls(String fragName, LX lx, int width, int height) {
-    super(fragName, width, height);
+    super(fragName, width, height, P2D);
 
     this.sizeParam = newParameter("size", 10 * Pattern.superSampling, 0, maxSize);
     this.countParam = newParameter("count", 20, 1, maxCount);
+    this.brightParam = newParameter("bright", 1, 0, 1);
+    this.rollParam = newParameter("roll", 0.5f, -1, 1);
 
     this.balls = new Ball[maxCount];
   }
@@ -70,7 +78,7 @@ public class Balls extends Fragment {
     }
 
     void update(float e) {
-      xcurrent += vp * (e - elap) * rateMult;
+      xcurrent += vp * (e - elap);
       this.elap = e;
     }
 
@@ -97,6 +105,8 @@ public class Balls extends Fragment {
       return;
     }
 
+    this.discs = new Discs(pattern.app, brightParam);
+
     area.beginDraw();
     Random random = new Random();
 
@@ -115,6 +125,14 @@ public class Balls extends Fragment {
     area.endDraw();
   }
 
+  float relapsed;
+
+  @Override
+  public void preDrawFragment(float vdelta) {
+    super.preDrawFragment(vdelta);
+    relapsed += vdelta * rollParam.value();
+  }
+
   @Override
   public void drawFragment() {
     int count = (int) countParam.value();
@@ -122,30 +140,52 @@ public class Balls extends Fragment {
     for (int i = 0; i < count; i++) {
       Ball b = balls[i];
 
-      b.update(elapsed() * period);
+      b.update(elapsed() * ballPeriod);
 
       float x = b.getX();
       float y = (height - 1 - b.getY());
       float scale = getProjection().xScale(0, y);
 
+      area.noStroke();
+
       area.pushMatrix();
       area.translate(x, y);
 
-      area.noStroke();
-      area.fill(b.color);
-
       float d = (float) (b.dp * sizeParam.value());
-      float r = d / 2;
+      float radius = d / 2;
 
-      area.ellipse(0, 0, scale * d, d);
+      PImage texture = discs.getTexture();
 
-      if (x >= (width - r)) {
-        area.ellipse(-width, 0, scale * d, d);
-      } else if (x <= r) {
-        area.ellipse(+width, 0, scale * d, d);
+      // System.err.println(
+      //     "El " + elapsed() + " relapsed " + relapsed + " x=" + x + " y=" + y + " s=" + scale);
+      drawHere(texture, 0, 0, scale * radius, radius);
+
+      if (x >= (width - radius)) {
+        drawHere(texture, -width, 0, scale * radius, radius);
+      } else if (x <= radius) {
+        drawHere(texture, +width, 0, scale * radius, radius);
       }
 
       area.popMatrix();
     }
+  }
+
+  void drawHere(PImage texture, float x, float y, float xw, float yw) {
+    area.pushMatrix();
+    area.translate(x, y);
+
+    area.rotate(relapsed);
+
+    area.beginShape();
+    area.texture(texture);
+
+    float w = texture.width;
+
+    area.vertex(x - xw, y - xw, 0, 0);
+    area.vertex(x + yw, y - yw, w, 0);
+    area.vertex(x + xw, y + xw, w, w);
+    area.vertex(x - yw, y + yw, 0, w);
+    area.endShape();
+    area.popMatrix();
   }
 }

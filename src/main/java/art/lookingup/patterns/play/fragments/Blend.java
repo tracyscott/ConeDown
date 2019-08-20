@@ -29,7 +29,7 @@ public class Blend extends Multi {
     FragmentFactory a, b;
 
     public Factory(String fragName, FragmentFactory a, FragmentFactory b) {
-      super(fragName);
+      super(fragName, a, b);
       this.a = a;
       this.b = b;
     }
