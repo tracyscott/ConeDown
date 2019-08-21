@@ -29,7 +29,6 @@ public class Beacon extends Multi {
 
   public Beacon(String fragName, LX lx, int width, int height, Fragment[] fs) {
     super(fragName, lx, width, height, fs);
-    this.removeRotateKnob();
   }
 
   @Override
