@@ -4,7 +4,9 @@ import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.play.Pattern;
 import art.lookingup.patterns.play.fragments.Beacon;
+import art.lookingup.patterns.play.fragments.Blend;
 import art.lookingup.patterns.play.fragments.Spiral;
+import art.lookingup.patterns.play.fragments.Strange;
 import heronarts.lx.LX;
 import heronarts.lx.LXCategory;
 import processing.core.PApplet;
@@ -20,11 +22,17 @@ public class Spiral4 extends Pattern {
     super(lx, app, width, height);
 
     this.setFragment(
-        new Beacon.Factory(
-            "b",
-            new Spiral.Factory("1"),
-            new Spiral.Factory("2"),
-            new Spiral.Factory("3"),
-            new Spiral.Factory("4")));
+        new Blend.Factory(
+            "",
+            new Blend.Factory(
+                "s",
+                new Beacon.Factory(
+                    "b",
+                    new Spiral.Factory("1"),
+                    new Spiral.InvertedFactory("2"),
+                    new Spiral.Factory("3"),
+                    new Spiral.InvertedFactory("4")),
+                new Spiral.InvertedFactory("0")),
+            new Strange.Factory("t")));
   }
 };
