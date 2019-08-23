@@ -1,5 +1,7 @@
 package art.lookingup.patterns.play.fragments;
 
+import static processing.core.PConstants.CLOSE;
+
 import art.lookingup.patterns.play.BaseFactory;
 import art.lookingup.patterns.play.Fragment;
 import heronarts.lx.LX;
@@ -19,37 +21,58 @@ public class Asteroids extends Fragment {
   protected Asteroids(String fragName, LX lx, int width, int height) {
     super(fragName, width, height);
 
+    this.minDimension = Math.min(width, height);
+
     for (int i = 0; i < numAsteroids; i++) {
       ast[i] = new Ast();
     }
   }
 
   public static final int numAsteroids = 12;
-  public static final int minRadRatio = 0.1;
-  public static final int maxRadRatio = 0.3;
+  public static final float minRadRatio = 0.04f;
+  public static final float maxRadRatio = 0.08f;
+
+  public static final float astWeightRatio = 0.01f;
+  public static final float placementMinRatio = 0.2f;
+
+  public static final float placementMaxRatio = 0.8f;
+
+  final int minDimension;
+
+  int randInt(int max, float minRatio, float maxRatio) {
+    return (int) (max * (minRatio + (maxRatio - minRatio) * rnd.nextFloat()));
+  }
 
   class Ast {
     float x;
     float y;
     float rad;
+    float rot;
 
     Ast() {
-      this.x = rnd.nextInt(width);
-      this.y = rnd.nextInt(height);
-      this.rad = rnd.nextInt();
+      this.x = randInt(width, placementMinRatio, placementMaxRatio);
+      this.y = randInt(height, placementMinRatio, placementMaxRatio);
+      this.rad = randInt(minDimension, minRadRatio, maxRadRatio);
+      this.rot = 0;
+    }
 
-      // area.pushMatrix();
-      // TODO seam
-      // area.translate(rnd.nextInt(width), rnd.nextInt(height));
-      // area.rotate(rnd.nextFloat() % (float) (2 * Math.PI));
-      // area.scale(5 + rnd.nextInt(width / 10), 5 + rnd.nextInt(height / 10));
-      // area.beginShape();
-      // area.vertex(-1 / 2f, 0f);
-      // area.vertex(0, -1 / 2f);
-      // area.vertex(1 / 2f, 0f);
-      // area.vertex(0f, 1 / 2f);
-      // area.endShape();
-      // area.popMatrix();
+    void draw() {
+      area.pushMatrix();
+      area.translate(x, y);
+
+      area.noFill();
+      area.stroke(255);
+      area.strokeWeight(minDimension * astWeightRatio);
+
+      area.rotate(rot);
+      area.beginShape();
+      area.vertex(-rad, 0);
+      area.vertex(0, -rad);
+      area.vertex(rad, 0);
+      area.vertex(0, rad);
+      area.endShape(CLOSE);
+
+      area.popMatrix();
     }
   };
 
@@ -59,11 +82,11 @@ public class Asteroids extends Fragment {
   @Override
   public void drawFragment() {
     area.background(0);
-    area.stroke(255);
-    area.strokeWeight(2);
 
     for (int i = 0; i < 12; i++) {
-      for (int j = 0; j < 12; j++) {}
+      for (int j = 0; j < 12; j++) {
+        ast[i].draw();
+      }
     }
   }
 }
