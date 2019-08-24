@@ -35,8 +35,8 @@ public class Asteroids extends Fragment {
   }
 
   public static final int numAsteroids = 15;
-  public static final float minRadRatio = 0.25f;
-  public static final float maxRadRatio = 0.3f;
+  public static final float minRadRatio = 0.05f;
+  public static final float maxRadRatio = 0.15f;
 
   public static final float placementMinRatio = 0;
   public static final float placementMaxRatio = 1;
@@ -90,14 +90,16 @@ public class Asteroids extends Fragment {
       for (int i = 0; i <= numVertices; i++) {
         angles[i] /= sum;
         angles[i] *= 2 * PI;
+        if (i > 0) {
+          angles[i] += angles[i - 1];
+        }
       }
 
       for (int i = 0; i < numVertices; i++) {
-        //   float r;
-        //   do {
-        //     r = (float) (minRadRatio + radiusDist.sample() * (maxRadRatio - minRadRatio));
-        //   } while (r < minRadRatio || r >= maxRadRatio);
-        float r = maxRadRatio;
+        float r;
+        do {
+          r = (float) (minRadRatio + radiusDist.sample() * (maxRadRatio - minRadRatio) / 2);
+        } while (r < minRadRatio || r >= maxRadRatio);
 
         xvertices[i] = minDimension * r * (float) Math.cos(angles[i]);
         yvertices[i] = minDimension * r * (float) Math.sin(angles[i]);
