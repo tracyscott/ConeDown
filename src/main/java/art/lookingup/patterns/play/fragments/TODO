@@ -4,3 +4,6 @@ Auto-randomize the angle/rate/alpha knobs w/in certain ranges, create new w/ mor
 Attach LFOs at random or auto-high/med/low
 Beat detector ^^^
 Balls periodic alignment
+Weighted anti-alias
+Diameter-based xScale()
+Clipped-between-dancefloor yScale()

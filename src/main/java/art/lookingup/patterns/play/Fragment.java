@@ -26,6 +26,7 @@ public abstract class Fragment {
   public final int height;
 
   public Pattern pattern;
+  float lastElapsed;
   float elapsed;
   float rotation;
   public boolean clearBackground;
@@ -61,10 +62,12 @@ public abstract class Fragment {
   }
 
   protected void removeRateKnob() {
+    rate.setValue(1);
     params.remove(rate);
   }
 
   protected void removeRotateKnob() {
+    rotate.setValue(0);
     params.remove(rotate);
   }
 
@@ -79,6 +82,10 @@ public abstract class Fragment {
     return elapsed;
   }
 
+  public float lastElapsed() {
+    return lastElapsed;
+  }
+
   public PGraphics area() {
     return this.area;
   }
@@ -90,7 +97,8 @@ public abstract class Fragment {
   public void setup() {}
 
   public void preDrawFragment(float vdelta) {
-    elapsed += vdelta * rate.value();
+    lastElapsed = vdelta * rate.value();
+    elapsed += lastElapsed;
     rotation += (vdelta * rotate.value()) / rotatePeriod;
   }
 

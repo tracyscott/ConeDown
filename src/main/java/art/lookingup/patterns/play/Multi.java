@@ -22,7 +22,7 @@ public abstract class Multi extends Fragment {
   public void preDrawFragment(float vdelta) {
     super.preDrawFragment(vdelta);
     for (Fragment f : fragments) {
-      f.render(vdelta);
+      f.render(lastElapsed);
     }
   }
 
