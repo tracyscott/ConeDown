@@ -17,6 +17,7 @@ public class Spiral extends Fragment {
   static final int maxCount = 99;
 
   final Parameter triples;
+  final Parameter ylevel;
 
   // TODO Note that the angle changes as a result of the
   // superSampling parameter, because the rise across `width` pixels
@@ -62,6 +63,7 @@ public class Spiral extends Fragment {
     this.triples = newParameter("triples", 4, 1, 20);
     this.angle = newParameter("angle", PI / 8, -PI / 2, PI / 2);
     this.fill = newParameter("fill", 1, 0, 1);
+    this.ylevel = newParameter("ylevel", 0, 0, height);
     this.gradients = new Gradient[maxCount + 1];
 
     this.removeRotateKnob();
@@ -121,29 +123,43 @@ public class Spiral extends Fragment {
     area.strokeWeight(strokeWidth);
 
     int colorIdx = 0;
+    float ylev = ylevel.value();
+    float rightOffset = 0;
+    float leftOffset = 0;
+    float ylevRatio = ylev / height;
+    float xShift = leastX * ylevRatio;
 
-    for (float x = spin; x < width + stepX + (right ? 0 : leastX); x += stepX) {
+    if (right) {
+      // Positive slope.
+      rightOffset = xShift;
+      leftOffset = leastX - xShift;
+    } else {
+      rightOffset = leastX - xShift;
+      leftOffset = xShift;
+    }
+
+    for (float x = spin; x < width + stepX + rightOffset; x += stepX) {
       area.stroke(gradients[count].index(colorIdx++));
 
       area.line(
           x - (right ? lengthX : -lengthX),
-          0 - lengthY,
+          ylev - lengthY,
           x + (right ? lengthX : -lengthX),
-          0 + lengthY);
+          ylev + lengthY);
 
       colorIdx %= count;
     }
 
     colorIdx = count - 1;
 
-    for (float x = spin - stepX; x >= -stepX - (right ? leastX : 0); x -= stepX) {
+    for (float x = spin - stepX; x >= -stepX - leftOffset; x -= stepX) {
       area.stroke(gradients[count].index(colorIdx--));
 
       area.line(
           x - (right ? lengthX : -lengthX),
-          0 - lengthY,
+          ylev - lengthY,
           x + (right ? lengthX : -lengthX),
-          0 + lengthY);
+          ylev + lengthY);
 
       colorIdx += count;
       colorIdx %= count;
