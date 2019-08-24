@@ -1,0 +1,9 @@
+Alpha channel per fragment
+Spiral pattern y-origin adjustment
+Auto-randomize the angle/rate/alpha knobs w/in certain ranges, create new w/ more combos
+Attach LFOs at random or auto-high/med/low
+Beat detector ^^^
+Balls periodic alignment
+Weighted anti-alias
+Diameter-based xScale()
+Clipped-between-dancefloor yScale()
