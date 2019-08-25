@@ -104,9 +104,6 @@ public class Spiral extends Fragment {
     this.strokeWidth = (float) (fill.value() * thick);
     this.colorShift += lastElapsed() * colorRate.value() / colorPeriod;
     this.colorShift %= maxCount * colorDivisions;
-
-    System.err.println(
-        "colorShift " + colorShift + " rate " + colorRate.value() + " last " + lastElapsed());
   }
 
   @Override
@@ -123,9 +120,6 @@ public class Spiral extends Fragment {
     this.update();
 
     int count = colorCount();
-
-    // Spin is the offset of the 0th color index into the area
-    float spin = ((elapsed() / period) + width) % width;
 
     area.strokeWeight(strokeWidth);
 
@@ -145,7 +139,7 @@ public class Spiral extends Fragment {
       leftOffset = xShift;
     }
 
-    for (float x = spin; x < width + stepX + rightOffset; x += stepX) {
+    for (float x = 0; x < width + stepX + rightOffset; x += stepX) {
       area.stroke(getColor(count, colorIdx++));
 
       area.line(
@@ -159,7 +153,7 @@ public class Spiral extends Fragment {
 
     colorIdx = count - 1;
 
-    for (float x = spin - stepX; x >= -stepX - leftOffset; x -= stepX) {
+    for (float x = 0 - stepX; x >= -stepX - leftOffset; x -= stepX) {
       area.stroke(getColor(count, colorIdx--));
 
       area.line(
@@ -177,9 +171,6 @@ public class Spiral extends Fragment {
     int step = gradient.size() / count;
     int base = (int) colorShift + step * idx;
     base %= gradient.size();
-
-    System.err.println(
-        "getColor " + colorShift + " rate " + colorRate.value() + " step " + step + " idx " + idx);
 
     return gradient.index(base);
   }
