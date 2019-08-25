@@ -21,7 +21,7 @@ public abstract class Fragment {
   public final List<Parameter> params = new ArrayList<>();
   public final Parameter rate;
   public final Parameter rotate;
-  public final Parameter alpha;
+  // public final Parameter alpha;
 
   public final int width;
   public final int height;
@@ -31,7 +31,7 @@ public abstract class Fragment {
   float elapsed;
   float rotation;
 
-  int mask[];
+  // int mask[];
   public boolean clearBackground;
 
   public boolean inverted;
@@ -47,7 +47,7 @@ public abstract class Fragment {
     this.graphics = graphics;
     this.elapsed = 0; // Note: updated by Pattern.preDraw()
     this.image = new PImage(this.width, this.height, ARGB);
-    this.mask = new int[this.width * this.height];
+    // this.mask = new int[this.width * this.height];
     this.clearBackground = true;
 
     // Note, to change this from the default in a Fragment, use
@@ -55,7 +55,7 @@ public abstract class Fragment {
 
     this.rate = newParameter("rate", 0.2f, -1, 1);
     this.rotate = newParameter("rotate", 0, -1, 1);
-    this.alpha = newParameter("alpha", 1, 0, 1);
+    // this.alpha = newParameter("alpha", 1, 0, 1);
     this.inverted = false;
   }
 
@@ -76,15 +76,15 @@ public abstract class Fragment {
     params.remove(rotate);
   }
 
-  protected void removeAlphaKnob() {
-    alpha.setValue(1);
-    params.remove(alpha);
-  }
+  // protected void removeAlphaKnob() {
+  //   alpha.setValue(1);
+  //   params.remove(alpha);
+  // }
 
   protected void noDefaultKnobs() {
     removeRateKnob();
     removeRotateKnob();
-    removeAlphaKnob();
+    // removeAlphaKnob();
   }
 
   public void onActive() {}
@@ -112,12 +112,12 @@ public abstract class Fragment {
     elapsed += lastElapsed;
     rotation += (vdelta * rotate.value()) / rotatePeriod;
 
-    int a = (int) (255 * alpha.value());
-    if (mask[0] != a) {
-      for (int i = 0; i < mask.length; i++) {
-        mask[i] = a;
-      }
-    }
+    // int a = (int) (255 * alpha.value());
+    // if (mask[0] != a) {
+    //   for (int i = 0; i < mask.length; i++) {
+    //     mask[i] = a;
+    //   }
+    // }
   }
 
   public abstract void drawFragment();
@@ -160,9 +160,9 @@ public abstract class Fragment {
     if (roffset != 0) {
       image.copy(area, 0, 0, roffset, height, width - roffset, 0, roffset, height);
     }
-    if (mask[0] != 255) {
-      image.mask(mask);
-    }
+    // if (mask[0] != 255) {
+    //   image.mask(mask);
+    // }
 
     image.loadPixels();
   }
