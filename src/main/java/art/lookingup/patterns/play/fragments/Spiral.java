@@ -169,7 +169,7 @@ public class Spiral extends Fragment {
 
   int getColor(int count, int idx) {
     int step = gradient.size() / count;
-    int base = (int) colorShift + step * idx;
+    int base = (int) (colorShift + step * idx);
     base %= gradient.size();
 
     return gradient.index(base);
