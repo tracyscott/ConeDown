@@ -35,8 +35,8 @@ public class Beta extends Multi {
 
   protected Beta(String fragName, LX lx, int width, int height, Fragment source) {
     super(fragName, lx, width, height, source);
-    this.alpha = newParameter("alpha", 1, 0.1f, 10);
-    this.beta = newParameter("beta", 1, 0.1f, 10);
+    this.alpha = newParameter("alpha", 1, 0.01f, 100);
+    this.beta = newParameter("beta", 1, 0.01f, 100);
     this.srcH = new int[height + 1];
     this.tgtH = new int[height + 1];
     noDefaultKnobs();
