@@ -3,10 +3,8 @@ package art.lookingup.patterns;
 import art.lookingup.ConeDown;
 import art.lookingup.ConeDownModel;
 import art.lookingup.patterns.play.Pattern;
-import art.lookingup.patterns.play.fragments.Balls;
-import art.lookingup.patterns.play.fragments.Beacon;
+import art.lookingup.patterns.play.fragments.Beta;
 import art.lookingup.patterns.play.fragments.Spiral;
-import art.lookingup.patterns.play.fragments.Strange;
 import heronarts.lx.LX;
 import processing.core.PApplet;
 
@@ -19,9 +17,11 @@ public class Play extends Pattern {
   public Play(LX lx, PApplet app, int width, int height) {
     super(lx, app, width, height);
 
-    this.setFragment(
-        new Beacon.Factory(
-            "b", new Balls.Factory("a"), new Spiral.Factory("l"), new Strange.Factory("s")));
+    this.setFragment(new Beta.Factory("b", new Spiral.Factory("s")));
+
+    // this.setFragment(
+    //     new Beacon.Factory(
+    //         "b", new Balls.Factory("a"), new Spiral.Factory("l"), new Strange.Factory("s")));
 
     // this.setFragment(new ConeScoop.Factory(new Beacon.Factory(new Balls.Factory(),
     // 							  new Spiral.Factory()),
