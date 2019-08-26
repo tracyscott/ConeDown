@@ -177,6 +177,7 @@ public class Cubes extends Fragment {
 
   @Override
   public void preDrawFragment(float vdelta) {
+    // TODO replace w/ lastElapsed()
     super.preDrawFragment(vdelta);
 
     relapsed += vdelta * rollKnob.value();
