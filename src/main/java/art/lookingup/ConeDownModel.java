@@ -450,13 +450,15 @@ public class ConeDownModel extends LXModel {
     float scoopYOffset = 0.0f; // 0.75f;
     for (LXPoint p : conePoints) {
       float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
+      float pxOrig = p.x;
       p.x = (float)(p.x * Math.cos(Math.toRadians(-15)) + p.y * Math.sin(Math.toRadians(-15)));
-      p.y = (float)(-p.x * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
+      p.y = (float)(-pxOrig * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
     }
     for (LXPoint p : scoopPoints) {
       float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
+      float pxOrig = p.x;
       p.x = (float)(p.x * Math.cos(Math.toRadians(-15)) + p.y * Math.sin(Math.toRadians(-15)));
-      p.y = (float)(-p.x * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
+      p.y = (float)(-pxOrig * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
 
       if (p.y < 0f) {
         logger.info("p below ground: " + p.y);
@@ -465,8 +467,9 @@ public class ConeDownModel extends LXModel {
 
     for (LXPoint p : interiorPoints) {
       float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
+      float pxOrig = p.x;
       p.x = (float)(p.x * Math.cos(Math.toRadians(-15)) + p.y * Math.sin(Math.toRadians(-15)));
-      p.y = (float)(-p.x * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
+      p.y = (float)(-pxOrig * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
     }
 
     logger.info("All Layer Dimensions:");
