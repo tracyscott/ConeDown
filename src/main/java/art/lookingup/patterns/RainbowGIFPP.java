@@ -79,6 +79,7 @@ public class RainbowGIFPP extends RainbowGIFBase {
       xOffset = images[(int)currentFrame].width - 47;
     if (yOffset >= images[(int)currentFrame].height - 46)
       yOffset = images[(int)currentFrame].height - 47;
-    RenderImageUtil.sampleRenderTarget(ConeDown.getProjection(ConeDown.DEFAULT_SUPER_SAMPLING), renderTarget.getValuei(), images[(int)currentFrame], colors, xOffset, yOffset, true);
+    RenderImageUtil.sampleRenderTarget(renderTarget.getValuei(), images[(int)currentFrame], colors, xOffset, yOffset);
+    //RenderImageUtil.sampleRenderTarget(ConeDown.getProjection(ConeDown.DEFAULT_SUPER_SAMPLING), renderTarget.getValuei(), images[(int)currentFrame], colors, xOffset, yOffset, true);
   }
 }

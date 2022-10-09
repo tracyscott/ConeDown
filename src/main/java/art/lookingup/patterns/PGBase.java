@@ -110,8 +110,8 @@ abstract class PGBase extends RPattern {
 	  renderWidth = ConeDownModel.POINTS_WIDE;
 	  renderHeight = ConeDownModel.POINTS_HIGH;
       }
-      renderWidth *= getSuperSampling();
-      renderHeight *= getSuperSampling();
+      //renderWidth *= getSuperSampling();
+      //renderHeight *= getSuperSampling();
       projection = ConeDown.getProjection(getSuperSampling());
       createPGraphics();
       

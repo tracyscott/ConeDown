@@ -278,6 +278,10 @@ public class Panel {
     float angleIncr = 360f / numFullPanelsAround();
     float panelAngle = faceNum() * angleIncr;
 
+    if (!scoop) {
+      //panelAngle = faceNum() * angleIncr + angleIncr/2f;
+    }
+
     // panelNum * bottomWidth; //
     double panelXStart =  radius * Math.cos(Math.toRadians(panelAngle));
     double panelZStart = radius * Math.sin(Math.toRadians(panelAngle));
@@ -303,6 +307,9 @@ public class Panel {
       p.x = p.x + CNC_SCALE * panelLeftMargins[panelType.ordinal()];
       p.y = p.y + CNC_SCALE * panelBottomMargins[panelType.ordinal()];
       float angle =  90f + 45f/2f + (angleIncr * faceNum());
+      if (!scoop) {
+        //angle = 90f + 45f/2f + (angleIncr * faceNum()) + 45f/2f;
+      }
       if (panelType == PanelType.I) {
         angle = 90f + (360f / numFacesAround()) / 2f + (angleIncr * faceNum());
       } else if (scoop) {
@@ -316,6 +323,12 @@ public class Panel {
       p.y += yPos;
       p.x += panelXStart;
       p.z += panelZStart;
+      if (!scoop) {
+        float r = (float)Math.sqrt(p.x*p.x+p.z*p.z);
+        float pxOrig = p.x;
+        p.x = (float)(p.x * Math.cos(Math.toRadians(-angleIncr/2f)) + p.z * Math.sin(Math.toRadians(-angleIncr/2f)));
+        p.z = (float)(-pxOrig * Math.sin(Math.toRadians(-angleIncr/2f)) + p.z * Math.cos(Math.toRadians(-angleIncr/2f)));
+      }
     }
   }
 

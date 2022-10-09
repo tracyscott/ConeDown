@@ -277,10 +277,10 @@ public class ConeDown extends PApplet {
     lx.engine.midi.addListener(uiMidiControl);
     if (enableOutput) {
       Output.configurePixliteOutput(lx);
-      Output.configureUnityArtNet(lx);
+      // Output.configureUnityArtNet(lx);
       // By default the output in Galactic Jungle is disabled.
       //Output.outputGalacticBrightnessDown(lx);
-      //Output.outputGalactic(lx);
+      Output.outputGalactic(lx);
     }
     if (disableOutputOnStart)
       lx.engine.output.enabled.setValue(false);

@@ -20,7 +20,8 @@ abstract class PGPixelPerfect extends PGBase {
   }
 
   protected void imageToPoints() {
-      RenderImageUtil.sampleRenderTarget(projection, renderTarget.getValuei(), pg, colors, 0, 0, !renderFullSize);
+      //RenderImageUtil.sampleRenderTarget(projection, renderTarget.getValuei(), pg, colors, 0, 0, !renderFullSize);
+    RenderImageUtil.sampleRenderTarget(renderTarget.getValuei(), pg, colors, 0, 0);
   }
 
   // Implement PGGraphics drawing code here.  PGPixelPerfect handles beginDraw()/endDraw();

@@ -56,6 +56,7 @@ public class IceCream extends PGPixelPerfect {
   DiscreteParameter sprinkleSize = new DiscreteParameter("SpkleSz", 2, 1, 10);
   BooleanParameter sparkle = new BooleanParameter("sparkle", false);
 
+
   public IceCream(LX lx) {
     super(lx, "");
     addParameter(flavor);
@@ -71,6 +72,9 @@ public class IceCream extends PGPixelPerfect {
     addParameter(randomPaletteKnob);
     addParameter(paletteKnob);
     addParameter(sparkle);
+    //addParameter(hue);
+    //addParameter(saturation);
+    //addParameter(bright);
 
     chips.addListener((LXParameter parameter)-> {
       updateParams();
@@ -166,7 +170,7 @@ public class IceCream extends PGPixelPerfect {
   }
 
   public void renderMintChip() {
-    pg.fill(60, 100, 60);
+    pg.fill(30, 200, 30);
     pg.noStroke();
     pg.rect(0, conePointsHigh, scoopDancePointsWide, scoopDancePointsHigh);
     chips(true);
@@ -197,9 +201,13 @@ public class IceCream extends PGPixelPerfect {
   public void renderCone() {
     //pg.fill(68, 61, 49);
     //pg.fill(68, 58, 29);
-    pg.fill(80, 68, 34);
+    float hsb[] = {hue.getValuef()*360f, saturation.getValuef()*100f, bright.getValuef()*100f};
+    int color = Colors.HSBtoRGB(hsb);
+    //pg.fill(LXColor.red(color), LXColor.green(color), LXColor.blue(color));
+    pg.fill(68, 58, 15);
+    pg.stroke(68,58, 15);
     pg.noStroke();
-    pg.rect(0, 0, scoopDancePointsWide, conePointsHigh);
+    pg.rect(0, 0, scoopDancePointsWide+2, conePointsHigh+2);
   }
 
   public void chips(boolean black) {

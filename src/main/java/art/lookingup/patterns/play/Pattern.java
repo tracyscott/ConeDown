@@ -16,7 +16,7 @@ public abstract class Pattern extends LXPattern {
   // "" for builtin, P2D or P3D for opengl
   public static final String defaultGraphics = "";
 
-  public static final int superSampling = ConeDown.MAX_SUPER_SAMPLING;
+  public static final int superSampling = ConeDown.MIN_SUPER_SAMPLING;
 
   public final PApplet app;
 

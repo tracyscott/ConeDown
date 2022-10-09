@@ -49,7 +49,7 @@ public class RenderImageUtil {
   }
 
   public static void imageToPointsPixelPerfect(Projection proj, PImage image, int[] colors) {
-      sampleRenderTarget(proj, 0, image, colors, 0, 0, true);
+      sampleRenderTarget( 0, image, colors, 0, 0);
   }
 
   /**
@@ -63,7 +63,7 @@ public class RenderImageUtil {
    * Note that point (0,0) is at the bottom left in {@code colors}.</p>
    */
   public static void imageToPointsPixelPerfect(Projection proj, PImage image, int[] colors, int xOffset, int yOffset) {
-      sampleRenderTarget(proj, 0, image, colors, xOffset, yOffset, true);
+      sampleRenderTarget(0, image, colors, xOffset, yOffset);
   }
 
   /**
@@ -76,7 +76,7 @@ public class RenderImageUtil {
    * @param image
    * @param colors
    */
-  public static void sampleRenderTarget(Projection proj, int renderTarget, PImage image, int[] colors, int xOffset, int yOffset, boolean targetScaling) {
+  public static void sampleRenderTarget2(Projection proj, int renderTarget, PImage image, int[] colors, int xOffset, int yOffset, boolean targetScaling) {
     Projection projection = proj;
 
     // Dance floor is easy, since there is no texture coordinate offsets.
@@ -168,6 +168,8 @@ public class RenderImageUtil {
 			    int xOffset,
 			    int yOffset,
 			    boolean targetScaling) {
+    //return ConeDownModel.pointToImgCoordsCylinder(cxp, pointsWide, pointsHigh, yTexCoordOffset);
+    /*
       if (targetScaling) {
 	  // TODO There's an off-by-one pixel error somewhere around here, probably in
 	  // both X and Y dimensions.
@@ -183,5 +185,76 @@ public class RenderImageUtil {
 	  }
       }
       return projection.computePoint(cxp, image, xOffset, yOffset);
+      */
+    return 0xffccdd33;
     }
+
+
+  /**
+   * Apply our render target image to the appropriate set of points based on which target
+   * we have selected.  0 = default, should just use existing method above for now.
+   * 1 = dance floor
+   * 2 = scoop
+   * 3 = cone
+   * @param renderTarget
+   * @param image
+   * @param colors
+   */
+  public static void sampleRenderTarget(int renderTarget, PImage image, int[] colors, int xOffset, int yOffset) {
+    // Dance floor is easy, since there is no texture coordinate offsets.
+    image.loadPixels();
+    int yTexCoordOffset = 0;
+    int pointsWide = ConeDownModel.POINTS_WIDE;
+    int pointsHigh = ConeDownModel.POINTS_HIGH;
+    switch (renderTarget) {
+      case 0:
+        yTexCoordOffset = 0;
+        pointsWide = ConeDownModel.POINTS_WIDE;
+        pointsHigh = ConeDownModel.POINTS_HIGH;
+        break;
+      case 1:
+        yTexCoordOffset = 0;
+        pointsWide = ConeDownModel.dancePointsWide;
+        pointsHigh = ConeDownModel.dancePointsHigh;
+        break;
+      case 2:
+        yTexCoordOffset = ConeDownModel.dancePointsHigh;
+        pointsWide = ConeDownModel.scoopPointsWide;
+        pointsHigh = ConeDownModel.scoopPointsHigh;
+        break;
+      case 3:
+        yTexCoordOffset = ConeDownModel.dancePointsHigh + ConeDownModel.scoopPointsHigh;
+        pointsWide = ConeDownModel.conePointsWide;
+        pointsHigh = ConeDownModel.conePointsHigh;
+        break;
+      case 4:  // scoop + cone
+        yTexCoordOffset = 0;
+        pointsWide = ConeDownModel.scoopPointsWide;
+        pointsHigh = ConeDownModel.scoopPointsHigh + ConeDownModel.conePointsHigh;
+        break;
+      case 5:  // dance + scoop
+        yTexCoordOffset = ConeDownModel.conePointsHigh;
+        pointsWide = ConeDownModel.scoopPointsWide;
+        pointsHigh = ConeDownModel.dancePointsHigh + ConeDownModel.scoopPointsHigh;
+        break;
+    }
+    if (renderTarget == 0 || renderTarget == 3) {
+      for (LXPoint p : ConeDownModel.conePoints) {
+        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
+        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      }
+    }
+    if (renderTarget == 0 || renderTarget == 2) {
+      for (LXPoint p : ConeDownModel.scoopPoints) {
+        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
+        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      }
+    }
+    if (renderTarget == 0 || renderTarget == 1) {
+      for (LXPoint p : ConeDownModel.dancePoints) {
+        int[] imgCoords = ConeDownModel.pointToImgCoordsCylinder((CXPoint) p, pointsWide, pointsHigh, yTexCoordOffset);
+        colors[p.index] = image.get(imgCoords[0] + xOffset, imgCoords[1] + yOffset);
+      }
+    }
+  }
 }

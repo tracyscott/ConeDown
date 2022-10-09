@@ -33,7 +33,8 @@ public class Output {
   public static final int RAVE_UNIVERSES = RAVE_OUTPUTS * RAVE_UNIVERSES_PER_OUTPUT;
 
   public static List<List<Integer>> outputs = new ArrayList<List<Integer>>(MAX_OUTPUTS);
-    
+  public static List<List<Panel>> sixteenthPanels;
+
   /**
    * Loads a wiring.txt file that is written by PixelMapping Processing sketch.
    *
@@ -121,6 +122,7 @@ public class Output {
    * @param lx
    */
   public static void configurePixliteOutput(LX lx) {
+    sixteenthPanels = new ArrayList<List<Panel>>();
     List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
     List<Integer> countsPerOutput = new ArrayList<Integer>();
     // For each output, track the number of points per panel type so we can log the details to help
@@ -139,6 +141,8 @@ public class Output {
     int universesPerSixteenth = 3;
     Set wireFilesWritten = new HashSet();
     for (sixteenthNum = 0; sixteenthNum < 16; sixteenthNum++) {
+      List<Panel> thisSixteenthPanel = new ArrayList<Panel>();
+      sixteenthPanels.add(thisSixteenthPanel);
       // Some utility datastructures for reporting the results of the output mapping later.  This is just
       // mean to help verify the output mapping.
       Map<String, Integer> pointCountByPanelType = new HashMap<String, Integer>();
@@ -157,6 +161,8 @@ public class Output {
       for (List<Panel> layer : panelLayers) {
         // NOTE(Tracy):
         Panel panel = layer.get(0);
+        if (panel.panelRegion == Panel.PanelRegion.DANCEFLOOR) continue;
+
         logger.info("");
         logger.info("panel layer: " + Panel.panelTypeNames[panel.panelType.ordinal()]);
         logger.info("dim: " + panel.pointsWide + "x" + panel.pointsHigh);
@@ -170,9 +176,9 @@ public class Output {
 
         // C and D panels each span an entire octant (2 sixteenths).  To minimize
         // leds per output we alternate C and D on different outputs.
-        if (panel.panelType == Panel.PanelType.C && sixteenthNum % 2 == 0) {
+        if (panel.panelType == Panel.PanelType.C && sixteenthNum % 2 == 1) {
           panel = layer.get(sixteenthNum / 2);
-        } else if (panel.panelType == Panel.PanelType.D && sixteenthNum % 2 == 0) {
+        } else if (panel.panelType == Panel.PanelType.D && sixteenthNum % 2 == 1) {
           logger.info("Assign panel to D panel");
           panel = layer.get(sixteenthNum / 2);
         } else if (!(panel.panelType == Panel.PanelType.C || panel.panelType == Panel.PanelType.D)) {
@@ -180,10 +186,19 @@ public class Output {
           // Account for the missing I panels.
           if (panel.panelType == Panel.PanelType.I && sixteenthNum > 10)
             iGapOffset = 6;
-          panel = layer.get(sixteenthNum - iGapOffset);
+          int panelNum = sixteenthNum;
+          if (panel.panelRegion == Panel.PanelRegion.CONE) {
+            panelNum = sixteenthNum -1;
+            if (panelNum < 0)
+              panelNum = panel.numPanelsAround() - 1;
+          }
+          panel = layer.get(panelNum - iGapOffset);
         } else {
           continue; // Skip C or D if it is not their turn.
         }
+        thisSixteenthPanel.add(panel);
+
+
         logger.info("panelType: " + Panel.panelTypeNames[panel.panelType.ordinal()]);
         List<CXPoint> pointsWireOrder = panel.pointsInWireOrder();
 
@@ -221,7 +236,7 @@ public class Output {
       int numUniversesThisWire = (int)Math.ceil((float)allPointsWireOrder.size()/170f);
       int lastUniverseCount = allPointsWireOrder.size() - 170 * (numUniversesThisWire - 1);
 
-
+      logger.info("Datagrams for 16th " + sixteenthNum);
       int[] thisUniverseIndices = new int[170];
       int curIndex = 0;
       int curUnivOffset = 0;
@@ -254,6 +269,7 @@ public class Output {
     // The second output is dance tile 2,2 then 2,1, then 2,0.
     List<CXPoint> pointsForDanceOutput1 = new ArrayList<CXPoint>();
     boolean down = true;
+    logger.info("Dance output 1");
     for (int x = 0; x < ConeDownModel.dancePanelsWide - 1; x++) {
       for (int y = ConeDownModel.dancePanelsHigh-1; y >= 0; y--) {
         int actualY = (down)?y:(ConeDownModel.dancePanelsHigh - 1 - y);
