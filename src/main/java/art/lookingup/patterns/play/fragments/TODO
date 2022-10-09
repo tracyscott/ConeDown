@@ -1,0 +1,16 @@
+Auto-randomize the angle/rate/alpha knobs w/in certain ranges, create new w/ more combos
+Attach LFOs at random or auto-high/med/low
+Beat detector ^^^
+Balls periodic alignment
+Weighted anti-alias
+Diameter-based xScale()
+Clipped-between-dancefloor yScale()
+Fun-house fragment w/ beta distribution
+Sweep through vertical, not through spring (Spiral)
+
+
+DONE
+Spiral pattern y-origin adjustment
+Asteroid field
+Alpha channel per fragment
+Spiral pattern color rotation

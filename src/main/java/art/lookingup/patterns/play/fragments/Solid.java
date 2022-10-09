@@ -25,6 +25,7 @@ public class Solid extends Fragment {
     this.r = newParameter("r", 255, 0, 255);
     this.g = newParameter("g", 255, 0, 255);
     this.b = newParameter("b", 255, 0, 255);
+    noDefaultKnobs();
   }
 
   @Override

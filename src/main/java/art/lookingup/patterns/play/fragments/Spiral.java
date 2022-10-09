@@ -14,9 +14,13 @@ public class Spiral extends Fragment {
 
   static final double epsilon = 0.05; // Very small angle special case
 
+  static final int colorDivisions = 100;
   static final int maxCount = 99;
+  static final float colorPeriod = 0.01f / colorDivisions;
 
   final Parameter triples;
+  final Parameter ylevel;
+  final Parameter colorRate;
 
   // TODO Note that the angle changes as a result of the
   // superSampling parameter, because the rise across `width` pixels
@@ -26,7 +30,7 @@ public class Spiral extends Fragment {
 
   static final int numSections = 24;
 
-  Gradient gradients[];
+  Gradient gradient;
   boolean right;
   float strokeWidth;
   float leastX;
@@ -34,6 +38,7 @@ public class Spiral extends Fragment {
   float stepX;
   float lengthX;
   float lengthY;
+  float colorShift;
 
   public static class Factory extends BaseFactory {
     public Factory(String fragName) {
@@ -62,9 +67,10 @@ public class Spiral extends Fragment {
     this.triples = newParameter("triples", 4, 1, 20);
     this.angle = newParameter("angle", PI / 8, -PI / 2, PI / 2);
     this.fill = newParameter("fill", 1, 0, 1);
-    this.gradients = new Gradient[maxCount + 1];
+    this.ylevel = newParameter("ylevel", 0, 0, height);
+    this.colorRate = newParameter("color", 0, 0, 1);
 
-    this.removeRotateKnob();
+    this.removeRateKnob();
     this.update();
   }
 
@@ -96,6 +102,8 @@ public class Spiral extends Fragment {
     this.lengthX = 2 * leastX;
     this.lengthY = 2 * height;
     this.strokeWidth = (float) (fill.value() * thick);
+    this.colorShift += lastElapsed() * colorRate.value() / colorPeriod;
+    this.colorShift %= maxCount * colorDivisions;
   }
 
   @Override
@@ -103,9 +111,7 @@ public class Spiral extends Fragment {
     super.setup();
 
     this.area.beginDraw();
-    for (int count = 3; count <= maxCount; count += 3) {
-      this.gradients[count] = Gradient.compute(area, count);
-    }
+    this.gradient = Gradient.compute(area, maxCount * colorDivisions);
     this.area.endDraw();
   }
 
@@ -115,38 +121,57 @@ public class Spiral extends Fragment {
 
     int count = colorCount();
 
-    // Spin is the offset of the 0th color index into the area
-    float spin = ((elapsed() / period) + width) % width;
-
     area.strokeWeight(strokeWidth);
 
     int colorIdx = 0;
+    float ylev = ylevel.value();
+    float rightOffset = 0;
+    float leftOffset = 0;
+    float ylevRatio = ylev / height;
+    float xShift = leastX * ylevRatio;
 
-    for (float x = spin; x < width + stepX + (right ? 0 : leastX); x += stepX) {
-      area.stroke(gradients[count].index(colorIdx++));
+    if (right) {
+      // Positive slope.
+      rightOffset = xShift;
+      leftOffset = leastX - xShift;
+    } else {
+      rightOffset = leastX - xShift;
+      leftOffset = xShift;
+    }
+
+    for (float x = 0; x < width + stepX + rightOffset; x += stepX) {
+      area.stroke(getColor(count, colorIdx++));
 
       area.line(
           x - (right ? lengthX : -lengthX),
-          0 - lengthY,
+          ylev - lengthY,
           x + (right ? lengthX : -lengthX),
-          0 + lengthY);
+          ylev + lengthY);
 
       colorIdx %= count;
     }
 
     colorIdx = count - 1;
 
-    for (float x = spin - stepX; x >= -stepX - (right ? leastX : 0); x -= stepX) {
-      area.stroke(gradients[count].index(colorIdx--));
+    for (float x = 0 - stepX; x >= -stepX - leftOffset; x -= stepX) {
+      area.stroke(getColor(count, colorIdx--));
 
       area.line(
           x - (right ? lengthX : -lengthX),
-          0 - lengthY,
+          ylev - lengthY,
           x + (right ? lengthX : -lengthX),
-          0 + lengthY);
+          ylev + lengthY);
 
       colorIdx += count;
       colorIdx %= count;
     }
+  }
+
+  int getColor(int count, int idx) {
+    int step = gradient.size() / count;
+    int base = (int) (colorShift + step * idx);
+    base %= gradient.size();
+
+    return gradient.index(base);
   }
 }
