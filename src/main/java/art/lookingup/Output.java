@@ -125,6 +125,8 @@ public class Output {
     sixteenthPanels = new ArrayList<List<Panel>>();
     List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
     List<Integer> countsPerOutput = new ArrayList<Integer>();
+    List<Integer> scoopCountsPerOutput = new ArrayList<Integer>();
+
     // For each output, track the number of points per panel type so we can log the details to help
     // with output verification.
     List<Map<String, Integer>> countsByPanelType = new ArrayList<Map<String, Integer>>();
@@ -158,6 +160,7 @@ public class Output {
       // panels and multiple universes.  Once we have all the points for a given sixteenth wire
       // then we will start packing them into ArtNetDatagrams with 170 points per universe.
       List<CXPoint> allPointsWireOrder = new ArrayList<CXPoint>();
+      List<CXPoint> allScoopPointsWireOrder = new ArrayList<CXPoint>();
       for (List<Panel> layer : panelLayers) {
         // NOTE(Tracy):
         Panel panel = layer.get(0);
@@ -223,12 +226,19 @@ public class Output {
 
         // pointsWireOrder contains our points in wiring order for this panel.
         allPointsWireOrder.addAll(pointsWireOrder);
+
+        // Track only the points in scoop type panels.
+        if (panel.panelType == Panel.PanelType.F || panel.panelType == Panel.PanelType.G ||
+            panel.panelType == Panel.PanelType.H || panel.panelType == Panel.PanelType.I)
+          allScoopPointsWireOrder.addAll(pointsWireOrder);
       }
 
       // Write out HTML documentation for wiring each sixteenth
       writeSixteenthHtmlDoc(sixteenthNum, panelKeysInWireOrder);
 
+      //logger.info("Output " + sixteenthNum + " scoop points: " + allScoopPointsWireOrder.size());
       countsPerOutput.add(allPointsWireOrder.size());
+      scoopCountsPerOutput.add(allScoopPointsWireOrder.size());
 
       // NOTE(tracy): We have to create ArtNetDatagram with the actual numbers of our points or else it
       // will puke internally. i.e. we can't just use 170 but then pass it less than 170 points so we
@@ -315,6 +325,7 @@ public class Output {
     int i = 0;
     for (Integer count : countsPerOutput) {
       logger.info("output " + i + ": " + count + " points");
+      if (i < 15) logger.info("    scoop points: " + scoopCountsPerOutput.get(i));
       // Only cone/scoop outputs have counts by panel type.
       if (i < 16) {
         Map<String, Integer> pointCountByPanelType = countsByPanelType.get(i);

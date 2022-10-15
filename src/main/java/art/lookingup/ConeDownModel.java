@@ -119,6 +119,13 @@ public class ConeDownModel extends LXModel {
   public static List<Panel> dancePanels = new ArrayList<Panel>();
   public static List<Panel> allPanels = new ArrayList<Panel>();
 
+  public static List<List<CXPoint>> coneFloodsByRing = new ArrayList<List<CXPoint>>();
+  public static List<CXPoint> allConeFloods = new ArrayList<CXPoint>();
+  public static List<CXPoint> insideUpperFloods = new ArrayList<CXPoint>();
+  public static List<CXPoint> outsideUpperFloods = new ArrayList<CXPoint>();
+  public static List<CXPoint> insideLowerFloods = new ArrayList<CXPoint>();
+  public static List<CXPoint> outsideLowerFloods = new ArrayList<CXPoint>();
+
   static public int dancePointsWide = 0;
   static public int dancePointsHigh = 0;
   static public int scoopPointsWide = 0;
@@ -290,6 +297,8 @@ public class ConeDownModel extends LXModel {
 
     allPanels.addAll(scoopPanels);
 
+    float topOfScoop = yOffset;
+
     //
     //
     //   C O N E    P A N E L S
@@ -429,6 +438,8 @@ public class ConeDownModel extends LXModel {
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel1Height;
 
+    float topOfCone = yOffset;
+
     allPanels.addAll(conePanels);
 
     POINTS_WIDE = scoopPointsWide; // Could compute this by maxing everything but we know it is the most.
@@ -436,7 +447,60 @@ public class ConeDownModel extends LXModel {
 
     logger.info("Computed POINTS_WIDExPOINTS_HIGH: " + POINTS_WIDE + "x" + POINTS_HIGH);
 
+    // Flood lights
+    float insideUpperFloodsRadius = panel1Radius - 6.0f / inchesPerMeter;
+    float upperFloodsHeight = topOfCone;
+    int lightNum = 0;
+
+    for (float angle = 0f; angle < 360; angle += 360f/8f) {
+      CXPoint p = new CXPoint(null, insideUpperFloodsRadius * Math.cos(Math.toRadians(angle)), upperFloodsHeight,
+          insideUpperFloodsRadius * Math.sin(Math.toRadians(angle)), lightNum, 0, angle, insideUpperFloodsRadius);
+      insideUpperFloods.add(p);
+      lightNum++;
+    }
+    coneFloodsByRing.add(insideUpperFloods);
+    allConeFloods.addAll(insideUpperFloods);
+    allPoints.addAll(insideUpperFloods);
+
+    float outsideUpperFloodsRadius = panel1Radius + 12.0f / inchesPerMeter;
+    lightNum = 0;
+    for (float angle = 0f; angle < 360; angle += 360f/8f) {
+      CXPoint p = new CXPoint(null, outsideUpperFloodsRadius * Math.cos(Math.toRadians(angle)), upperFloodsHeight,
+          outsideUpperFloodsRadius * Math.sin(Math.toRadians(angle)), lightNum, 0, angle, outsideUpperFloodsRadius);
+      outsideUpperFloods.add(p);
+      lightNum++;
+    }
+    coneFloodsByRing.add(outsideUpperFloods);
+    allConeFloods.addAll(outsideUpperFloods);
+    allPoints.addAll(outsideUpperFloods);
+
+    float insideLowerFloodsRadius = panel5Radius;
+    float lowerFloodsHeight = topOfScoop + 6f / inchesPerMeter;
+    lightNum = 0;
+    for (float angle = 0f; angle < 360; angle += 360f/8f) {
+      CXPoint p = new CXPoint(null, insideLowerFloodsRadius * Math.cos(Math.toRadians(angle)), lowerFloodsHeight,
+          insideLowerFloodsRadius * Math.sin(Math.toRadians(angle)), lightNum, 0, angle, insideLowerFloodsRadius);
+      insideLowerFloods.add(p);
+      lightNum++;
+    }
+    coneFloodsByRing.add(insideLowerFloods);
+    allConeFloods.addAll(insideLowerFloods);
+    allPoints.addAll(insideLowerFloods);
+
+    float outsideLowerFloodsRadius = panel5Radius + 18f / inchesPerMeter;
+    lightNum = 0;
+    for (float angle = 0f; angle < 360; angle += 360f/8f) {
+      CXPoint p = new CXPoint(null, outsideLowerFloodsRadius * Math.cos(Math.toRadians(angle)), lowerFloodsHeight,
+          outsideLowerFloodsRadius * Math.sin(Math.toRadians(angle)), lightNum, 0, angle, outsideLowerFloodsRadius);
+      outsideLowerFloods.add(p);
+      lightNum++;
+    }
+    coneFloodsByRing.add(outsideLowerFloods);
+    allConeFloods.addAll(outsideLowerFloods);
+    allPoints.addAll(outsideLowerFloods);
+
     // Interior lighting 8 high power leds + 8 other leds.
+    /*
     float interiorRadius = panel5Radius - 6.0f / inchesPerMeter;
     int i = 0;
     for (float angle = 0; angle < 360; angle += 360f/16f) {
@@ -446,6 +510,7 @@ public class ConeDownModel extends LXModel {
       i++;
     }
     allPoints.addAll(interiorPoints);
+    */
 
     float scoopYOffset = 0.0f; // 0.75f;
     for (LXPoint p : conePoints) {
@@ -466,11 +531,18 @@ public class ConeDownModel extends LXModel {
     }
 
     for (LXPoint p : interiorPoints) {
-      float r = (float)Math.sqrt(p.x*p.x+p.y*p.y);
       float pxOrig = p.x;
       p.x = (float)(p.x * Math.cos(Math.toRadians(-15)) + p.y * Math.sin(Math.toRadians(-15)));
       p.y = (float)(-pxOrig * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
     }
+
+
+    for (LXPoint p : allConeFloods) {
+      float pxOrig = p.x;
+      p.x = (float)(p.x * Math.cos(Math.toRadians(-15)) + p.y * Math.sin(Math.toRadians(-15)));
+      p.y = (float)(-pxOrig * Math.sin(Math.toRadians(-15)) + p.y * Math.cos(Math.toRadians(-15))) + scoopYOffset;
+    }
+
 
     logger.info("All Layer Dimensions:");
     for (String dim : layerDimensions) {
@@ -505,6 +577,7 @@ public class ConeDownModel extends LXModel {
       if (p.y > maxY) maxY = p.y;
       pointCount++;
     }
+
     for (LXPoint p : conePoints) {
       if (p.x < minConeX) minConeX = p.x;
       if (p.y < minConeY) minConeY = p.y;

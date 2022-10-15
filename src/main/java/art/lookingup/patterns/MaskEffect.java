@@ -20,6 +20,9 @@ public class MaskEffect extends LXEffect {
   public final BooleanParameter dance =
       new BooleanParameter("dance", true)
           .setDescription("Render to dancefloor");
+  public final BooleanParameter floods =
+      new BooleanParameter("floods", true)
+          .setDescription("Render to floods");
 
 
   public MaskEffect(LX lx) {
@@ -27,6 +30,7 @@ public class MaskEffect extends LXEffect {
     addParameter(cone);
     addParameter(scoop);
     addParameter(dance);
+    addParameter(floods);
   }
 
   @Override
@@ -47,6 +51,11 @@ public class MaskEffect extends LXEffect {
     }
     if (!dance.isOn()) {
       for (LXPoint point: ConeDownModel.dancePoints) {
+        this.colors[point.index] = LXColor.rgba(0, 0, 0, 0);
+      }
+    }
+    if (!floods.isOn()) {
+      for (LXPoint point: ConeDownModel.allConeFloods) {
         this.colors[point.index] = LXColor.rgba(0, 0, 0, 0);
       }
     }
