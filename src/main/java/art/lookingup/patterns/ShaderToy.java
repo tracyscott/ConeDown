@@ -207,6 +207,8 @@ public class ShaderToy extends PGPixelPerfect implements CustomDeviceUI {
       texImage = new DwGLTexture();
       // Textures are resized to 256x256 for GL hardware.
       int wh = 256;
+      if (textureNameKnob.getString().equals("NO TEXTURE"))
+        return;
       textureImage = ConeDown.pApplet.loadImage("textures/" + textureNameKnob.getString());
       textureImage.resize(wh, wh);
       logger.info("ShaderToy image texture " + textureNameKnob.getString() + " size=" + textureImage.width + "x" + textureImage.height);

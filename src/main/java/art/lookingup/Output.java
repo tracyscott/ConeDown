@@ -5,12 +5,14 @@ import heronarts.lx.LX;
 import heronarts.lx.model.LXPoint;
 import heronarts.lx.output.ArtNetDatagram;
 import heronarts.lx.output.ArtSyncDatagram;
+import heronarts.lx.output.LXDatagram;
 import heronarts.lx.output.LXDatagramOutput;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -114,6 +116,133 @@ public class Output {
         logger.log(Level.SEVERE, "Did not configure output, error during LXDatagramOutput init");
       }
     }
+  }
+
+  static public List<List<CXPoint>> allOutputsPoints = new ArrayList<List<CXPoint>>();
+  static public List<ArtNetDatagram> outputDatagrams = new ArrayList<ArtNetDatagram>();
+  static public LXDatagram artSyncDatagram;
+
+  /**
+   * Gets the points in wire order for a panel specified by build panel nomenclature.
+   * Starts at 1 and the numbers don't skip over missing panels.  So for our model
+   * I6 doesn't exist where for the build nomenclature I6 is the first I panel after
+   * coming back out of the ground.
+   * @param buildPanel
+   * @return
+   */
+  static public List<CXPoint> pointsWireOrderForBuildPanel(String buildPanel) {
+    String ledSource = buildPanel.toLowerCase();
+    if (ledSource.startsWith("i1_door")) {
+      //pointsWireOrder.addAll(SirsasanaModel.topCrownSpikeLightsSorted);
+    } else if (ledSource.startsWith("h1_door")) {
+    } else if (ledSource.startsWith("i3_milli")) {
+    } else if (ledSource.startsWith("i4_micro")) {
+    } else if (ledSource.startsWith("i5_nano")) {
+    } else if (ledSource.startsWith("h6_milli")) {
+    } else if (ledSource.startsWith("h7_micro")) {
+    } else if (ledSource.startsWith("h8_nano")) {
+    } else if (ledSource.startsWith("h9_nano")) {
+    } else if (ledSource.startsWith("h10_micro")) {
+    } else if (ledSource.startsWith("h11_milli")) {
+    } else if (ledSource.startsWith("i6_nano")) {
+    } else if (ledSource.startsWith("i7_micro")) {
+    } else if (ledSource.startsWith("i8_milli")) {
+    } else if (ledSource.startsWith("i10_door")) {
+    } else if (ledSource.startsWith("h16_door")) {
+    } else if (ledSource.startsWith("upperin_ring")) {
+    } else if (ledSource.startsWith("upperout_ring")) {
+    } else if (ledSource.startsWith("lowerin_ring")) {
+    } else if (ledSource.startsWith("lowerout_ring")) {
+    } else if (ledSource.startsWith("h8_nano")) {
+    } else if (ledSource.startsWith("i")) {
+    } else if (ledSource.startsWith("g")) {
+    } else if (ledSource.startsWith("h")) {
+    } else if (ledSource.startsWith("f")) {
+    }
+    return new ArrayList<CXPoint>();
+  }
+
+  public static void configurePixliteOutputScoop(LX lx) {
+    List<ArtNetDatagram> datagrams = new ArrayList<ArtNetDatagram>();
+    String artNetIpAddress = ConeDown.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_IP).getString();
+    int artNetIpPort = Integer.parseInt(ConeDown.pixliteConfig.getStringParameter(UIPixliteConfig.PIXLITE_1_PORT).getString());
+    logger.log(Level.INFO, "Using Pixlite ArtNet: " + artNetIpAddress + ":" + artNetIpPort);
+
+
+    int universesPerOutput = 2;
+
+    allOutputsPoints.clear();
+    outputDatagrams.clear();
+
+    for (int outputNum = 0; outputNum < 32; outputNum++) {
+      List<CXPoint> outputPoints = new ArrayList<CXPoint>();
+      allOutputsPoints.add(outputPoints);
+
+      List<CXPoint> pointsWireOrder = new ArrayList<CXPoint>();
+      // Output Number is 1 based in the UI.
+      String mapping = ConeDown.outputMap.getOutputMapping(outputNum + 1);
+      logger.info("========== PIXLITE OUTPUT #" + (outputNum + 1) + "     ==============");
+
+      logger.info("mapping=" + mapping);
+      // Allow multiple components per output.  With a 1:1 mapping we are fully utilizing each long range receiver
+      // so there is no room for future expansion.
+      /* "I1_door, H1_door, G1, F1, I2, H2, G2, F2, I3_milli, H3, G3, F3, I4_micro, G4, F4",
+      "H4, I5_nano, H5, G5, F5, H6_milli, G6, F6, H7_micro, G7, F7, H8_nano, G8, F8",
+      "H9_nano, G9, F9, H10_micro, G10, F10, H11_milli, G11, F11, I6_nano, H12, G12, F12, H13",
+      "I7_micro, G13, F13, I8_milli, H14, G14, F14, I9, H15, G15, F15, I10_door, H16_door, G16, F16",
+      "upperin_ring, upperout_ring, lowerin_ring, lowerout_ring",
+      */
+      String[] components = mapping.split(",");
+      for (int ci = 0; ci < components.length; ci++) {
+        String ledSource = components[ci];
+        pointsWireOrder.addAll(pointsWireOrderForBuildPanel(ledSource));
+      }
+
+      outputPoints.addAll(pointsWireOrder);
+      /*
+      int numUniversesThisWire = (int) Math.ceil((float) pointsWireOrder.size() / 170f);
+      int univStartNum = outputNum * universesPerOutput;
+      int lastUniverseCount = pointsWireOrder.size() - 170 * (numUniversesThisWire - 1);
+      int maxLedsPerUniverse = (pointsWireOrder.size()>170)?170:pointsWireOrder.size();
+      int[] thisUniverseIndices = new int[maxLedsPerUniverse];
+      int curIndex = 0;
+      int curUnivOffset = 0;
+      for (LXPoint pt : pointsWireOrder) {
+        thisUniverseIndices[curIndex] = pt.index;
+        curIndex++;
+        if (curIndex == 170 || (curUnivOffset == numUniversesThisWire - 1 && curIndex == lastUniverseCount)) {
+          logger.log(Level.INFO, "Adding datagram: for: " + mapping + " PixLite universe=" + (univStartNum + curUnivOffset + 1) + " ArtNet universe=" + (univStartNum + curUnivOffset) + " points=" + curIndex);
+          ArtNetDatagram datagram = new ArtNetDatagram(lx, thisUniverseIndices, univStartNum + curUnivOffset);
+          try {
+            datagram.setAddress(InetAddress.getByName(artNetIpAddress)).setPort(artNetIpPort);
+          } catch (UnknownHostException uhex) {
+            logger.log(Level.SEVERE, "Configuring ArtNet: " + artNetIpAddress + ":" + artNetIpPort, uhex);
+          }
+          datagrams.add(datagram);
+          curUnivOffset++;
+          curIndex = 0;
+          if (curUnivOffset == numUniversesThisWire - 1) {
+            thisUniverseIndices = new int[lastUniverseCount];
+          } else {
+            thisUniverseIndices = new int[maxLedsPerUniverse];
+          }
+        }
+      } */
+    }
+
+    /*
+    for (ArtNetDatagram dgram : datagrams) {
+      lx.engine.addOutput(dgram);
+      outputDatagrams.add(dgram);
+    }
+
+    try {
+      artSyncDatagram = new ArtSyncDatagram(lx).setAddress(InetAddress.getByName(artNetIpAddress)).setPort(artNetIpPort);
+      lx.engine.addOutput(artSyncDatagram);
+    } catch (UnknownHostException unhex) {
+      logger.info("Uknown host exception for Pixlite IP: " + artNetIpAddress + " msg: " + unhex.getMessage());
+    }
+    */
   }
 
   /**

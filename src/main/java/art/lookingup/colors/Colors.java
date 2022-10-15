@@ -4,6 +4,8 @@
  */
 package art.lookingup.colors;
 
+import art.lookingup.EaseUtil;
+import heronarts.lx.LX;
 import heronarts.lx.color.LXColor;
 
 import java.awt.Color;
@@ -258,5 +260,63 @@ public final class Colors {
 
   public static int HSBtoRGB(float[] hsb) {
     return Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]);
+  }
+
+
+  /**
+   * Compute a new RGB color based on a given weight.  Each
+   * RGB component is multiplied by the weight (range 0.0-1.0)
+   * and a new 32-bit color is returned.  Currently forces
+   * alpha to 0xFF.
+   */
+  public static int getWeightedColor(int clr, float weight) {
+    int red = (clr >> 16) & 0xff;
+    int green = (clr >> 8) & 0xff;
+    int blue = clr & 0xff;
+
+    if (weight > 1f) {
+      //logger.info("Color weight out of range: " + weight);
+      weight = 1f;
+    } else if (weight < 0f) {
+      //logger.info("Color weight out of range: " + weight);
+      weight = 0f;
+    }
+
+    // Weight all the components
+    red = (int) ((float) red * weight);
+    green = (int) ((float) green * weight);
+    blue = (int) ((float) blue * weight);
+
+    return  (0xFF << 24) | (red << 16) | (green << 8) | blue;
+  }
+
+  public static int getWeightedColor2(int clr, float weight) {
+    return LXColor.lerp(LXColor.BLACK, clr, weight);
+  }
+
+
+  static public int getParameterizedPaletteColor(LX lx, int swatchIndex, float t, EaseUtil ease) {
+    /*
+    if (swatchIndex >= lx.engine.palette.swatches.size())
+      swatchIndex = lx.engine.palette.swatches.size() - 1;
+    LXSwatch swatch = lx.engine.palette.swatches.get(swatchIndex);
+    if (swatch.colors.size() == 0)
+      return LXColor.BLACK;
+    if (swatch.colors.size() == 1)
+      return swatch.getColor(0).primary.getColor();
+    float colorIndexRange = 1.0f / (float)((swatch.colors.size()-1));
+    int colorIndex = (int) (t / colorIndexRange);
+    if (t < 0f)
+      t = 0f;
+    int nextIndex = colorIndex + 1;
+    if (nextIndex >= swatch.colors.size())
+      nextIndex -= 1;
+    float distanceInRange = (t - colorIndex * colorIndexRange)/colorIndexRange;
+    distanceInRange = ease.ease(distanceInRange);
+    LXDynamicColor color = swatch.getColor(colorIndex);
+    LXDynamicColor nextColor = swatch.getColor(nextIndex);
+    return LXColor.lerp(color.getColor(), nextColor.getColor(), distanceInRange);
+    */
+    return LXColor.WHITE;
   }
 }

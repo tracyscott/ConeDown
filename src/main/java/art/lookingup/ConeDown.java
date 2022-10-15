@@ -90,6 +90,7 @@ public class ConeDown extends PApplet {
 
   public static RainbowOSC rainbowOSC;
 
+  public static OutputMapping outputMap;
   public static UIGammaSelector gammaControls;
   public static UIModeSelector modeSelector;
   public static UIAudioMonitorLevels audioMonitorLevels;
@@ -254,6 +255,7 @@ public class ConeDown extends PApplet {
   }
 
   public void onUIReady(LXStudio lx, LXStudio.UI ui) {
+    outputMap = (OutputMapping) new OutputMapping(ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     sensorOverrideUI = (UISensorOverride) new UISensorOverride(lx.ui, lx).setExpanded(false).addToContainer(lx.ui.leftPane.global);
     firmataPortUI = (UIFirmata) new UIFirmata(lx.ui, lx).setExpanded(true).addToContainer(lx.ui.leftPane.global);
     ConeFirmata.reloadFirmata(firmataPortUI.getStringParameter(UIFirmata.FIRMATA_PORT).getString(), firmataPortUI.numTiles,
