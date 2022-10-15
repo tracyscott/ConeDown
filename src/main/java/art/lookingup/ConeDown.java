@@ -12,6 +12,8 @@ import heronarts.lx.LXEffect;
 import heronarts.lx.LXPattern;
 import heronarts.lx.model.LXModel;
 import heronarts.lx.studio.LXStudio;
+
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
@@ -74,7 +76,14 @@ public class ConeDown extends PApplet {
   private static final Logger logger = Logger.getLogger(ConeDown.class.getName());
 
   public static void main(String[] args) {
-    PApplet.main(ConeDown.class.getName(), args);
+
+    //PApplet.main(ConeDown.class.getName(), args);
+    String[] newArgs = new String[2];
+    String[] sketchArgs = {"--density=" + 2, "art.lookingup.ConeDown"};
+    File hdpiFlag = new File("hdpi");
+    if (hdpiFlag.exists())
+      pixelDensity = 2;
+    PApplet.main(concat(sketchArgs, args));
   }
 
   private static final String LOG_FILENAME_PREFIX = "lookinguparts";
@@ -121,9 +130,20 @@ public class ConeDown extends PApplet {
   public static Autodio autoAudio;
   public static AutodioUI autoAudioUI;
 
+  private static int pixelDensity = 2;
+  static final public boolean FULLSCREEN = false;
+  static final public int WIDTH = 1024;
+  static final public int HEIGHT = 768;
+
+
   @Override
   public void settings() {
-    size(1600, 800, P3D);
+    if (FULLSCREEN) {
+      fullScreen(PApplet.P3D);
+    } else {
+      size(WIDTH, HEIGHT, PApplet.P3D);
+    }
+    pixelDensity(pixelDensity);
   }
 
   // Returns the best currently available projection falling back to MIN if non are ready

@@ -5,12 +5,10 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 ; SetTimer, CheckForExe, 5000 ;frequency
 Loop
 {
-    ;Process, Exist, ConeDown
-	;IfWinExist ConeDown
 	Sleep 30000  ; Sleep first to avoid machine startup timing issues.
 	Process, Exist, java.exe
     if not Errorlevel {
-        Run, C:\Users\Rainbow\Documents\ConeDown\conedown.bat, C:\Users\Rainbow\Documents\ConeDown
+        Run, C:\Users\accou\Documents\GitHub\ConeDown\conedown.bat, C:\Users\accou\Documents\GitHub\ConeDown
 		Sleep 30000
 	}
 }
