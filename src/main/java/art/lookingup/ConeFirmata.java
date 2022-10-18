@@ -38,6 +38,8 @@ public class ConeFirmata {
     pinData = new long[numPins];
     startPinNum = startPin;
 
+    if (portName != null)
+      return;
     device = new FirmataDevice(portName); // using the name of a port
     // IODevice device = new FirmataDevice(new NetworkTransport("192.168.1.18:4334")); // using a network address
     // subscribe to events using device.addEventListener(...);
