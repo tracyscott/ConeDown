@@ -251,7 +251,7 @@ public class Output {
       "upperin_ring, upperout_ring, lowerin_ring, lowerout_ring",
       */
       String[] components = mapping.split(",");
-      logger.info("Output " + outputNum + 1 + " fixtures: " + mapping);
+      logger.info("Output " + (outputNum + 1) + " fixtures: " + mapping);
       for (int ci = 0; ci < components.length; ci++) {
         String ledSource = components[ci];
         ledSource = ledSource.trim();

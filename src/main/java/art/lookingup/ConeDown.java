@@ -92,7 +92,7 @@ public class ConeDown extends PApplet {
   private heronarts.lx.studio.LXStudio lx;
 
   public static PApplet pApplet;
-  public static final int GLOBAL_FRAME_RATE = 33;
+  public static final int GLOBAL_FRAME_RATE = 30;
 
   //public static final Optional<Float> DEFAULT_ZOOM = Optional.empty();
   public static final Optional<Float> DEFAULT_ZOOM = Optional.of(10f);
