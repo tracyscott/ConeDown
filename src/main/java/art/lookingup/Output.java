@@ -196,7 +196,12 @@ public class Output {
       sixteenth = 7;
       panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("i")) {
-      sixteenth = Integer.parseInt(ledSource.substring(1)) - 1 - 5;
+      logger.info("I panel=" + ledSource);
+      int num = Integer.parseInt(ledSource.substring(1)) - 1;
+      if (num > 6) num += 6;
+      sixteenth = num;
+      logger.info("   sixteenth= " + sixteenth);
+
       panelType = Panel.PanelType.I;
     } else if (ledSource.startsWith("g")) {
       sixteenth = Integer.parseInt(ledSource.substring(1)) - 1;
