@@ -132,33 +132,89 @@ public class Output {
    */
   static public List<CXPoint> pointsWireOrderForBuildPanel(String buildPanel) {
     String ledSource = buildPanel.toLowerCase();
+    Panel.PanelType panelType = Panel.PanelType.A1;
+    int sixteenth = -1;
+
     if (ledSource.startsWith("i1_door")) {
       //pointsWireOrder.addAll(SirsasanaModel.topCrownSpikeLightsSorted);
+      sixteenth = 0;
+      panelType = Panel.PanelType.I;
     } else if (ledSource.startsWith("h1_door")) {
+      sixteenth = 0;
+      panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("i3_milli")) {
+      sixteenth = 2;
+      panelType = Panel.PanelType.I;
     } else if (ledSource.startsWith("i4_micro")) {
+      sixteenth = 3;
+      panelType = Panel.PanelType.I;
     } else if (ledSource.startsWith("i5_nano")) {
+      sixteenth = 4;
+      panelType = Panel.PanelType.I;
     } else if (ledSource.startsWith("h6_milli")) {
+      sixteenth = 5;
+      panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("h7_micro")) {
+      sixteenth = 6;
+      panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("h8_nano")) {
+      sixteenth = 7;
+      panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("h9_nano")) {
+      sixteenth = 8;
+      panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("h10_micro")) {
+      sixteenth = 9;
+      panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("h11_milli")) {
+      sixteenth = 10;
+      panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("i6_nano")) {
+      sixteenth = 11;
+      panelType = Panel.PanelType.I;
     } else if (ledSource.startsWith("i7_micro")) {
+      sixteenth = 12;
+      panelType = Panel.PanelType.I;
     } else if (ledSource.startsWith("i8_milli")) {
+      sixteenth = 13;
+      panelType = Panel.PanelType.I;
     } else if (ledSource.startsWith("i10_door")) {
+      sixteenth = 15;
+      panelType = Panel.PanelType.I;
     } else if (ledSource.startsWith("h16_door")) {
+      sixteenth = 15;
+      panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("upperin_ring")) {
+      return ConeDownModel.insideUpperFloods;
     } else if (ledSource.startsWith("upperout_ring")) {
+      return ConeDownModel.outsideUpperFloods;
     } else if (ledSource.startsWith("lowerin_ring")) {
+      return ConeDownModel.insideLowerFloods;
     } else if (ledSource.startsWith("lowerout_ring")) {
+      return ConeDownModel.outsideLowerFloods;
     } else if (ledSource.startsWith("h8_nano")) {
+      sixteenth = 7;
+      panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("i")) {
+      sixteenth = Integer.parseInt(ledSource.substring(1)) - 1 - 5;
+      panelType = Panel.PanelType.I;
     } else if (ledSource.startsWith("g")) {
+      sixteenth = Integer.parseInt(ledSource.substring(1)) - 1;
+      panelType = Panel.PanelType.G;
     } else if (ledSource.startsWith("h")) {
+      sixteenth = Integer.parseInt(ledSource.substring(1)) - 1;
+      panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("f")) {
+      sixteenth = Integer.parseInt(ledSource.substring(1)) - 1;
+      panelType = Panel.PanelType.F;
     }
+    if (sixteenth == -1) {
+      logger.info("Badly formatted panel name, could not translate build panel " + ledSource + " to model name.  e.g. H0 - H15");
+      return null;
+    }
+    Panel panel = getPanel(sixteenth, panelType);
+    if (panel != null)
+      return panel.pointsInWireOrder();
     return new ArrayList<CXPoint>();
   }
 
@@ -186,6 +242,8 @@ public class Output {
       logger.info("mapping=" + mapping);
       // Allow multiple components per output.  With a 1:1 mapping we are fully utilizing each long range receiver
       // so there is no room for future expansion.
+      // At most 15 panels on an output for requested configuration so we will do 16.  Each entry will
+      // be like 1.1, 1.2, 1.3, 1.4 etc.
       /* "I1_door, H1_door, G1, F1, I2, H2, G2, F2, I3_milli, H3, G3, F3, I4_micro, G4, F4",
       "H4, I5_nano, H5, G5, F5, H6_milli, G6, F6, H7_micro, G7, F7, H8_nano, G8, F8",
       "H9_nano, G9, F9, H10_micro, G10, F10, H11_milli, G11, F11, I6_nano, H12, G12, F12, H13",
@@ -193,13 +251,18 @@ public class Output {
       "upperin_ring, upperout_ring, lowerin_ring, lowerout_ring",
       */
       String[] components = mapping.split(",");
+      logger.info("Output " + outputNum + 1 + " fixtures: " + mapping);
       for (int ci = 0; ci < components.length; ci++) {
         String ledSource = components[ci];
+        ledSource = ledSource.trim();
+        logger.info("Adding " + ledSource);
+        if ("".equalsIgnoreCase(ledSource))
+          continue;
         pointsWireOrder.addAll(pointsWireOrderForBuildPanel(ledSource));
       }
 
       outputPoints.addAll(pointsWireOrder);
-      /*
+
       int numUniversesThisWire = (int) Math.ceil((float) pointsWireOrder.size() / 170f);
       int univStartNum = outputNum * universesPerOutput;
       int lastUniverseCount = pointsWireOrder.size() - 170 * (numUniversesThisWire - 1);
@@ -212,7 +275,8 @@ public class Output {
         curIndex++;
         if (curIndex == 170 || (curUnivOffset == numUniversesThisWire - 1 && curIndex == lastUniverseCount)) {
           logger.log(Level.INFO, "Adding datagram: for: " + mapping + " PixLite universe=" + (univStartNum + curUnivOffset + 1) + " ArtNet universe=" + (univStartNum + curUnivOffset) + " points=" + curIndex);
-          ArtNetDatagram datagram = new ArtNetDatagram(lx, thisUniverseIndices, univStartNum + curUnivOffset);
+          //ArtNetDatagram datagram = new ArtNetDatagram(lx, thisUniverseIndices, univStartNum + curUnivOffset);
+          ArtNetDatagram datagram = new ArtNetDatagram(thisUniverseIndices, curIndex*3, univStartNum + curUnivOffset);
           try {
             datagram.setAddress(InetAddress.getByName(artNetIpAddress)).setPort(artNetIpPort);
           } catch (UnknownHostException uhex) {
@@ -227,9 +291,28 @@ public class Output {
             thisUniverseIndices = new int[maxLedsPerUniverse];
           }
         }
-      } */
+      }
     }
 
+    try {
+      datagramOutput = new LXDatagramOutput(lx);
+      for (ArtNetDatagram datagram : datagrams) {
+        datagramOutput.addDatagram(datagram);
+      }
+      try {
+        datagramOutput.addDatagram(new ArtSyncDatagram().setAddress(artNetIpAddress).setPort(artNetIpPort));
+      } catch (UnknownHostException uhex) {
+        logger.log(Level.SEVERE, "Unknown host for ArtNet sync.", uhex);
+      }
+    } catch (SocketException sex) {
+      logger.log(Level.SEVERE, "Initializing LXDatagramOutput failed.", sex);
+    }
+    if (datagramOutput != null) {
+      datagramOutput.enabled.setValue(true);
+      lx.engine.output.addChild(datagramOutput);
+    } else {
+      logger.log(Level.SEVERE, "Did not configure output, error during LXDatagramOutput init");
+    }
     /*
     for (ArtNetDatagram dgram : datagrams) {
       lx.engine.addOutput(dgram);
@@ -243,6 +326,22 @@ public class Output {
       logger.info("Uknown host exception for Pixlite IP: " + artNetIpAddress + " msg: " + unhex.getMessage());
     }
     */
+  }
+
+  /**
+   * Given a sixteenth number and a panel type, find the matching panel.
+   * @param sixteenth
+   * @param panelType
+   * @return
+   */
+  static public Panel getPanel(int sixteenth, Panel.PanelType panelType) {
+    for (List<Panel> layer : panelLayers) {
+      for (Panel panel : layer) {
+        if (panel.panelType == panelType && panel.panelNum == sixteenth)
+          return panel;
+      }
+    }
+    return null;
   }
 
   /**
