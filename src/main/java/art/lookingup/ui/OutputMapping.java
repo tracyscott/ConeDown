@@ -14,7 +14,7 @@ public class OutputMapping extends UIConfig {
 
   String[] defaultOutputMapping = {
       "I1_door, H1_door, G1, F1",
-      "I2, H2, G2, F3",
+      "I2, F2, H2, G2, F3",
       "I3_milli, H3, G3, F3",
       "I4_micro, H4, G4, F4",
       "I5_nano, H5, G5, F5",
@@ -29,7 +29,12 @@ public class OutputMapping extends UIConfig {
       "I8_milli, H14, G14, F14",
       "I9, H15, G15, F15",
       "I10_door, H16_door, G16, F16",
-      "upperin_ring, upperout_ring, lowerin_ring, lowerout_ring",
+      "upper_ring",
+      "lower_ring",
+      "",
+      "",
+      "",
+      "",
       "",
       "",
       "",
@@ -43,22 +48,7 @@ public class OutputMapping extends UIConfig {
       "",
       "",
 
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
+
   };
 
   public OutputMapping(final LXStudio.UI ui, LX lx) {

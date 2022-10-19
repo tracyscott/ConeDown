@@ -186,11 +186,11 @@ public class Output {
       panelType = Panel.PanelType.H;
     } else if (ledSource.startsWith("upperin_ring")) {
       return ConeDownModel.insideUpperFloods;
-    } else if (ledSource.startsWith("upperout_ring")) {
+    } else if (ledSource.startsWith("upper_ring")) {
       return ConeDownModel.outsideUpperFloods;
-    } else if (ledSource.startsWith("lowerin_ring")) {
-      return ConeDownModel.insideLowerFloods;
     } else if (ledSource.startsWith("lowerout_ring")) {
+      return ConeDownModel.insideLowerFloods;
+    } else if (ledSource.startsWith("lower_ring")) {
       return ConeDownModel.outsideLowerFloods;
     } else if (ledSource.startsWith("h8_nano")) {
       sixteenth = 7;

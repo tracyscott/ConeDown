@@ -453,9 +453,9 @@ public class ConeDownModel extends LXModel {
     int lightNum = 0;
 
     for (float angle = 0f; angle < 360; angle += 360f/8f) {
-      CXPoint p = new CXPoint(null, insideUpperFloodsRadius * Math.cos(Math.toRadians(angle)), upperFloodsHeight,
-          insideUpperFloodsRadius * Math.sin(Math.toRadians(angle)), lightNum, 0, angle, insideUpperFloodsRadius);
-      insideUpperFloods.add(p);
+      //CXPoint p = new CXPoint(null, insideUpperFloodsRadius * Math.cos(Math.toRadians(angle)), upperFloodsHeight,
+      //    insideUpperFloodsRadius * Math.sin(Math.toRadians(angle)), lightNum, 0, angle, insideUpperFloodsRadius);
+      //insideUpperFloods.add(p);
       lightNum++;
     }
     coneFloodsByRing.add(insideUpperFloods);
@@ -464,7 +464,7 @@ public class ConeDownModel extends LXModel {
 
     float outsideUpperFloodsRadius = panel1Radius + 12.0f / inchesPerMeter;
     lightNum = 0;
-    for (float angle = 0f; angle < 360; angle += 360f/8f) {
+    for (float angle = 360f/32f; angle < 360; angle += 360f/16f) {
       CXPoint p = new CXPoint(null, outsideUpperFloodsRadius * Math.cos(Math.toRadians(angle)), upperFloodsHeight,
           outsideUpperFloodsRadius * Math.sin(Math.toRadians(angle)), lightNum, 0, angle, outsideUpperFloodsRadius);
       outsideUpperFloods.add(p);
@@ -477,10 +477,10 @@ public class ConeDownModel extends LXModel {
     float insideLowerFloodsRadius = panel5Radius;
     float lowerFloodsHeight = topOfScoop + 6f / inchesPerMeter;
     lightNum = 0;
-    for (float angle = 0f; angle < 360; angle += 360f/8f) {
-      CXPoint p = new CXPoint(null, insideLowerFloodsRadius * Math.cos(Math.toRadians(angle)), lowerFloodsHeight,
-          insideLowerFloodsRadius * Math.sin(Math.toRadians(angle)), lightNum, 0, angle, insideLowerFloodsRadius);
-      insideLowerFloods.add(p);
+    for (float angle = 360f/32f; angle < 360; angle += 360f/16f) {
+      //CXPoint p = new CXPoint(null, insideLowerFloodsRadius * Math.cos(Math.toRadians(angle)), lowerFloodsHeight,
+      //    insideLowerFloodsRadius * Math.sin(Math.toRadians(angle)), lightNum, 0, angle, insideLowerFloodsRadius);
+      //insideLowerFloods.add(p);
       lightNum++;
     }
     coneFloodsByRing.add(insideLowerFloods);
@@ -489,7 +489,7 @@ public class ConeDownModel extends LXModel {
 
     float outsideLowerFloodsRadius = panel5Radius + 18f / inchesPerMeter;
     lightNum = 0;
-    for (float angle = 0f; angle < 360; angle += 360f/8f) {
+    for (float angle = 360f/32f; angle < 360; angle += 360f/16f) {
       CXPoint p = new CXPoint(null, outsideLowerFloodsRadius * Math.cos(Math.toRadians(angle)), lowerFloodsHeight,
           outsideLowerFloodsRadius * Math.sin(Math.toRadians(angle)), lightNum, 0, angle, outsideLowerFloodsRadius);
       outsideLowerFloods.add(p);
