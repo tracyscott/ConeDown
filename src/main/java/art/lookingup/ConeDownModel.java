@@ -297,7 +297,7 @@ public class ConeDownModel extends LXModel {
 
     allPanels.addAll(scoopPanels);
 
-    float topOfScoop = yOffset;
+
 
     //
     //
@@ -331,6 +331,8 @@ public class ConeDownModel extends LXModel {
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel5Height;
 
+    float topOfScoop = yOffset;
+    
     //
     // PANEL D
     //
