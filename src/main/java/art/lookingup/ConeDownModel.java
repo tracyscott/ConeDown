@@ -293,6 +293,7 @@ public class ConeDownModel extends LXModel {
     logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel7Height;
+    float topOfScoop = yOffset;
 
 
     allPanels.addAll(scoopPanels);
@@ -331,8 +332,6 @@ public class ConeDownModel extends LXModel {
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel5Height;
 
-    float topOfScoop = yOffset;
-    
     //
     // PANEL D
     //
@@ -358,6 +357,8 @@ public class ConeDownModel extends LXModel {
     logger.info("Layer dimensions: " + layerWidth + "x" + layerHeight);
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel4Height;
+
+    float topOfCone = yOffset;
 
     //
     // PANEL C
@@ -440,7 +441,7 @@ public class ConeDownModel extends LXModel {
     layerDimensions.add("" + layerWidth + "x" + layerHeight);
     yOffset += panel1Height;
 
-    float topOfCone = yOffset;
+
 
     allPanels.addAll(conePanels);
 
@@ -450,7 +451,7 @@ public class ConeDownModel extends LXModel {
     logger.info("Computed POINTS_WIDExPOINTS_HIGH: " + POINTS_WIDE + "x" + POINTS_HIGH);
 
     // Flood lights
-    float insideUpperFloodsRadius = panel1Radius - 6.0f / inchesPerMeter;
+    float insideUpperFloodsRadius = panel3Radius + 6.0f / inchesPerMeter;
     float upperFloodsHeight = topOfCone;
     int lightNum = 0;
 
@@ -464,7 +465,7 @@ public class ConeDownModel extends LXModel {
     allConeFloods.addAll(insideUpperFloods);
     allPoints.addAll(insideUpperFloods);
 
-    float outsideUpperFloodsRadius = panel1Radius + 12.0f / inchesPerMeter;
+    float outsideUpperFloodsRadius = panel3Radius + 18.0f / inchesPerMeter;
     lightNum = 0;
     for (float angle = 360f/32f; angle < 360; angle += 360f/16f) {
       CXPoint p = new CXPoint(null, outsideUpperFloodsRadius * Math.cos(Math.toRadians(angle)), upperFloodsHeight,
