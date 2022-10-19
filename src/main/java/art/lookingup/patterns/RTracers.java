@@ -229,7 +229,7 @@ public class RTracers extends PGPixelPerfect {
     super.onActive();
     // Reset the guard that prevents the next text item from starting to show
     // while we are performing our fade transition to the next pattern.
-
+    
     LXChannel channel = getChannel();
     LXEffect effect = channel.getEffect("Blur");
     if (effect != null) {
@@ -246,6 +246,7 @@ public class RTracers extends PGPixelPerfect {
 
   @Override
   public void onInactive() {
+    super.onInactive();
     LXChannel channel = getChannel();
     LXEffect effect = channel.getEffect("Blur");
     if (effect != null) {
