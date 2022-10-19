@@ -75,7 +75,7 @@ public class UIModeSelector extends UICollapsibleSection {
     timePerChannelP4 = registerCompoundParameter("IceT", 60000.0, 2000.0, 360000.0);
     timePerChannelP5 = registerCompoundParameter("TPerCh5", 60000.0, 2000.0, 360000.0);
     autoOffStart = registerDiscreteParameter("offSt", 8, 0, 25);
-    autoOffEnd = registerDiscreteParameter("offEnd", 15, 0, 25);
+    autoOffEnd = registerDiscreteParameter("offEnd", 9, 0, 25);
     save();
 
 
