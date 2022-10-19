@@ -1,10 +1,10 @@
 {
   "version": "0.1.1",
-  "timestamp": 1666170711467,
+  "timestamp": 1666176170762,
   "model": {
     "id": 2,
     "class": "heronarts.lx.structure.LXStructure",
-    "modulationColor": -16731137,
+    "modulationColor": -16763905,
     "internal": {},
     "parameters": {
       "label": "LX",
@@ -27,7 +27,7 @@
       "crossfader": 0.508474575355649,
       "crossfaderBlendMode": 0,
       "speed": 1.0,
-      "focusedChannel": 2,
+      "focusedChannel": 3,
       "cueA": false,
       "cueB": false,
       "multithreaded": false,
@@ -105,7 +105,7 @@
               "exp": 0.0
             },
             "children": {},
-            "basis": 0.05029296876685511
+            "basis": 0.8959658023565111
           }
         ],
         "modulations": [
@@ -832,7 +832,7 @@
         "parameters": {
           "label": "White",
           "arm": false,
-          "selected": true,
+          "selected": false,
           "enabled": true,
           "cue": false,
           "fader": 1.0,
@@ -972,7 +972,7 @@
               "Blur": 0.0,
               "frag": "sparkles",
               "tex": "tunneltex.png",
-              "Texture": 11
+              "Texture": 0
             },
             "children": {
               "modulation": {
@@ -1393,7 +1393,7 @@
         "parameters": {
           "label": "GIF",
           "arm": false,
-          "selected": false,
+          "selected": true,
           "enabled": true,
           "cue": false,
           "fader": 1.0,
@@ -1401,17 +1401,17 @@
           "blendMode": 0,
           "midiMonitor": false,
           "midiChannel": 16,
-          "autoCycleEnabled": true,
+          "autoCycleEnabled": false,
           "autoCycleMode": 0,
           "autoCycleTimeSecs": 180.0,
-          "transitionEnabled": true,
+          "transitionEnabled": false,
           "transitionTimeSecs": 10.0,
           "transitionBlendMode": 0
         },
         "children": {},
         "effects": [],
         "clips": [],
-        "patternIndex": 6,
+        "patternIndex": 4,
         "patterns": [
           {
             "id": 1801,
@@ -1568,7 +1568,7 @@
             },
             "parameters": {
               "label": "RainbowGIFPP",
-              "Fps": 20.799999646842476,
+              "Fps": 7.59999994188547,
               "scaleAmt": 0.5224000106751918,
               "scaleSrc": true,
               "fitSrc": false,
@@ -2417,7 +2417,7 @@
               "Blur": 0.0,
               "frag": "sparkles",
               "tex": "tunneltex.png",
-              "Texture": 11
+              "Texture": 0
             },
             "children": {
               "modulation": {
@@ -3341,7 +3341,7 @@
                       "exp": 0.0
                     },
                     "children": {},
-                    "basis": 0.39604101445089046
+                    "basis": 0.6904567242475971
                   }
                 ],
                 "modulations": [
@@ -3398,8 +3398,8 @@
         "camera": {
           "active": false,
           "radius": 27.32298547285104,
-          "theta": 611.0301287763244,
-          "phi": 0.0019219126466842769,
+          "theta": 611.354801257402,
+          "phi": 0.22281514610221662,
           "x": -4.485972067224793,
           "y": 4.025904707610607,
           "z": -0.5429971849080175
@@ -3408,8 +3408,8 @@
           {
             "active": false,
             "radius": 27.32298547285104,
-            "theta": 611.0301287763244,
-            "phi": 0.0019219126466842769,
+            "theta": 611.354801257402,
+            "phi": 0.22281514610221662,
             "x": -4.485972067224793,
             "y": 4.025904707610607,
             "z": -0.5429971849080175
