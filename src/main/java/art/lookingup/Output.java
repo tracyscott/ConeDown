@@ -230,7 +230,7 @@ public class Output {
     logger.log(Level.INFO, "Using Pixlite ArtNet: " + artNetIpAddress + ":" + artNetIpPort);
 
 
-    int universesPerOutput = 2;
+    int universesPerOutput = 3;
 
     allOutputsPoints.clear();
     outputDatagrams.clear();
