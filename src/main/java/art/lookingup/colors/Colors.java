@@ -317,6 +317,21 @@ public final class Colors {
     LXDynamicColor nextColor = swatch.getColor(nextIndex);
     return LXColor.lerp(color.getColor(), nextColor.getColor(), distanceInRange);
     */
-    return LXColor.WHITE;
+    if (swatchIndex >= ALL_PALETTES.length)
+      swatchIndex = ALL_PALETTES.length - 1;
+    if (ALL_PALETTES[swatchIndex].length == 1)
+      return ALL_PALETTES[swatchIndex][0];
+    float colorIndexRange = 1.0f / (float)((ALL_PALETTES[swatchIndex].length-1));
+    int colorIndex = (int) (t / colorIndexRange);
+    if (t < 0f)
+      t = 0f;
+    int nextIndex = colorIndex + 1;
+    if (nextIndex >= ALL_PALETTES[swatchIndex].length)
+      nextIndex -= 1;
+    float distanceInRange = (t - colorIndex * colorIndexRange)/colorIndexRange;
+    distanceInRange = ease.ease(distanceInRange);
+    int firstColor = ALL_PALETTES[swatchIndex][colorIndex];
+    int secondColor = ALL_PALETTES[swatchIndex][nextIndex];
+    return LXColor.lerp(firstColor, secondColor, distanceInRange);
   }
 }
